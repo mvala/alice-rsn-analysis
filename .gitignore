@@ -31,3 +31,5 @@
 .cproject
 
 *.root
+
+macros/train/*.wag

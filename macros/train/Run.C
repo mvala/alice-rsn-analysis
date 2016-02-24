@@ -9,6 +9,7 @@
 #include <AliAODInputHandler.h>
 #include <AliAODHandler.h>
 #include <AliPhysicsSelectionTask.h>
+#include <AliAnalysisTaskPIDResponse.h>
 #endif
 Bool_t Run(TString anSrc = "grid",
         TString anMode = "terminate",
@@ -67,14 +68,18 @@ Bool_t Run(TString anSrc = "grid",
 
     Printf("Adding PIDResponse task ...");
     gROOT->LoadMacro("$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDResponse.C");
-    AliAnalysisTaskPIDResponse *pidResponseTask =  AddTaskPIDResponse(useMC);
+    AliAnalysisTaskPIDResponse *pidResponseTask = AddTaskPIDResponse(useMC);
 	if(!pidResponseTask) { Printf("no pidResponseTask"); return kFALSE; }
 
-	// TODO
-	gSystem->Load("libEventMixing");
-	gSystem->Load("libPWGLFresonances");
-	gROOT->LoadMacro("$ALICE_PHYSICS/PWGLF/RESONANCES/macros/mini/AddTaskPhiPP13TeV_PID.C");
-	AddTaskPhiPP13TeV_PID(kFALSE,kTRUE,"tpc2s",0,0,3,-1,1,AliRsnCutSetDaughterParticle::kFastTPCpidNsigma,2.0);
+
+	TString wagons = gSystem->GetFromPipe("ls -C *.wag");
+	TObjArray *listWagons = wagons.Tokenize(" ");
+	TObjString *strObj;
+	for (Int_t i=0;i<listWagons->GetEntries();i++) {
+		strObj = (TObjString *)listWagons->At(i);
+		Printf("Adding wagon %s ...",strObj->GetString().Data());
+		if (!AddVagon(strObj->GetString().Data())) return kFALSE;
+	}
 
 	TStopwatch timer;
 	timer.Start();
@@ -155,4 +160,45 @@ Bool_t RunAnalysisManager(TString anSrc = "proof", TString anMode = "test", Long
    }
 
    return kTRUE;
+}
+
+Bool_t AddVagon(const char *fname) {
+	ifstream input(fname);
+	if (input.is_open()) {
+		string line;
+		TString lineStr;
+		TString macroStr;
+		while (getline(input, line)) {
+			lineStr = line;
+			if (lineStr.BeginsWith("Libs=")) {
+				lineStr.ReplaceAll("Libs=","");
+				TObjArray *libArray = lineStr.Tokenize(",");
+				TObjString *strObj;
+				for (Int_t i=0;i<libArray->GetEntries();i++) {
+					strObj = (TObjString *)libArray->At(i);
+					Printf("Loading %s ...",strObj->GetString().Data());
+					if (gSystem->Load(strObj->GetString().Data())<0) return kFALSE;
+				}
+			}
+			else if (lineStr.BeginsWith("Macro=")) {
+				lineStr.ReplaceAll("Macro=","");
+				macroStr = lineStr;
+				Printf("Loading macro '%s' ...",macroStr.Data());
+				gROOT->LoadMacro(lineStr.Data());
+				macroStr = gSystem->BaseName(lineStr.Data());
+				macroStr.ReplaceAll(".C","");
+
+			}
+			else if (lineStr.BeginsWith("Arguments=")) {
+				lineStr.ReplaceAll("Arguments=","");
+				const char *macroFun = TString::Format("%s(%s)",macroStr.Data(),lineStr.Data()).Data();
+				Printf("Running function '%s' ...",macroFun);
+				gROOT->ProcessLine(macroFun);
+
+			}
+		}
+		input.close();
+	}
+
+	return kTRUE;
 }
