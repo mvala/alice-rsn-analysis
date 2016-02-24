@@ -33,4 +33,4 @@
 *.root
 
 macros/train/*.wag
-macros/train/input.txt
+macros/train/input*.txt
