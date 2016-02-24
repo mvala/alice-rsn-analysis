@@ -1,4 +1,4 @@
-/home/mvala/Work/ALICE/DATA/alice/data/2015/LHC15f/000225000/pass2/15000225000019.10/root_archive.zip#AliESDs.root
+#/home/mvala/Work/ALICE/DATA/alice/data/2015/LHC15f/000225000/pass2/15000225000019.10/root_archive.zip#AliESDs.root
 #/home/mvala/Work/ALICE/DATA/alice/data/2015/LHC15f/000225000/pass2/15000225000019.10/aod_archive.zip#AliAOD.root
 #/home/mvala/Work/ALICE/DATA/alice/sim/2015/LHC15g3c3/226495/002/aod_archive.zip#AliAOD.root
-#/home/mvala/Work/ALICE/DATA/alice/sim/2015/LHC15g3c3/226495/002/root_archive.zip#AliESDs.root
+/home/mvala/Work/ALICE/DATA/alice/sim/2015/LHC15g3c3/226495/002/root_archive.zip#AliESDs.root

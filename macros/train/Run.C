@@ -11,8 +11,8 @@
 #include <AliPhysicsSelectionTask.h>
 #include <AliAnalysisTaskPIDResponse.h>
 #endif
-Bool_t Run(TString anSrc = "grid",
-        TString anMode = "terminate",
+Bool_t Run(TString anSrc = "grid" /*or "local" or "proof"*/,
+        TString anMode = "terminate" /*or "full" or "test"*/,
         TString input="aod" /*or "esd"*/,
         Bool_t useMC=kFALSE /*or kTRUE*/,
         Long64_t nEvents = kMaxLong64,
