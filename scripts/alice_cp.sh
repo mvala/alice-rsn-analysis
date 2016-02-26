@@ -20,5 +20,6 @@ while read -r line; do
     base_dir=${line/AliESDs.root/}
     [ -f $OUT_EOS/$base_dir/$OUT_ARCHIVE ]&& { echo "Skipping '$OUT_EOS$base_dir$OUT_ARCHIVE' ..."; continue; }
     mkdir -p $OUT_EOS$base_dir
+    echo "Downloading '$OUT_EOS$base_dir$OUT_ARCHIVE' ..."
     alien_cp alien://$base_dir$OUT_ARCHIVE $OUT_EOS/$base_dir | grep -v Overriding
 done < "$1"
