@@ -18,8 +18,8 @@ while read -r line; do
     name="$line"
     [[ $name == /alice* ]] || continue
     base_dir=${line/AliESDs.root/}
-    [ -f $OUT_EOS/$base_dir/$OUT_ARCHIVE ]&& { echo "Skipping '$OUT_EOS$base_dir$OUT_ARCHIVE' ..."; continue; }
-    mkdir -p $OUT_EOS$base_dir
+    [ -f $OUT_EOS/$base_dir/$OUT_ARCHIVE ] && { echo "Skipping '$OUT_EOS$base_dir$OUT_ARCHIVE' ..."; continue; }
+    mkdir -p $OUT_EOS$base_dir || { echo "Cannot create directory '$OUT_EOS$base_dir' !!!"; exit 4; }
     echo "Downloading '$OUT_EOS$base_dir$OUT_ARCHIVE' ..."
     alien_cp alien://$base_dir$OUT_ARCHIVE $OUT_EOS/$base_dir | grep -v Overriding
 done < "$1"
