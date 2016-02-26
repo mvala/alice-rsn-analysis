@@ -73,6 +73,7 @@ Bool_t Run(TString anSrc = "grid" /*or "local" or "proof"*/,
 
 
 	TString wagons = gSystem->GetFromPipe("ls -C *.wag");
+	if (wagons.IsNull()) return kFALSE;
 	TObjArray *listWagons = wagons.Tokenize(" ");
 	TObjString *strObj;
 	for (Int_t i=0;i<listWagons->GetEntries();i++) {
