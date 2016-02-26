@@ -58,7 +58,6 @@ Bool_t Run(TString anSrc = "grid" /*or "local" or "proof"*/,
 	}
 	mgr->SetGridHandler(analysisPlugin);
 
-
     if (!input.CompareTo("esd")) {
         Printf("Adding PysicsSelection task ...");
 		gROOT->LoadMacro("$ALICE_PHYSICS/OADB/macros/AddTaskPhysicsSelection.C");
@@ -70,7 +69,6 @@ Bool_t Run(TString anSrc = "grid" /*or "local" or "proof"*/,
     gROOT->LoadMacro("$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDResponse.C");
     AliAnalysisTaskPIDResponse *pidResponseTask = AddTaskPIDResponse(useMC);
 	if(!pidResponseTask) { Printf("no pidResponseTask"); return kFALSE; }
-
 
 	TString wagons = gSystem->GetFromPipe("ls -C *.wag");
 	if (wagons.IsNull()) return kFALSE;
@@ -163,43 +161,91 @@ Bool_t RunAnalysisManager(TString anSrc = "proof", TString anMode = "test", Long
    return kTRUE;
 }
 
+Bool_t SetupPar(TString par) {
+
+	par.ReplaceAll(".par","");
+	if (par.IsNull())
+		return kFALSE;
+	if (gSystem->AccessPathName(Form("%s.par", par.Data()))) return kFALSE;
+
+	gSystem->Exec(Form("tar xzf %s.par", par.Data()));
+
+	TString ocwd = gSystem->WorkingDirectory();
+	if (!gSystem->ChangeDirectory(par.Data()))
+		return kFALSE;
+    Printf("%s",gSystem->pwd());
+	// check for BUILD.sh and execute
+	if (!gSystem->AccessPathName("PROOF-INF/BUILD.sh")) {
+		printf("*******************************\n");
+		printf("*** Building PAR archive    ***\n");
+		printf("*******************************\n");
+		if (gSystem->Exec("PROOF-INF/BUILD.sh")) {
+			Error("runProcess", "Cannot Build the PAR Archive! - Abort!");
+			return kFALSE;
+		}
+	}
+
+	// check for SETUP.C and execute
+	if (!gSystem->AccessPathName("PROOF-INF/SETUP.C")) {
+		printf("*******************************\n");
+		printf("*** Setup PAR archive       ***\n");
+		printf("*******************************\n");
+		gROOT->Macro("PROOF-INF/SETUP.C");
+	}
+	if (!gSystem->ChangeDirectory(ocwd.Data()))
+		return kFALSE;
+
+	return kTRUE;
+}
+
 Bool_t AddVagon(const char *fname) {
+
 	ifstream input(fname);
+	TString macroStr;
+	TString macroFun;
+	TString argsStr;
 	if (input.is_open()) {
 		string line;
 		TString lineStr;
-		TString macroStr;
 		while (getline(input, line)) {
 			lineStr = line;
 			if (lineStr.BeginsWith("Libs=")) {
 				lineStr.ReplaceAll("Libs=","");
 				TObjArray *libArray = lineStr.Tokenize(",");
 				TObjString *strObj;
+				TString strlib;
 				for (Int_t i=0;i<libArray->GetEntries();i++) {
 					strObj = (TObjString *)libArray->At(i);
+					strlib = strObj->GetString();
 					Printf("Loading %s ...",strObj->GetString().Data());
-					if (gSystem->Load(strObj->GetString().Data())<0) return kFALSE;
+					if (strlib.EndsWith(".par")) {
+						if (!SetupPar(strlib)) return kFALSE;
+					} else {
+						if (gSystem->Load(strObj->GetString().Data())<0) return kFALSE;
+					}
 				}
 			}
 			else if (lineStr.BeginsWith("Macro=")) {
 				lineStr.ReplaceAll("Macro=","");
 				macroStr = lineStr;
-				Printf("Loading macro '%s' ...",macroStr.Data());
-				gROOT->LoadMacro(lineStr.Data());
-				macroStr = gSystem->BaseName(lineStr.Data());
-				macroStr.ReplaceAll(".C","");
+				macroFun = lineStr;
+				macroFun = gSystem->BaseName(lineStr.Data());
+				macroFun.ReplaceAll(".C","");
 
 			}
 			else if (lineStr.BeginsWith("Arguments=")) {
 				lineStr.ReplaceAll("Arguments=","");
-				const char *macroFun = TString::Format("%s(%s)",macroStr.Data(),lineStr.Data()).Data();
-				Printf("Running function '%s' ...",macroFun);
-				gROOT->ProcessLine(macroFun);
+				argsStr = TString::Format("%s(%s)",macroFun.Data(),lineStr.Data());
+
 
 			}
 		}
 		input.close();
 	}
 
+	Printf("Loading macro '%s' ...",macroStr.Data());
+	gROOT->LoadMacro(macroStr.Data());
+	Printf("Running function '%s' ...",argsStr.Data());
+	gROOT->ProcessLine(argsStr.Data());
 	return kTRUE;
 }
