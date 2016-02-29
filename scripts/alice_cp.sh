@@ -21,5 +21,9 @@ while read -r line; do
     [ -f $OUT_EOS/$base_dir/$OUT_ARCHIVE ] && { echo "Skipping '$OUT_EOS$base_dir$OUT_ARCHIVE' ..."; continue; }
     mkdir -p $OUT_EOS$base_dir || { echo "Cannot create directory '$OUT_EOS$base_dir' !!!"; exit 4; }
     echo "Downloading '$OUT_EOS$base_dir$OUT_ARCHIVE' ..."
-    alien_cp alien://$base_dir$OUT_ARCHIVE $OUT_EOS/$base_dir | grep -v Overriding
+    echo "$OUT_EOS$base_dir$OUT_ARCHIVE" > alien_cp_last.txt
+    alien_cp alien://$base_dir$OUT_ARCHIVE $OUT_EOS$base_dir
+    
+    alien-token-info > /dev/null 2>&1
+	[ $? -eq 0 ] || { alien-token-init;}
 done < "$1"
