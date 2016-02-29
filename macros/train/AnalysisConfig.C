@@ -33,7 +33,7 @@ void MySetupAnalysisPluginProof(AliAnalysisAlien *plugin,TString analysisMode)
    plugin->SetProofParameter("PROOF_UseMergers", "-1");
    if (!analysisMode.CompareTo("full")) plugin->SetProofParameter("PROOF_ForceLocal", "1");
    plugin->SetProofCluster("alice-caf.cern.ch");
-
+   plugin->SetProofCluster("lite://");
    // May need to reset proof. Supported modes: 0-no reset, 1-soft, 2-hard
    plugin->SetProofReset(0);
 // May limit the number of workers per slave. If used with SetNproofWorkers, SetParallel(nproofworkers) will be called after connection
@@ -180,7 +180,7 @@ void MySetupAnalysisPluginAliEn(AliAnalysisAlien *plugin)
 // // Optionally modify split mode (default 'se')
 //   plugin->SetSplitMode("se");
 // // set number of files to test
-//   plugin->SetNtestFiles(2);
+   plugin->SetNtestFiles(2);
 //
 //   plugin->SetKeepLogs(kTRUE);
 

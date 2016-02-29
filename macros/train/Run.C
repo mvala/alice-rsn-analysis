@@ -15,9 +15,9 @@ Bool_t Run(TString anSrc = "grid" /*or "local" or "proof"*/,
         TString anMode = "terminate" /*or "full" or "test"*/,
         TString input="aod" /*or "esd"*/,
         Bool_t useMC=kFALSE /*or kTRUE*/,
+		TString intputData="input.txt",
         Long64_t nEvents = kMaxLong64,
         Long64_t nSkip = 0,
-		TString dsName="",
 		const char * aliphyiscsVersion="vAN-20160216-1",
 		const char * alirootVersion="v5-08-00-2",
 		const char * rootVersion="v5-34-30-alice-12") {
@@ -47,15 +47,19 @@ Bool_t Run(TString anSrc = "grid" /*or "local" or "proof"*/,
 		Printf("Error : analysisPlugin is null !!!");
 		return kFALSE;
 	}
-	if (!dsName.IsNull()) {
+	if (!intputData.IsNull()) {
 		if (!anSrc.CompareTo("proof") && !anMode.CompareTo("full")) {
-			analysisPlugin->SetProofDataSet(dsName.Data());
-			Printf(Form("Using DataSet %s ...", dsName.Data()));
+			analysisPlugin->SetProofDataSet(intputData.Data());
+			Printf(Form("Using DataSet %s ...", intputData.Data()));
 		} else {
-			analysisPlugin->SetFileForTestMode(dsName.Data());
-			Printf(Form("Using Test file %s ...", dsName.Data()));
+			analysisPlugin->SetFileForTestMode(intputData.Data());
+			Printf(Form("Using Test file %s ...", intputData.Data()));
 		}
 	}
+
+	if (!anSrc.CompareTo("local") && !anMode.CompareTo("full"))
+		analysisPlugin->SetNtestFiles(kMaxInt);
+
 	mgr->SetGridHandler(analysisPlugin);
 
     if (!input.CompareTo("esd")) {
@@ -209,17 +213,25 @@ Bool_t AddVagon(const char *fname) {
 		TString lineStr;
 		while (getline(input, line)) {
 			lineStr = line;
+			if (lineStr.IsNull()) continue;
+			if (lineStr.BeginsWith("#")) continue;
 			if (lineStr.BeginsWith("Libs=")) {
 				lineStr.ReplaceAll("Libs=","");
 				TObjArray *libArray = lineStr.Tokenize(",");
 				TObjString *strObj;
 				TString strlib;
+				TString strpar;
 				for (Int_t i=0;i<libArray->GetEntries();i++) {
 					strObj = (TObjString *)libArray->At(i);
 					strlib = strObj->GetString();
+					strpar = strlib;
+					strpar.ReplaceAll("lib","");
+					strpar.ReplaceAll(".so","");
+					strpar.Append(".par");
 					Printf("Loading %s ...",strObj->GetString().Data());
-					if (strlib.EndsWith(".par")) {
-						if (!SetupPar(strlib)) return kFALSE;
+
+					if (!gSystem->AccessPathName(strpar.Data())) {
+						if (!SetupPar(strpar)) return kFALSE;
 					} else {
 						if (gSystem->Load(strObj->GetString().Data())<0) return kFALSE;
 					}
@@ -236,8 +248,6 @@ Bool_t AddVagon(const char *fname) {
 			else if (lineStr.BeginsWith("Arguments=")) {
 				lineStr.ReplaceAll("Arguments=","");
 				argsStr = TString::Format("%s(%s)",macroFun.Data(),lineStr.Data());
-
-
 			}
 		}
 		input.close();
