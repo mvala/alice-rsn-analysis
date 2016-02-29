@@ -1,4 +1,5 @@
 #ifndef __CINT__
+#include <Riostream.h>
 #include <TSystem.h>
 #include <TROOT.h>
 #include <TString.h>

@@ -31,6 +31,9 @@
 .cproject
 
 *.root
-
+*.par
 macros/train/*.wag
-macros/train/input*.txt
+macros/train/*.txt
+scripts/*.txt
+
+macros/train/PWGLFresonances*
