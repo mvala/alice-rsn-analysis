@@ -1,0 +1,3 @@
+Macro=AddRsnTaskTest.C
+Arguments=
+Libs=libEventMixing.so,libPWGLFresonances.so

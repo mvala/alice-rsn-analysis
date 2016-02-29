@@ -37,3 +37,5 @@ macros/train/*.txt
 scripts/*.txt
 
 macros/train/PWGLFresonances*
+macros/train/AddRsnTaskTest.C
+macros/train/AliRsnTaskTest*
