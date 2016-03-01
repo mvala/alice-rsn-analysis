@@ -209,15 +209,15 @@ void AliRsnTaskTest::UserExec(Option_t *)
 				AliMCParticle* k1 = (AliMCParticle*)mcEvent->GetTrack(esdMcTrack->GetFirstDaughter());
 				AliMCParticle* k2 = (AliMCParticle*)mcEvent->GetTrack(esdMcTrack->GetLastDaughter());
 				if ((TMath::Abs(k1->PdgCode())) == 321 && (TMath::Abs(k2->PdgCode()) == 321)) {
-				Printf("E=%f pdg=%d", esdMcTrack->E(),esdMcTrack->PdgCode());
+				Printf("px,py,pz,E=(%f,%f,%f,%f) pdg=%d", esdMcTrack->Px(),esdMcTrack->Py(),esdMcTrack->Pz(),esdMcTrack->E(),esdMcTrack->PdgCode());
 
 
 				TLorentzVector k1_lab(k1->Px(),k1->Py(),k1->Pz(),k1->E());
 				TLorentzVector k2_lab(k2->Px(),k2->Py(),k2->Pz(),k2->E());
 				TLorentzVector phi_lab = k1_lab + k2_lab;
 
-				Printf("  K1 : pt=%f pdg=%d", k1->Pt(),k1->PdgCode());
-				Printf("  K2 : pt=%f pdg=%d", k2->Pt(),k2->PdgCode());
+				Printf("  K1 : px,py,pz,E=(%f,%f,%f,%f) pdg=%d", k1->Px(),k1->Py(),k1->Pz(),k1->E(),k1->PdgCode());
+				Printf("  K2 : px,py,pz,E=(%f,%f,%f,%f) pdg=%d", k2->Px(),k2->Py(),k2->Pz(),k2->E(),k2->PdgCode());
 
 				Printf("  TLorentzVector K1 (Lab): ");
 				k1_lab.Print();
@@ -245,11 +245,34 @@ void AliRsnTaskTest::UserExec(Option_t *)
 
 //				Double_t cosTheta = phi_lab.Angle(k1_phi.Vect());
 //				Double_t cosTheta = phi_lab.Dot(k1_phi) / phi_lab.Mag();
+
+				Double_t cosThetaL = TMath::Cos(k1_lab.Theta());
+				Printf("  K1 cos(theta) : %f (%f) (%f)", cosThetaL,k1_lab.Theta(), k1_lab.Theta()*180/TMath::Pi());
+				Double_t cosThetaL2 = TMath::Cos(k2_lab.Theta());
+				Printf("  K1 cos(theta) : %f (%f) (%f)", cosThetaL2,k2_lab.Theta(), k2_lab.Theta()*180/TMath::Pi());
+
 				Double_t cosTheta = TMath::Cos(k1_phi.Theta());
-				Printf("  cos(theta) : %f", cosTheta);
+				Printf("  K1 cos(theta) : %f (%f) (%f)", cosTheta,k1_phi.Theta(), k1_phi.Theta()*180/TMath::Pi());
+				Double_t cosTheta2 = TMath::Cos(k2_phi.Theta());
+				Printf("  K2 cos(theta) : %f (%f) (%f)", cosTheta2,k2_phi.Theta(), k2_phi.Theta()*180/TMath::Pi());
+
+				TVector3 vBeamAxis(0,0,1);
+				Printf("Jackson frame");
+				Printf("  K1 cos(theta) : %f (%f) (%f)", TMath::Cos(k1_phi.Angle(vBeamAxis)),k1_phi.Angle(vBeamAxis),k1_phi.Angle(vBeamAxis)*TMath::RadToDeg());
+				Printf("  K2 cos(theta) : %f (%f) (%f)", TMath::Cos(k2_phi.Angle(vBeamAxis)),k2_phi.Angle(vBeamAxis),k2_phi.Angle(vBeamAxis)*TMath::RadToDeg());
+
+				TVector3 vTransFrame = vBeamAxis.Cross(phi_lab.Vect());
+				Printf("Transverity frame");
+				Printf("  K1 cos(theta) : %f (%f) (%f)", TMath::Cos(k1_phi.Angle(vTransFrame)),k1_phi.Angle(vTransFrame),k1_phi.Angle(vTransFrame)*TMath::RadToDeg());
+				Printf("  K2 cos(theta) : %f (%f) (%f)", TMath::Cos(k2_phi.Angle(vTransFrame)),k2_phi.Angle(vTransFrame),k2_phi.Angle(vTransFrame)*TMath::RadToDeg());
+
+
+				Double_t cosThetaJ = TMath::Cos(k1_phi.Angle(vBeamAxis));
+				Double_t cosThetaT = TMath::Cos(k1_phi.Angle(vTransFrame));
 
 				fHistPt->Fill(esdMcTrack->Pt());
-				fHistCosThetaJ->Fill(cosTheta);
+				fHistCosThetaJ->Fill(cosThetaJ);
+				fHistCosThetaT->Fill(cosThetaT);
 				}
 			}
 		}
@@ -291,8 +314,8 @@ void AliRsnTaskTest::Terminate(Option_t *)
 
     TCanvas *c = new TCanvas("AliRsnTaskTest","P_{T}",10,10,1020,510);
     c->Divide(2,1);
-    c->cd(1)->SetLogy();
-    fHistPt->DrawCopy("E");
-    c->cd(2);
+    c->cd(1);
     fHistCosThetaJ->DrawCopy("E");
+    c->cd(2);
+    fHistCosThetaT->DrawCopy("E");
 }
