@@ -268,8 +268,18 @@ void AliRsnTaskTest::UserExec(Option_t *)
 
 
 				TLorentzVector *k_phi = k1->Charge() > 0 ? &k1_phi : &k2_phi;
-				Double_t cosThetaJ = TMath::Cos(k_phi->Angle(vBeamAxis));
-				Double_t cosThetaT = TMath::Cos(k_phi->Angle(vTransFrame));
+//				Double_t cosThetaJ = TMath::Cos(k_phi->Angle(vBeamAxis));
+//				Double_t cosThetaT = TMath::Cos(k_phi->Angle(vTransFrame));
+
+//				Double_t cosThetaJ = TMath::Cos(k_phi->Angle(vBeamAxis));
+				TVector3 kv_phi = k_phi->Vect();
+//				Double_t cosThetaJ = kv_phi.Dot(vBeamAxis)/(kv_phi.Mag()*vBeamAxis.Mag());
+				Double_t cosThetaJ = kv_phi.Dot(vBeamAxis)/TMath::Sqrt((kv_phi.Mag2()*vBeamAxis.Mag2()));
+
+
+//				Double_t cosThetaT = TMath::Cos(k_phi->Angle(vTransFrame));
+//				Double_t cosThetaT = kv_phi.Dot(vTransFrame)/(kv_phi.Mag()*vTransFrame.Mag());
+				Double_t cosThetaT = kv_phi.Dot(vTransFrame)/TMath::Sqrt((kv_phi.Mag2()*vTransFrame.Mag2()));
 
 				Printf("cos(theta) J=%f T=%f",cosThetaJ,cosThetaT);
 				fHistPt->Fill(esdMcTrack->Pt());
