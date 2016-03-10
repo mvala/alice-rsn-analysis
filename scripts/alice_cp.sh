@@ -3,7 +3,8 @@
 trap '{ echo "Hey, you pressed Ctrl-C.  Time to quit." ; exit 1; }' INT
 
 OUT_EOS=/eos/alike.saske.sk
-OUT_ARCHIVE=${2:-root_archive.zip}
+OUT_ARCHIVE=${2:-}
+
 function help() {
 	echo "Usage : $0 <filename>"
 }
@@ -17,8 +18,8 @@ alien-token-info
 while read -r line; do
     name="$line"
     [[ $name == /alice* ]] || continue
-    base_dir=${line/AliESDs.root/}
-    [ -f $OUT_EOS/$base_dir/$OUT_ARCHIVE ] && { echo "Skipping '$OUT_EOS$base_dir$OUT_ARCHIVE' ..."; continue; }
+    [ -n "$OUT_ARCHIVE" ] && base_dir=${line/AliESDs.root/}
+    [ -f $OUT_EOS/$base_dir$OUT_ARCHIVE ] && { echo "Skipping '$OUT_EOS$base_dir$OUT_ARCHIVE' ..."; continue; }
     mkdir -p $OUT_EOS$base_dir || { echo "Cannot create directory '$OUT_EOS$base_dir' !!!"; exit 4; }
     echo "Downloading '$OUT_EOS$base_dir$OUT_ARCHIVE' ..."
     echo "$OUT_EOS$base_dir$OUT_ARCHIVE" > alien_cp_last.txt
