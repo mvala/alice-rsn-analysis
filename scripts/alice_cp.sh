@@ -3,7 +3,7 @@
 trap '{ echo "Hey, you pressed Ctrl-C.  Time to quit." ; exit 1; }' INT
 
 OUT_EOS=/eos/alike.saske.sk
-OUT_ARCHIVE=${2:-}
+OUT_ARCHIVE=${2}
 OUT_ARCHIVE_REPLACE="AliESDs.root"
 
 
@@ -22,7 +22,8 @@ while read -r line; do
     [[ $name == /alice* ]] || continue
     base_dir=$name
     [ -n "$OUT_ARCHIVE" ] && base_dir=${name/$OUT_ARCHIVE_REPLACE/} 
-    [ -f $OUT_EOS/$base_dir$OUT_ARCHIVE ] && { echo "Skipping '$OUT_EOS$base_dir$OUT_ARCHIVE' ..."; continue; }
+    echo $OUT_EOS$base_dir$OUT_ARCHIVE
+    [ -f $OUT_EOS$base_dir$OUT_ARCHIVE ] && { echo "Skipping '$OUT_EOS$base_dir$OUT_ARCHIVE' ..."; continue; }
     mkdir -p $OUT_EOS$base_dir || { echo "Cannot create directory '$OUT_EOS$base_dir' !!!"; exit 4; }
     echo "Downloading '$OUT_EOS$base_dir$OUT_ARCHIVE' ..."
     echo "$OUT_EOS$base_dir$OUT_ARCHIVE" > alien_cp_last.txt
