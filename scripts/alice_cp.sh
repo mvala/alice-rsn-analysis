@@ -21,13 +21,13 @@ while read -r line; do
     name="$line"
     [[ $name == /alice* ]] || continue
     base_dir=$name
-    [ -n "$OUT_ARCHIVE" ] && base_dir=${name/$OUT_ARCHIVE_REPLACE/} 
-    echo $OUT_EOS$base_dir$OUT_ARCHIVE
-    [ -f $OUT_EOS$base_dir$OUT_ARCHIVE ] && { echo "Skipping '$OUT_EOS$base_dir$OUT_ARCHIVE' ..."; continue; }
+    [ -n "$OUT_ARCHIVE" ] && name=${name/$OUT_ARCHIVE_REPLACE/$OUT_ARCHIVE/}
+    base_dir=$(dirname $name)
+    [ -f $OUT_EOS$name ] && { echo "Skipping '$OUT_EOS$name' ..."; continue; }
     mkdir -p $OUT_EOS$base_dir || { echo "Cannot create directory '$OUT_EOS$base_dir' !!!"; exit 4; }
-    echo "Downloading '$OUT_EOS$base_dir$OUT_ARCHIVE' ..."
-    echo "$OUT_EOS$base_dir$OUT_ARCHIVE" > alien_cp_last.txt
-    alien_cp alien://$base_dir$OUT_ARCHIVE $OUT_EOS$base_dir
+    echo "Downloading '$OUT_EOS$name' ..."
+    echo "$OUT_EOS$name" > alien_cp_last.txt
+    alien_cp alien://$name $OUT_EOS$base_dir
     
     alien-token-info > /dev/null 2>&1
 	[ $? -eq 0 ] || { alien-token-init;}
