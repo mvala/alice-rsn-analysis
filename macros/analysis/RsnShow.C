@@ -83,9 +83,9 @@ void RsnShow(Int_t cutAxix, Int_t cutBinMin, Int_t cutBinMax, const char *filena
 	RooRealVar sigmaV("sigma", "sigma Voigtian", 0.001/*, 0.000,0.002*/);
 	RooVoigtian sig("voigtian", "Voigtian", x, meanV, widthV, sigmaV);
 
-	RooRealVar c0("c0", "coefficient #0", 0.0/*, -1., 1.*/);
-	RooRealVar c1("c1", "coefficient #1", 0.0/*, -1., 1.*/);
-	RooRealVar c2("c2", "coefficient #2", 0.0/*, -1., 1.*/);
+	RooRealVar c0("c0", "coefficient #0", 0.0, -100., 100.);
+	RooRealVar c1("c1", "coefficient #1", 0.0, -100., 100.);
+	RooRealVar c2("c2", "coefficient #2", 0.0, -100., 100.);
 //	RooPolynomial bkg("pol", "background p.d.f.", x, RooArgList(c0, c1));
 	RooPolynomial bkg("pol","background p.d.f.",x,RooArgList(c0,c1,c2)) ;
 //	RooChebychev bkg("pol","background p.d.f.",x,RooArgList(c0,c1,c2)) ;
