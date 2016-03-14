@@ -125,6 +125,8 @@ void RsnShow(Int_t cutAxix, Int_t cutBinMin, Int_t cutBinMax, const char *filena
 
 
 	Printf("chi^2 = %f",frame->chiSquare("model","data",5));
+	Printf("nsig = %f +/- %f", nsig.getVal(), nsig.getError());
+	Printf("nbkg = %f +/- %f", nbkg.getVal(), nbkg.getError());
 
 //	c->Divide(2,2);
 //	c->cd(1);
