@@ -11,7 +11,7 @@ void RsnRename(const char *inputFile = "AnalysisResults.root",
 				"RsnOut_tpc3s", const char *prefix = "phippData_100_phi_",
 		TString axixNames = "im:pt:mult:ctj:ctt") {
 
-	TFile::SetCacheFileDir(gSystem->HomeDirectory(), 1, 1);
+	//TFile::SetCacheFileDir(gSystem->HomeDirectory(), 1, 1);
 
 	if (!outputFile.CompareTo(inputFile)) {
 		Printf("Error: Input and output file is the same !!!");
