@@ -17,10 +17,11 @@
 #endif
 
 using namespace RooFit;
-void RsnShow(Int_t cutAxix, Int_t cutBinMin, Int_t cutBinMax, const char *filename = "AnalysisResults.root",
-		const char *listname = "RsnOut_tpc3s", const char *sb =
-				"phippData_100_phi_Unlike", const char *b =
-				"phippData_100_phi_Mixing") {
+void RsnShow(Int_t cutAxix, Int_t cutBinMin, Int_t cutBinMax,
+		const char *filename =
+				"root://alieos.saske.sk///eos/alike.saske.sk/alice/alike/PWGLF/LF_pp/389_20160307-1141/merge_runlist_4/AnalysisResults.root",
+		const char *listname = "RsnOut_tpc3s", const char *sb = "Unlike",
+		const char *b = "Mixing") {
 
 	TFile::SetCacheFileDir(gSystem->HomeDirectory(), 1, 1);
 
@@ -47,7 +48,6 @@ void RsnShow(Int_t cutAxix, Int_t cutBinMin, Int_t cutBinMax, const char *filena
 
 	Int_t proj_show = 0;
 
-
 	TH1 *hSigBg = (TH1*) sSigBg->Projection(proj_show);
 	if (!hSigBg)
 		return;
@@ -73,8 +73,6 @@ void RsnShow(Int_t cutAxix, Int_t cutBinMin, Int_t cutBinMax, const char *filena
 	Double_t min = 0.99;
 	Double_t max = 1.05;
 
-
-
 	RooRealVar x("x", "x", min, max);
 	RooDataHist data("data", "dataset with x", x, hSig);
 
@@ -83,11 +81,11 @@ void RsnShow(Int_t cutAxix, Int_t cutBinMin, Int_t cutBinMax, const char *filena
 	RooRealVar sigmaV("sigma", "sigma Voigtian", 0.001/*, 0.000,0.002*/);
 	RooVoigtian sig("voigtian", "Voigtian", x, meanV, widthV, sigmaV);
 
-	RooRealVar c0("c0", "coefficient #0", 0.0, -100., 100.);
-	RooRealVar c1("c1", "coefficient #1", 0.0, -100., 100.);
-	RooRealVar c2("c2", "coefficient #2", 0.0, -100., 100.);
+	RooRealVar c0("c0", "coefficient #0", 0.0, -1., 1.);
+	RooRealVar c1("c1", "coefficient #1", 0.0, -1., 1.);
+	RooRealVar c2("c2", "coefficient #2", 0.0, -1., 1.);
 //	RooPolynomial bkg("pol", "background p.d.f.", x, RooArgList(c0, c1));
-	RooPolynomial bkg("pol","background p.d.f.",x,RooArgList(c0,c1,c2)) ;
+	RooPolynomial bkg("pol", "background p.d.f.", x, RooArgList(c0, c1, c2));
 //	RooChebychev bkg("pol","background p.d.f.",x,RooArgList(c0,c1,c2)) ;
 
 //	RooRealVar fsig("fsig","signal fraction",0.5,0.,1.) ;
@@ -109,22 +107,20 @@ void RsnShow(Int_t cutAxix, Int_t cutBinMin, Int_t cutBinMax, const char *filena
 //	voigtian.fitTo(data, SumW2Error(kTRUE), Range(minFit,maxFit));
 	model.fitTo(data, SumW2Error(kTRUE), Range(minFit, maxFit));
 
-
 	TCanvas *c = new TCanvas();
 	RooPlot* frame = x.frame();
 	data.plotOn(frame, Name("data"));
 //	voigtian.plotOn(frame);
-	model.plotOn(frame,Name("model"));
+	model.plotOn(frame, Name("model"));
 	model.plotOn(frame, Components(sig), LineColor(kGreen));
 	model.plotOn(frame, Components(bkg), LineStyle(kDashed));
 
 //	TPaveLabel *t1 = new TPaveLabel(0.7,0.6,0.9,0.68, Form("#chi^{2} = %f", frame->chiSquare("model","data",5)),"brNDC");
 //	frame->addObject(t1);
-	model.paramOn(frame,Layout(0.55)) ;
+	model.paramOn(frame, Layout(0.55));
 	frame->Draw();
 
-
-	Printf("chi^2 = %f",frame->chiSquare("model","data",5));
+	Printf("chi^2 = %f", frame->chiSquare("model", "data", 5));
 	Printf("nsig = %f +/- %f", nsig.getVal(), nsig.getError());
 	Printf("nbkg = %f +/- %f", nbkg.getVal(), nbkg.getError());
 
