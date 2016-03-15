@@ -81,12 +81,12 @@ void RsnShow(Int_t cutAxix, Int_t cutBinMin, Int_t cutBinMax,
 	RooRealVar sigmaV("sigma", "sigma Voigtian", 0.001/*, 0.000,0.002*/);
 	RooVoigtian sig("voigtian", "Voigtian", x, meanV, widthV, sigmaV);
 
-	RooRealVar c0("c0", "coefficient #0", 0.0, -1., 1.);
-	RooRealVar c1("c1", "coefficient #1", 0.0, -1., 1.);
-	RooRealVar c2("c2", "coefficient #2", 0.0, -1., 1.);
+	RooRealVar c0("c0", "coefficient #0", 1.0, -1., 1.);
+	RooRealVar c1("c1", "coefficient #1", 0.1, -1., 1.);
+	RooRealVar c2("c2", "coefficient #2", -0.1, -1., 1.);
 //	RooPolynomial bkg("pol", "background p.d.f.", x, RooArgList(c0, c1));
-	RooPolynomial bkg("pol", "background p.d.f.", x, RooArgList(c0, c1, c2));
-//	RooChebychev bkg("pol","background p.d.f.",x,RooArgList(c0,c1,c2)) ;
+//	RooPolynomial bkg("pol", "background p.d.f.", x, RooArgList(c0, c1, c2));
+	RooChebychev bkg("pol","background p.d.f.",x,RooArgList(c0,c1,c2)) ;
 
 //	RooRealVar fsig("fsig","signal fraction",0.5,0.,1.) ;
 //	RooAddPdf model("model","model",RooArgList(sig,bkg),fsig) ;
@@ -117,13 +117,18 @@ void RsnShow(Int_t cutAxix, Int_t cutBinMin, Int_t cutBinMax,
 
 //	TPaveLabel *t1 = new TPaveLabel(0.7,0.6,0.9,0.68, Form("#chi^{2} = %f", frame->chiSquare("model","data",5)),"brNDC");
 //	frame->addObject(t1);
-	model.paramOn(frame, Layout(0.55));
+//	model.paramOn(frame, Layout(0.55));
 	frame->Draw();
 
 	Printf("chi^2 = %f", frame->chiSquare("model", "data", 5));
 	Printf("nsig = %f +/- %f", nsig.getVal(), nsig.getError());
 	Printf("nbkg = %f +/- %f", nbkg.getVal(), nbkg.getError());
-
+	Printf("mean = %e +/- %e", meanV.getVal(), meanV.getError());
+	Printf("width = %e +/- %e", widthV.getVal(), widthV.getError());
+	Printf("sigma = %e +/- %e", sigmaV.getVal(), sigmaV.getError());
+	Printf("c0 = %e +/- %e", c0.getVal(), c0.getError());
+	Printf("c1 = %e +/- %e", c1.getVal(), c1.getError());
+	Printf("c2 = %e +/- %e", c2.getVal(), c2.getError());
 //	c->Divide(2,2);
 //	c->cd(1);
 //	hSigBg->Draw();
