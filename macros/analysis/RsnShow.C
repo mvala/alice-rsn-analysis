@@ -84,9 +84,10 @@ void RsnShow(Int_t cutAxix, Int_t cutBinMin, Int_t cutBinMax,
 	RooRealVar c0("c0", "coefficient #0", 1.0, -1., 1.);
 	RooRealVar c1("c1", "coefficient #1", 0.1, -1., 1.);
 	RooRealVar c2("c2", "coefficient #2", -0.1, -1., 1.);
-//	RooPolynomial bkg("pol", "background p.d.f.", x, RooArgList(c0, c1));
+	RooPolynomial bkg("pol", "background p.d.f.", x, RooArgList(c0, c1));
 //	RooPolynomial bkg("pol", "background p.d.f.", x, RooArgList(c0, c1, c2));
-	RooChebychev bkg("pol","background p.d.f.",x,RooArgList(c0,c1,c2)) ;
+//	RooChebychev bkg("pol","background p.d.f.",x,RooArgList(c0,c1)) ;
+//	RooChebychev bkg("pol","background p.d.f.",x,RooArgList(c0,c1,c2)) ;
 
 //	RooRealVar fsig("fsig","signal fraction",0.5,0.,1.) ;
 //	RooAddPdf model("model","model",RooArgList(sig,bkg),fsig) ;
