@@ -73,6 +73,12 @@ void RsnShow(Int_t cutAxix, Int_t cutBinMin, Int_t cutBinMax,
 	Double_t min = 0.99;
 	Double_t max = 1.05;
 
+	TString cutAxixName = sSigBg->GetAxis(cutAxix)->GetName();
+	Double_t cutMinVal = sSigBg->GetAxis(cutAxix)->GetBinLowEdge(cutBinMin);
+	Double_t cutMaxVal = sSigBg->GetAxis(cutAxix)->GetBinUpEdge(cutBinMax);
+
+	cutAxixName += TString::Format(" [%.2f,%.2f]",cutMinVal,cutMaxVal);
+
 	RooRealVar x("x", "x", min, max);
 	RooDataHist data("data", "dataset with x", x, hSig);
 
@@ -109,7 +115,7 @@ void RsnShow(Int_t cutAxix, Int_t cutBinMin, Int_t cutBinMax,
 	model.fitTo(data, SumW2Error(kTRUE), Range(minFit, maxFit));
 
 	TCanvas *c = new TCanvas();
-	RooPlot* frame = x.frame();
+	RooPlot* frame = x.frame(Title(cutAxixName.Data()));
 	data.plotOn(frame, Name("data"));
 //	voigtian.plotOn(frame);
 	model.plotOn(frame, Name("model"));
