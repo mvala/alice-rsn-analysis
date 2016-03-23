@@ -6,6 +6,7 @@
 #include <RooRealVar.h>
 #include <RooDataHist.h>
 #include <RooPlot.h>
+#include <RooFitResult.h>
 #include <RooBreitWigner.h>
 #include <RooGaussian.h>
 #include <RooFFTConvPdf.h>
@@ -111,15 +112,14 @@ void RsnShow(Int_t cutAxix, Int_t cutBinMin, Int_t cutBinMax,
 	minFit = 0.997;
 	maxFit = 1.050;
 
-//	voigtian.fitTo(data, SumW2Error(kTRUE), Range(minFit,maxFit));
-	model.fitTo(data, SumW2Error(kTRUE), Range(minFit, maxFit));
+	RooFitResult *fitResutl = 0;
+	fitResutl = model.fitTo(data, Save(),SumW2Error(kTRUE), Range(minFit, maxFit));
 
 	TCanvas *c = new TCanvas();
 	RooPlot* frame = x.frame(Title(cutAxixName.Data()));
 	data.plotOn(frame, Name("data"));
-//	voigtian.plotOn(frame);
 	model.plotOn(frame, Name("model"));
-	model.plotOn(frame, Components(sig), LineColor(kGreen));
+//	model.plotOn(frame, Components(sig), LineColor(kGreen));
 	model.plotOn(frame, Components(bkg), LineStyle(kDashed));
 
 //	TPaveLabel *t1 = new TPaveLabel(0.7,0.6,0.9,0.68, Form("#chi^{2} = %f", frame->chiSquare("model","data",5)),"brNDC");
@@ -136,15 +136,5 @@ void RsnShow(Int_t cutAxix, Int_t cutBinMin, Int_t cutBinMax,
 	Printf("c0 = %e +/- %e", c0.getVal(), c0.getError());
 	Printf("c1 = %e +/- %e", c1.getVal(), c1.getError());
 	Printf("c2 = %e +/- %e", c2.getVal(), c2.getError());
-//	c->Divide(2,2);
-//	c->cd(1);
-//	hSigBg->Draw();
-//	c->cd(2);
-//	hBg->Draw();
-//	c->cd(3);
-//	hSigBg->Draw();
-//	hBgNorm->Draw("SAME");
-//	c->cd(4);
-//	hSig->Draw();
 
 }
