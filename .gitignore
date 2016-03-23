@@ -39,3 +39,6 @@ scripts/*.txt
 macros/train/PWGLFresonances*
 macros/train/AddRsnTaskTest.C
 macros/train/AliRsnTaskTest*
+
+macros/analysis/*.json
+build
