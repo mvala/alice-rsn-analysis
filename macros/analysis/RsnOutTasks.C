@@ -1,4 +1,4 @@
-#ifndef __CLING__
+#if defined(__MAKECINT__) || defined(__MAKECLING__)
 #include <TSystem.h>
 #include <TROOT.h>
 #include <TFile.h>

@@ -1,4 +1,4 @@
-#ifndef __CINT__
+#if defined(__MAKECINT__) || defined(__MAKECLING__)
 #include <TSystem.h>
 #include <TFile.h>
 #include <TList.h>
