@@ -26,6 +26,8 @@ using namespace RooFit;
 ClassImp(AliRsnOutTaskFit)
 
 AliRsnOutTaskFit::AliRsnOutTaskFit(const char *name, const char *title) : AliRsnOutTask(name,title),fFits(0),fFitResults(0) {
+	RooMsgService::instance().getStream(0).active = kFALSE;
+	RooMsgService::instance().getStream(1).active = kFALSE;
 }
 
 AliRsnOutTaskFit::~AliRsnOutTaskFit() {
@@ -88,14 +90,13 @@ void AliRsnOutTaskFit::Fit(Int_t id, Int_t fitId, Double_t fitMin, Double_t fitM
 //	minFit = 0.997;
 //	maxFit = 1.050;
 
-	RooFitResult *fitResutl = 0;
-	fitResutl = model.fitTo(data, Save(),SumW2Error(kTRUE), Range(minFit, maxFit));
-
-	if (!fitResutl) return;
+	RooFitResult *fitResult = 0;
+	fitResult = model.fitTo(data, Save(),SumW2Error(kTRUE), Range(minFit, maxFit),PrintLevel(-1));
+	fitResult->Print();
+	if (!fitResult) return;
 
 	gROOT->SetBatch();
 	TCanvas *c = new TCanvas();
-//	c->SetBatch(1);
 	RooPlot* frame = x.frame(Title(TString::Format("%s-%d.json",GetName(),id).Data()));
 	data.plotOn(frame, Name("data"));
 	model.plotOn(frame, Name("model"));
@@ -104,28 +105,21 @@ void AliRsnOutTaskFit::Fit(Int_t id, Int_t fitId, Double_t fitMin, Double_t fitM
 
 //	TPaveLabel *t1 = new TPaveLabel(0.7,0.6,0.9,0.68, Form("#chi^{2} = %f", frame->chiSquare("model","data",5)),"brNDC");
 //	frame->addObject(t1);
-
 	frame->Draw();
-
 //	model.paramOn(frame, Layout(0.55));
 
 	if (!fOutput) fOutput = new TList();
-//	fOutput->Add(frame);
 	fOutput->Add(c);
-
 
 	TString json = TBufferJSON::ConvertToJSON(c);
 	std::ofstream out(TString::Format("%s-%d.json",GetName(),id).Data());
 	out << json;
 	out.close();
 
-//	c->Close();
-
-	if (!fFitResults) fFitResults = new TList();
-//	fFitResults->Add(fitResutl);
+//	if (!fFitResults) fFitResults = new TList();
+//	fFitResults->Add(fitResult);
 
 	gROOT->SetBatch(kFALSE);
-
 
 }
 

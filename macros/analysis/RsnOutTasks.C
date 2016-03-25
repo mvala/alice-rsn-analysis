@@ -30,7 +30,7 @@ void RsnOutTasks(Bool_t verbose=kFALSE) {
 	AliRsnOutTaskBin *tBin;
 
 	Int_t step=5;
-	Int_t max = 50;
+	Int_t max = 10;
 	for (Int_t i=1;i<=max;i+=step) {
 		tBin = (AliRsnOutTaskBin *) AddBin(1,i,i+step-1);
 		tInput->Add(tBin);
@@ -79,12 +79,17 @@ void RsnOutTasks(Bool_t verbose=kFALSE) {
 
 	if (verbose) {
 		TString json = TBufferJSON::ConvertToJSON(tMgr);
-		Printf("%s", json.Data());
+//		Printf("%s", json.Data());
 		Printf("size=%d", json.Length());
 		std::ofstream out("output.json");
 		out << json;
 		out.close();
 	}
+
+	TFile *f = TFile::Open("RsnOutMgr.root","RECREATE");
+	tMgr->Write();
+	f->Close();
+
 
 //	gROOT->GetListOfBrowsables()->Add(tMgr);
 //	new TBrowser;
