@@ -25,7 +25,7 @@ using namespace RooFit;
 
 ClassImp(AliRsnOutTaskFit)
 
-AliRsnOutTaskFit::AliRsnOutTaskFit(const char *name, const char *title) : AliRsnOutTask(name,title),fFits(0),fFitResults(0) {
+AliRsnOutTaskFit::AliRsnOutTaskFit(const char *name, const char *title) : AliRsnOutTask(name,title),fInput(0),fFitResults(0) {
 	RooMsgService::instance().getStream(0).active = kFALSE;
 	RooMsgService::instance().getStream(1).active = kFALSE;
 }
@@ -34,18 +34,18 @@ AliRsnOutTaskFit::~AliRsnOutTaskFit() {
 }
 
 void AliRsnOutTaskFit::Exec(Option_t* /*option*/) {
-	TIter next(fFits);
-	AliRsnOutValue *v;
-	Int_t id=0;
-	while ((v = (AliRsnOutValue *)next())) {
-		Fit(id,v->GetId(),v->GetMin(),v->GetMax());
-		id++;
-	}
+
+	if (!fInput) return;
+
+	fName = TString::Format("fit_%d[%.3f,%.3f]",fInput->GetId(),fInput->GetMin(),fInput->GetMax());
+	fTitle = TString::Format("Fit %d[%.3f,%.3f]",fInput->GetId(),fInput->GetMin(),fInput->GetMax());
+
+	Fit(fInput->GetId(),fInput->GetMin(),fInput->GetMax());
 }
 
-void AliRsnOutTaskFit::Fit(Int_t id, Int_t fitId, Double_t fitMin, Double_t fitMax) {
+void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
 
-	fParent->GetOutput()->Print();
+	if (!fParent->GetOutput()) return;
 
 	TH1 *hSig = (TH1*)fParent->GetOutput()->FindObject("hSignal")->Clone();
 
@@ -66,9 +66,9 @@ void AliRsnOutTaskFit::Fit(Int_t id, Int_t fitId, Double_t fitMin, Double_t fitM
 	RooRealVar sigmaV("sigma", "sigma Voigtian", 0.001/*, 0.000,0.002*/);
 	RooVoigtian sig("voigtian", "Voigtian", x, meanV, widthV, sigmaV);
 
-	RooRealVar c0("c0", "coefficient #0", 1.0, -1., 1.);
-	RooRealVar c1("c1", "coefficient #1", 0.1, -1., 1.);
-	RooRealVar c2("c2", "coefficient #2", -0.1, -1., 1.);
+	RooRealVar c0("c0", "coefficient #0", 1.0, -10., 10.);
+	RooRealVar c1("c1", "coefficient #1", 0.1, -10., 10.);
+	RooRealVar c2("c2", "coefficient #2", -0.1, -10., 10.);
 	RooPolynomial bkg("pol", "background p.d.f.", x, RooArgList(c0, c1));
 //	RooPolynomial bkg("pol", "background p.d.f.", x, RooArgList(c0, c1, c2));
 //	RooChebychev bkg("pol","background p.d.f.",x,RooArgList(c0,c1)) ;
@@ -96,8 +96,10 @@ void AliRsnOutTaskFit::Fit(Int_t id, Int_t fitId, Double_t fitMin, Double_t fitM
 	if (!fitResult) return;
 
 	gROOT->SetBatch();
-	TCanvas *c = new TCanvas();
-	RooPlot* frame = x.frame(Title(TString::Format("%s-%d.json",GetName(),id).Data()));
+	TCanvas *c = new TCanvas("canvas",fTitle.Data());
+	gROOT->GetListOfCanvases()->Remove(c);
+
+	RooPlot* frame = x.frame(Title(TString::Format("%s",GetTitle()).Data()));
 	data.plotOn(frame, Name("data"));
 	model.plotOn(frame, Name("model"));
 //	model.plotOn(frame, Name("signal"),Components(sig), LineColor(kGreen));
@@ -110,20 +112,17 @@ void AliRsnOutTaskFit::Fit(Int_t id, Int_t fitId, Double_t fitMin, Double_t fitM
 
 	fOutput->Add(c);
 
-	TString json = TBufferJSON::ConvertToJSON(c);
-	std::ofstream out(TString::Format("%s-%d.json",GetName(),id).Data());
-	out << json;
-	out.close();
+//	TString json = TBufferJSON::ConvertToJSON(c);
+//	std::ofstream out(TString::Format("%s.json",GetName()).Data());
+//	out << json;
+//	out.close();
 
-//	if (!fFitResults) fFitResults = new TList();
-//	fFitResults->Add(fitResult);
+	if (!fFitResults) fFitResults = new TList();
+	fFitResults->Add(fitResult);
+
+	Printf("chi2=%f",frame->chiSquare("model","data",5));
 
 	gROOT->SetBatch(kFALSE);
 
 }
 
-void AliRsnOutTaskFit::AddFit(AliRsnOutValue *fit) {
-	if (!fit) return;
-	if (!fFits) fFits = new TList();
-	fFits->Add(fit);
-}

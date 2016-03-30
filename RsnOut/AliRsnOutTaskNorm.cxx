@@ -12,9 +12,9 @@ AliRsnOutTaskNorm::~AliRsnOutTaskNorm() {
 
 void AliRsnOutTaskNorm::Exec(Option_t* /*option*/) {
 
-	TH1::AddDirectory(kFALSE);
+	if (!fParent->GetOutput()) return;
 
-	Printf("%s",GetName());
+	TH1::AddDirectory(kFALSE);
 
 	TH1 *hSigBgNorm = (TH1*) fParent->GetOutput()->FindObject("hSignalBg")->Clone();
 	hSigBgNorm->SetName("hSignalBg");
@@ -25,35 +25,51 @@ void AliRsnOutTaskNorm::Exec(Option_t* /*option*/) {
 
 	TIter next(fRanges);
 	AliRsnOutValue *v;
+	Double_t ss1,ss2;
 	while ((v = (AliRsnOutValue *)next())) {
 		Double_t s;
 		s = hSigBgNorm->Integral(hSigBgNorm->FindBin((Int_t)v->GetMin()), hSigBgNorm->FindBin((Int_t)v->GetMax()));
 		s /= hBgNorm->Integral(hBgNorm->FindBin((Int_t)v->GetMin()), hBgNorm->FindBin((Int_t)v->GetMax()));
-
-		Printf("s=%f",s);
 		scale += s;
+		ss1 = hSigBgNorm->Integral(hSigBgNorm->FindBin((Int_t)v->GetMin()), hSigBgNorm->FindBin((Int_t)v->GetMax()));
+		ss2 = hBgNorm->Integral(hBgNorm->FindBin((Int_t)v->GetMin()), hBgNorm->FindBin((Int_t)v->GetMax()));
 	}
 
 	scale /= fRanges->GetEntries();
-	Printf("scale=%f",scale);
-	Double_t correction = 0.9;
-	hBgNorm->Scale(scale * correction);
+
+	TH1 *hBgTmp = (TH1*) hBgNorm->Clone();
+	TH1 *hSigTmp = (TH1*) hSigBgNorm->Clone();
+	hBgTmp->Scale(scale);
+	hSigTmp->Add(hBgTmp, -1);
+
+//	Printf("scale=%f min=%f ss1=%f ss2=%f scale=%f at bin=%d", scale,hSigTmp->GetMinimum(),ss1,ss2,ss1/(ss2-hSigTmp->GetMinimum()),hSigTmp->GetMinimumBin());
+
+
+	scale = ss1/(ss2-hSigTmp->GetMinimum()/scale);
+	hBgNorm->Scale(scale);
 
 
 	TH1 *hSig = (TH1*) hSigBgNorm->Clone();
 	hSig->SetName("hSignal");
 	hSig->Add(hBgNorm, -1);
 
+	Printf("min=%f at bin=%d", hSig->GetMinimum(),hSig->GetMinimumBin());
+//	Fatal("","");
+
+
 	fOutput->Add(hSigBgNorm);
 	fOutput->Add(hBgNorm);
 	fOutput->Add(hSig);
 	fOutput->Print();
 
-	Printf("%p",fOutput);
 }
 
 void AliRsnOutTaskNorm::AddRange(AliRsnOutValue* range) {
 	if (!range) return;
-	if (!fRanges) fRanges = new TList();
+	if (!fRanges) {
+		fRanges = new TList();
+		fName = "norm";
+	}
+	fName += TString::Format("[%.2f,%.2f]",range->GetMin(),range->GetMax());
 	fRanges->Add(range);
 }

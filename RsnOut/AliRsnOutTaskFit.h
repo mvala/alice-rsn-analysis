@@ -10,19 +10,17 @@ public:
 		kVoightPol1 = 0, kVoightPol2 = 1, kVoightCheb1 = 2, kVoightCheb2 = 3
 	};
 
-  AliRsnOutTaskFit(const char *name="rsn", const char *title="");
+  AliRsnOutTaskFit(const char *name="fit", const char *title="");
   virtual ~AliRsnOutTaskFit();
 
   virtual void Exec(Option_t *option);
-
-  void Fit(Int_t id,Int_t fitId, Double_t fitMin, Double_t fitMax);
-
-  void AddFit(AliRsnOutValue *fit);
-  TList *GetFit() const { return fFits; }
+  void Fit(Int_t fitId, Double_t fitMin, Double_t fitMax);
+  void SetFit(AliRsnOutValue *fit) { fInput = fit;}
+  AliRsnOutValue *GetFit() const { return fInput; }
 
 private:
 
-  TList *fFits;
+  AliRsnOutValue *fInput;
   TList *fFitResults;
 
   ClassDef(AliRsnOutTaskFit, 1)

@@ -47,8 +47,14 @@ void AliRsnOutTaskBin::ApplyCuts(THnSparse *sigBg,THnSparse *bg) {
 
 	TIter next(fCuts);
 	AliRsnOutValue *v;
+	fName = "";
+	Double_t minVal,maxVal;
 	while ((v = (AliRsnOutValue *)next())) {
 		sigBg->GetAxis(v->GetId())->SetRange((Int_t)v->GetMin(), (Int_t)v->GetMax());
 		bg->GetAxis(v->GetId())->SetRange((Int_t)v->GetMin(), (Int_t)v->GetMax());
+
+		minVal = sigBg->GetAxis(v->GetId())->GetBinLowEdge((Int_t)v->GetMin());
+		maxVal = sigBg->GetAxis(v->GetId())->GetBinUpEdge((Int_t)v->GetMax());
+		fName += TString::Format("%s[%.2f,%.2f]", sigBg->GetAxis(v->GetId())->GetName(), minVal, maxVal);
 	}
 }

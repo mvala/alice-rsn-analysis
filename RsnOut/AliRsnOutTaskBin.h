@@ -8,7 +8,7 @@ class AliRsnOutTaskBin : public AliRsnOutTask {
 
 public:
 
-  AliRsnOutTaskBin(const char *name="rsn", const char *title="");
+  AliRsnOutTaskBin(const char *name="bin", const char *title="");
   virtual ~AliRsnOutTaskBin();
 
   virtual void Exec(Option_t *option);

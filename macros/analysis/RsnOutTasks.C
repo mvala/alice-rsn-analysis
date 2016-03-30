@@ -12,74 +12,43 @@
 #include <AliRsnOutTaskFit.h>
 #endif
 
-TObject *AddBin(Int_t id, Double_t min, Double_t max);
+TObject *AddBin(Int_t id, Double_t min, Double_t max,TList *norms, TList *fits);
 
-void RsnOutTasks(Bool_t verbose=kFALSE) {
+void RsnOutTasks(Bool_t buildJSON=kFALSE) {
+
+	Int_t cutAxis=1;
+	Int_t binStart=6;
+	Int_t binEnd = 20;
+	Int_t binStep = 5;
 
 	TFile::SetCacheFileDir(gSystem->HomeDirectory(), 1, 1);
 
 	AliRsnOutTask *tMgr = new AliRsnOutTask("RsnMgr", "Rsn Task Manager");
 
-	AliRsnOutTaskInput *tInput = new AliRsnOutTaskInput("RsnInput");
+	AliRsnOutTaskInput *tInput = new AliRsnOutTaskInput();
 	tInput->SetFileName("root://alieos.saske.sk///eos/alike.saske.sk/alice/alike/PWGLF/LF_pp/389_20160307-1141/merge_runlist_4/AnalysisResults.root");
 	tInput->SetListName("RsnOut_tpc3s");
 	tInput->SetSigBgName("Unlike");
 	tInput->SetBgName("Mixing");
 	tMgr->Add(tInput);
 
-	AliRsnOutTaskBin *tBin;
+	TList *norms = new TList();
+	norms->Add(new AliRsnOutValue(0,1.10,1.20));
 
-	Int_t step=5;
-	Int_t max = 10;
-	for (Int_t i=1;i<=max;i+=step) {
-		tBin = (AliRsnOutTaskBin *) AddBin(1,i,i+step-1);
+	TList *fits = new TList();
+	fits->Add(new AliRsnOutValue(0,1.000,1.040));
+	fits->Add(new AliRsnOutValue(0,0.997,1.050));
+
+	AliRsnOutTaskBin *tBin;
+	for (Int_t i=binStart;i<=binEnd;i+=binStep) {
+		tBin = (AliRsnOutTaskBin *) AddBin(cutAxis,i,i+binStep-1,norms,fits);
 		tInput->Add(tBin);
 	}
-//	AliRsnOutTaskBin *tBin = new AliRsnOutTaskBin("RsnBin");
-//	tBin->GetValue()->SetId(0);
-//	tBin->AddCut(new AliRsnOutValue(1,6,10));
-////	tBin->AddCut(new AliRsnOutValue(1,11,15));
-////	tBin->AddCut(new AliRsnOutValue(1,16,20));
-////	tBin->AddCut(new AliRsnOutValue(1,21,25));
-////	tBin->AddCut(new AliRsnOutValue(3,1,1));
-//	tInput->Add(tBin);
-//
-//	AliRsnOutTaskNorm *tNorm = new AliRsnOutTaskNorm("RsnNorm");
-//	tNorm->AddRange(new AliRsnOutValue(0,1.05,1.10));
-//	tBin->Add(tNorm);
-//
-//	AliRsnOutTaskFit *tFit = new AliRsnOutTaskFit("RsnFit");
-//	tFit->AddFit(new AliRsnOutValue(0,1.000,1.040));
-//	tFit->AddFit(new AliRsnOutValue(0,0.997,1.050));
-//
-//	tNorm->Add(tFit);
-//
-//
-//
-//	tBin = new AliRsnOutTaskBin("RsnBin");
-//	tBin->GetValue()->SetId(0);
-////	tBin->AddCut(new AliRsnOutValue(1,6,10));
-//	tBin->AddCut(new AliRsnOutValue(1,11,15));
-////	tBin->AddCut(new AliRsnOutValue(1,16,20));
-////	tBin->AddCut(new AliRsnOutValue(1,21,25));
-////	tBin->AddCut(new AliRsnOutValue(3,1,1));
-//	tInput->Add(tBin);
-//
-//	tNorm = new AliRsnOutTaskNorm("RsnNorm");
-//	tNorm->AddRange(new AliRsnOutValue(0,1.05,1.10));
-//	tBin->Add(tNorm);
-//
-//	tFit = new AliRsnOutTaskFit("RsnFit");
-//	tFit->AddFit(new AliRsnOutValue(0,1.000,1.040));
-//	tFit->AddFit(new AliRsnOutValue(0,0.997,1.050));
-//
-//	tNorm->Add(tFit);
 
 	tMgr->ExecuteTask();
 
-	if (verbose) {
+	if (buildJSON) {
 		TString json = TBufferJSON::ConvertToJSON(tMgr);
-//		Printf("%s", json.Data());
 		Printf("size=%d", json.Length());
 		std::ofstream out("output.json");
 		out << json;
@@ -95,21 +64,27 @@ void RsnOutTasks(Bool_t verbose=kFALSE) {
 //	new TBrowser;
 }
 
-TObject *AddBin(Int_t id, Double_t min, Double_t max) {
-	AliRsnOutTaskBin *tBin = new AliRsnOutTaskBin(Form("RsnBin_%.3f_%.3f",min,max));
+TObject *AddBin(Int_t id, Double_t min, Double_t max,TList *norms, TList *fits) {
+	AliRsnOutTaskBin *tBin = new AliRsnOutTaskBin();
 	tBin->GetValue()->SetId(0);
 	tBin->AddCut(new AliRsnOutValue(id,min,max));
 
-	AliRsnOutTaskNorm *tNorm = new AliRsnOutTaskNorm("RsnNorm");
-	tNorm->AddRange(new AliRsnOutValue(0,1.05,1.10));
-	tBin->Add(tNorm);
+	TIter next(norms);
+	AliRsnOutValue *vNorm;
+	while ((vNorm = (AliRsnOutValue*)next())) {
 
-	AliRsnOutTaskFit *tFit = new AliRsnOutTaskFit("RsnFit");
-	tFit->AddFit(new AliRsnOutValue(0,1.000,1.040));
-	tFit->AddFit(new AliRsnOutValue(0,0.997,1.050));
+		AliRsnOutTaskNorm *tNorm = new AliRsnOutTaskNorm();
+		tNorm->AddRange(vNorm);
+		tBin->Add(tNorm);
 
-	tNorm->Add(tFit);
+		TIter next(fits);
+		AliRsnOutValue *vFit;
+		while ((vFit = (AliRsnOutValue*)next())) {
+			AliRsnOutTaskFit *tFit = new AliRsnOutTaskFit();
+			tFit->SetFit(vFit);
+			tNorm->Add(tFit);
+		}
+	}
 
 	return tBin;
-
 }
