@@ -108,7 +108,6 @@ void AliRsnOutTaskFit::Fit(Int_t id, Int_t fitId, Double_t fitMin, Double_t fitM
 	frame->Draw();
 //	model.paramOn(frame, Layout(0.55));
 
-	if (!fOutput) fOutput = new TList();
 	fOutput->Add(c);
 
 	TString json = TBufferJSON::ConvertToJSON(c);

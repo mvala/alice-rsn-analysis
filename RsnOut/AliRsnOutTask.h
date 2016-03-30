@@ -7,7 +7,8 @@ class AliRsnOutTask : public TTask {
 
 public:
 
-  AliRsnOutTask(const char *name="rsn", const char *title="");
+  AliRsnOutTask();
+  AliRsnOutTask(const char *name, const char *title="");
   virtual ~AliRsnOutTask();
 
   virtual void Add(TTask *task);
@@ -18,6 +19,8 @@ public:
   AliRsnOutTask *GetPartent() const { return fParent; }
 
   TList *GetOutput() const { return fOutput; }
+
+  virtual void Browse(TBrowser *b);
 
 protected:
 

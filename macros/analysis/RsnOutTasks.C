@@ -96,7 +96,7 @@ void RsnOutTasks(Bool_t verbose=kFALSE) {
 }
 
 TObject *AddBin(Int_t id, Double_t min, Double_t max) {
-	AliRsnOutTaskBin *tBin = new AliRsnOutTaskBin("RsnBin");
+	AliRsnOutTaskBin *tBin = new AliRsnOutTaskBin(Form("RsnBin_%.3f_%.3f",min,max));
 	tBin->GetValue()->SetId(0);
 	tBin->AddCut(new AliRsnOutValue(id,min,max));
 

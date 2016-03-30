@@ -23,12 +23,12 @@ void AliRsnOutTaskBin::Exec(Option_t* /*option*/) {
 
 	ApplyCuts(sigBg,bg);
 
-	if (!fOutput) fOutput = new TList();
-
 	TH1 *hSigBg = sigBg->Projection(fValue.GetId());
+	hSigBg->SetName("hSignalBg");
 	fOutput->Add(hSigBg);
 
 	TH1 *hBg = bg->Projection(fValue.GetId());
+	hBg->SetName("hBg");
 	fOutput->Add(hBg);
 
 	fOutput->Print();

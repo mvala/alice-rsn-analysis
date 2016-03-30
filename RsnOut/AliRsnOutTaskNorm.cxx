@@ -16,10 +16,10 @@ void AliRsnOutTaskNorm::Exec(Option_t* /*option*/) {
 
 	Printf("%s",GetName());
 
-	TH1 *hSigBgNorm = (TH1*) fParent->GetOutput()->At(0)->Clone();
-	hSigBgNorm->SetName("hSignalBgNorm");
-	TH1 *hBgNorm = (TH1*) fParent->GetOutput()->At(1)->Clone();
-	hSigBgNorm->SetName("hBgNorm");
+	TH1 *hSigBgNorm = (TH1*) fParent->GetOutput()->FindObject("hSignalBg")->Clone();
+	hSigBgNorm->SetName("hSignalBg");
+	TH1 *hBgNorm = (TH1*) fParent->GetOutput()->FindObject("hBg")->Clone();
+	hBgNorm->SetName("hBgNorm");
 
 	Double_t scale = 0.0;
 
@@ -44,7 +44,6 @@ void AliRsnOutTaskNorm::Exec(Option_t* /*option*/) {
 	hSig->SetName("hSignal");
 	hSig->Add(hBgNorm, -1);
 
-	if (!fOutput) fOutput = new TList();
 	fOutput->Add(hSigBgNorm);
 	fOutput->Add(hBgNorm);
 	fOutput->Add(hSig);
