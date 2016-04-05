@@ -7,6 +7,7 @@ AliRsnOutTaskInput.cxx
 AliRsnOutTaskBin.cxx
 AliRsnOutTaskNorm.cxx
 AliRsnOutTaskFit.cxx
+AliRsnOutTaskRooFit.cxx
 )
 
 include_directories( "${CMAKE_CURRENT_SOURCE_DIR}")

@@ -23,6 +23,8 @@ void RsnOutTasks(Bool_t buildJSON=kFALSE) {
 
 	TFile::SetCacheFileDir(gSystem->HomeDirectory(), 1, 1);
 
+	gStyle->SetOptFit(1111);
+
 	AliRsnOutTask *tMgr = new AliRsnOutTask("RsnMgr", "Rsn Task Manager");
 
 	AliRsnOutTaskInput *tInput = new AliRsnOutTaskInput();
@@ -33,11 +35,15 @@ void RsnOutTasks(Bool_t buildJSON=kFALSE) {
 	tMgr->Add(tInput);
 
 	TList *norms = new TList();
-	norms->Add(new AliRsnOutValue(0,1.10,1.20));
+	norms->Add(new AliRsnOutValue(0,1.10,1.40));
 
 	TList *fits = new TList();
-	fits->Add(new AliRsnOutValue(0,1.000,1.040));
-	fits->Add(new AliRsnOutValue(0,0.997,1.050));
+	Int_t nFits = 3;
+	for (Int_t fitId=0;fitId<nFits;fitId++) {
+		fits->Add(new AliRsnOutValue(fitId,0.997,1.050));
+		fits->Add(new AliRsnOutValue(fitId,1.000,1.080));
+		fits->Add(new AliRsnOutValue(fitId,0.997,1.130));
+	}
 
 	AliRsnOutTaskBin *tBin;
 	for (Int_t i=binStart;i<=binEnd;i+=binStep) {

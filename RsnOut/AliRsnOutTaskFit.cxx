@@ -1,18 +1,10 @@
 #include <TROOT.h>
 #include <TCanvas.h>
 #include <TH1.h>
-#include <RooRealVar.h>
-#include <RooDataHist.h>
-#include <RooPlot.h>
-#include <RooFitResult.h>
-#include <RooBreitWigner.h>
-#include <RooGaussian.h>
-#include <RooFFTConvPdf.h>
-#include <RooNumConvPdf.h>
-#include <RooVoigtian.h>
-#include <RooChebychev.h>
-#include <RooPolynomial.h>
-#include <RooAddPdf.h>
+#include <TF1.h>
+#include <TMath.h>
+#include <TStyle.h>
+#include <TFitResult.h>
 
 #include <Riostream.h>
 #include <TBufferJSON.h>
@@ -21,16 +13,37 @@
 
 #include "AliRsnOutTaskFit.h"
 
-using namespace RooFit;
-
 ClassImp(AliRsnOutTaskFit)
 
-AliRsnOutTaskFit::AliRsnOutTaskFit(const char *name, const char *title) : AliRsnOutTask(name,title),fInput(0),fFitResults(0) {
-	RooMsgService::instance().getStream(0).active = kFALSE;
-	RooMsgService::instance().getStream(1).active = kFALSE;
+AliRsnOutTaskFit::AliRsnOutTaskFit(const char *name, const char *title) : AliRsnOutTask(name,title),fInput(0) {
+
 }
 
 AliRsnOutTaskFit::~AliRsnOutTaskFit() {
+}
+
+Double_t AliRsnOutTaskFit::VoigtPol1(double *m, double *par)
+{
+  Double_t val = 0.0;
+  double x     = m[0];
+  val = TMath::Voigt(x - par[1], par[3], par[2]);
+  return par[0]*val + par[4] + x*par[5];
+}
+
+Double_t AliRsnOutTaskFit::VoigtPol2(double *m, double *par)
+{
+  Double_t val = 0.0;
+  double x     = m[0];
+  val = TMath::Voigt(x - par[1], par[3], par[2]);
+  return par[0]*val + par[4] + x*par[5] + x*x*par[6];
+}
+
+Double_t AliRsnOutTaskFit::VoigtPol3(double *m, double *par)
+{
+  Double_t val = 0.0;
+  double x     = m[0];
+  val = TMath::Voigt(x - par[1], par[3], par[2]);
+  return par[0]*val + par[4] + x*par[5] + x*x*par[6] + x*x*x*par[7];
 }
 
 void AliRsnOutTaskFit::Exec(Option_t* /*option*/) {
@@ -51,78 +64,82 @@ void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
 
 	if (!hSig) return;
 
-	if (fitId<0) return;
+	  const Double_t phi_mass  = 1.019445;
+	  const Double_t phi_width = 0.00426;
+	  const Double_t phi_sigma = 0.001;
 
-	Double_t min =  hSig->GetXaxis()->GetXmin();
-	Double_t max = hSig->GetXaxis()->GetXmax();
-	min = 0.99;
-	max = 1.05;
-	RooRealVar x("x", "x",min,max);
-	RooDataHist data("data", "dataset with x", x, hSig);
+	TF1 *func = 0;
+	if (fitId == 0)
+		func = new TF1("func1", AliRsnOutTaskFit::VoigtPol1, fitMin, fitMax, 6);
+	if (fitId == 1)
+		func = new TF1("func2", AliRsnOutTaskFit::VoigtPol2, fitMin, fitMax, 7);
+	if (fitId == 2)
+		func = new TF1("func3", AliRsnOutTaskFit::VoigtPol3, fitMin, fitMax, 8);
 
-//	if (kVoightPol1)
-	RooRealVar meanV("mean", "mean Voigtian", 1.019, 1.000, 1.050);
-	RooRealVar widthV("width", "width Voigtian", 0.0045, 0.003, 0.006);
-	RooRealVar sigmaV("sigma", "sigma Voigtian", 0.001/*, 0.000,0.002*/);
-	RooVoigtian sig("voigtian", "Voigtian", x, meanV, widthV, sigmaV);
+	if (!func)
+		return;
 
-	RooRealVar c0("c0", "coefficient #0", 1.0, -10., 10.);
-	RooRealVar c1("c1", "coefficient #1", 0.1, -10., 10.);
-	RooRealVar c2("c2", "coefficient #2", -0.1, -10., 10.);
-	RooPolynomial bkg("pol", "background p.d.f.", x, RooArgList(c0, c1));
-//	RooPolynomial bkg("pol", "background p.d.f.", x, RooArgList(c0, c1, c2));
-//	RooChebychev bkg("pol","background p.d.f.",x,RooArgList(c0,c1)) ;
-//	RooChebychev bkg("pol","background p.d.f.",x,RooArgList(c0,c1,c2)) ;
+	func->SetNpx(200);
 
-//	RooRealVar fsig("fsig","signal fraction",0.5,0.,1.) ;
-//	RooAddPdf model("model","model",RooArgList(sig,bkg),fsig) ;
+//	  // find init parameters
+//	  // first fit exclude intervals for polynomials
+//	  TF1 *pol1r = new TF1("pol1r", rpol1, func1->GetXmin(), func1->GetXmax(), 2);
+//	  TF1 *pol2r = new TF1("pol2r", rpol2, func2->GetXmin(), func2->GetXmax(), 3);
+//	  TF1 *pol3r = new TF1("pol3r", rpol3, func3->GetXmin(), func3->GetXmax(), 4);
+//	  fstart = 0.99;
+//	  fstop  = histo->GetXaxis()->GetXmax();
+//	  //  fstart = phi_mass -  7*phi_width;
+//	  //  fstop  = phi_mass + 10*phi_width;
+//	  //  fstart = fmin;
+//	  //  fstop  = fmax;
+//	  histo->Fit(pol1r, "QN FC", "", fstart, fstop);
+//	  histo->Fit(pol2r, "QN FC", "", fstart, fstop);
+//	  histo->Fit(pol3r, "QN FC", "", fstart, fstop);
+//	  TF1::RejectPoint(kFALSE);
 
-// --- Construct signal+background PDF ---
-	RooRealVar nsig("nsig", "#signal events", 200, 0., 1e8);
-	RooRealVar nbkg("nbkg", "#background events", 800, 0., 1e8);
-	RooAddPdf model("model", "v+p", RooArgList(sig, bkg),
-			RooArgList(nsig, nbkg));
 
-	Double_t minFit = min;
-	Double_t maxFit = max;
-	minFit = fitMin;
-	maxFit = fitMax;
-//	minFit = 0.997;
-//	maxFit = 1.050;
-
-	RooFitResult *fitResult = 0;
-	fitResult = model.fitTo(data, Save(),SumW2Error(kTRUE), Range(minFit, maxFit),PrintLevel(-1));
-	fitResult->Print();
-	if (!fitResult) return;
+	  Double_t p0p = hSig->Integral(hSig->FindBin(fitMin), hSig->FindBin(fitMax))*hSig->GetBinWidth(hSig->FindBin(fitMin));
+	  func->SetParameters(p0p, phi_mass, phi_width, phi_sigma, 0.0,0.0,0.0,0.0);
+//	  func2->SetParameters(p0p, phi_mass, phi_width, phi_sigma, pol2r->GetParameter(0), pol2r->GetParameter(1),
+//	                       pol2r->GetParameter(2));
+//	  func3->SetParameters(p0p, phi_mass, phi_width, phi_sigma, pol3r->GetParameter(0), pol3r->GetParameter(1),
+//	                       pol3r->GetParameter(2), pol3r->GetParameter(3));
 
 	gROOT->SetBatch();
-	TCanvas *c = new TCanvas("canvas",fTitle.Data());
-	gROOT->GetListOfCanvases()->Remove(c);
+//	TCanvas *c = new TCanvas("canvas",fTitle.Data());
+//	gROOT->GetListOfCanvases()->Remove(c);
 
-	RooPlot* frame = x.frame(Title(TString::Format("%s",GetTitle()).Data()));
-	data.plotOn(frame, Name("data"));
-	model.plotOn(frame, Name("model"));
-//	model.plotOn(frame, Name("signal"),Components(sig), LineColor(kGreen));
-	model.plotOn(frame, Name("background"),Components(bkg), LineStyle(kDashed));
 
-//	TPaveLabel *t1 = new TPaveLabel(0.7,0.6,0.9,0.68, Form("#chi^{2} = %f", frame->chiSquare("model","data",5)),"brNDC");
-//	frame->addObject(t1);
-	frame->Draw();
-//	model.paramOn(frame, Layout(0.55));
 
-	fOutput->Add(c);
+//	hSig->Set
+	func->SetParNames ("yield","mass","width","sigma","p0","p1","p2","p3");
+	func->FixParameter(3,phi_sigma);
 
-//	TString json = TBufferJSON::ConvertToJSON(c);
-//	std::ofstream out(TString::Format("%s.json",GetName()).Data());
-//	out << json;
-//	out.close();
+	TFitResultPtr r;
+//	Double_t chi2Prev = 1e6;
+//	Double_t chi2Curr = 0;
+//	Double_t chi2Delta = 1e-2;
+	do {
+		r = hSig->Fit(func,"QN MFC S", "", fitMin, fitMax);
+		r = hSig->Fit(func,"QN MFC S", "", fitMin, fitMax);
+		r = hSig->Fit(func,"QN MFC S", "", fitMin, fitMax);
+		r = hSig->Fit(func,"Q MF S", "", fitMin, fitMax);
+		Printf("Status = %d",(Int_t)r);
+	} while (((Int_t)r)<0);
+	r->Print();
+//	TFitResult *fitResult = fitResultPtr.Get();
+//	fitResult->Print();
+//	hSig->Fit(func1,"QN FC", "", fitMin, fitMax);
+//	hSig->Fit(func1,"", "", fitMin, fitMax);
+//	hSig->Draw();
 
-	if (!fFitResults) fFitResults = new TList();
-	fFitResults->Add(fitResult);
+	if ((r->Prob()<1e-4)||(r->Prob()>0.5+0.1)) {
+		SafeDelete(hSig);
+	}
 
-	Printf("chi2=%f",frame->chiSquare("model","data",5));
-
+	if (hSig) {
+		fOutput->Add(hSig);
+	}
 	gROOT->SetBatch(kFALSE);
 
 }
-

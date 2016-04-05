@@ -7,11 +7,16 @@ class AliRsnOutTaskFit : public AliRsnOutTask {
 
 public:
 	enum {
-		kVoightPol1 = 0, kVoightPol2 = 1, kVoightCheb1 = 2, kVoightCheb2 = 3
+		kVoightPol1 = 0, kVoightPol2, kVoightPol3, kVoightCheb1, kVoightCheb2
 	};
 
   AliRsnOutTaskFit(const char *name="fit", const char *title="");
   virtual ~AliRsnOutTaskFit();
+
+  static Double_t VoigtPol1(double *m, double *par);
+  static Double_t VoigtPol2(double *m, double *par);
+  static Double_t VoigtPol3(double *m, double *par);
+
 
   virtual void Exec(Option_t *option);
   void Fit(Int_t fitId, Double_t fitMin, Double_t fitMax);
@@ -21,7 +26,6 @@ public:
 private:
 
   AliRsnOutValue *fInput;
-  TList *fFitResults;
 
   ClassDef(AliRsnOutTaskFit, 1)
 
