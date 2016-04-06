@@ -12,13 +12,18 @@ AliRsnOutTaskNorm::~AliRsnOutTaskNorm() {
 
 void AliRsnOutTaskNorm::Exec(Option_t* /*option*/) {
 
+	Printf(GetName());
 	if (!fParent->GetOutput()) return;
 
-	TH1::AddDirectory(kFALSE);
+	TH1 *hSigBgNorm = (TH1*) fParent->GetOutput()->FindObject("hSignalBg");
+	if (!hSigBgNorm) return;
+	TH1 *hBgNorm = (TH1*) fParent->GetOutput()->FindObject("hBg");
+	if (!hBgNorm) return;
 
-	TH1 *hSigBgNorm = (TH1*) fParent->GetOutput()->FindObject("hSignalBg")->Clone();
+
+	hSigBgNorm = (TH1*) hSigBgNorm->Clone();
 	hSigBgNorm->SetName("hSignalBg");
-	TH1 *hBgNorm = (TH1*) fParent->GetOutput()->FindObject("hBg")->Clone();
+	hBgNorm = (TH1*) hBgNorm->Clone();
 	hBgNorm->SetName("hBgNorm");
 
 	Double_t scale = 0.0;
@@ -42,25 +47,16 @@ void AliRsnOutTaskNorm::Exec(Option_t* /*option*/) {
 	hBgTmp->Scale(scale);
 	hSigTmp->Add(hBgTmp, -1);
 
-//	Printf("scale=%f min=%f ss1=%f ss2=%f scale=%f at bin=%d", scale,hSigTmp->GetMinimum(),ss1,ss2,ss1/(ss2-hSigTmp->GetMinimum()),hSigTmp->GetMinimumBin());
-
-
 	scale = ss1/(ss2-hSigTmp->GetMinimum()/scale);
 	hBgNorm->Scale(scale);
-
 
 	TH1 *hSig = (TH1*) hSigBgNorm->Clone();
 	hSig->SetName("hSignal");
 	hSig->Add(hBgNorm, -1);
 
-	Printf("min=%f at bin=%d", hSig->GetMinimum(),hSig->GetMinimumBin());
-//	Fatal("","");
-
-
 	fOutput->Add(hSigBgNorm);
 	fOutput->Add(hBgNorm);
 	fOutput->Add(hSig);
-	fOutput->Print();
 
 }
 

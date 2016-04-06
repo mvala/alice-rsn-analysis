@@ -15,131 +15,122 @@
 
 ClassImp(AliRsnOutTaskFit)
 
-AliRsnOutTaskFit::AliRsnOutTaskFit(const char *name, const char *title) : AliRsnOutTask(name,title),fInput(0) {
+AliRsnOutTaskFit::AliRsnOutTaskFit(const char *name, const char *title) : AliRsnOutTask(name,title),fInput(0),fFitProbTestMin(1e-4), fFitProbTestMax(0.6) {
 
 }
 
 AliRsnOutTaskFit::~AliRsnOutTaskFit() {
 }
 
-Double_t AliRsnOutTaskFit::VoigtPol1(double *m, double *par)
+Double_t AliRsnOutTaskFit::Pol1(double *x, double *par)
 {
-  Double_t val = 0.0;
-  double x     = m[0];
-  val = TMath::Voigt(x - par[1], par[3], par[2]);
-  return par[0]*val + par[4] + x*par[5];
+  return par[0] + x[0]*par[1];
 }
 
-Double_t AliRsnOutTaskFit::VoigtPol2(double *m, double *par)
+Double_t AliRsnOutTaskFit::Pol2(double *x, double *par)
 {
-  Double_t val = 0.0;
-  double x     = m[0];
-  val = TMath::Voigt(x - par[1], par[3], par[2]);
-  return par[0]*val + par[4] + x*par[5] + x*x*par[6];
+  return par[0] + x[0]*par[1] + x[0]*x[0]*par[2];
 }
 
-Double_t AliRsnOutTaskFit::VoigtPol3(double *m, double *par)
+Double_t AliRsnOutTaskFit::Pol3(double *x, double *par)
 {
-  Double_t val = 0.0;
-  double x     = m[0];
-  val = TMath::Voigt(x - par[1], par[3], par[2]);
-  return par[0]*val + par[4] + x*par[5] + x*x*par[6] + x*x*x*par[7];
+  return par[0] + x[0]*par[1] + x[0]*x[0]*par[2] + x[0]*x[0]*x[0]*par[3];
+}
+
+Double_t AliRsnOutTaskFit::VoigtPol1(double *x, double *par)
+{
+  return par[0]*TMath::Voigt(x[0] - par[1], par[3], par[2]) + Pol1(x,&par[4]);
+}
+
+Double_t AliRsnOutTaskFit::VoigtPol2(double *x, double *par)
+{
+  return par[0]*TMath::Voigt(x[0] - par[1], par[3], par[2]) + Pol2(x,&par[4]);
+}
+
+Double_t AliRsnOutTaskFit::VoigtPol3(double *x, double *par)
+{
+  return par[0]*TMath::Voigt(x[0] - par[1], par[3], par[2]) + Pol3(x,&par[4]);
+}
+
+void AliRsnOutTaskFit::SetFit(AliRsnOutValue *fit) {
+	fInput = fit;
+	if (fInput) {
+		fName = TString::Format("fit_%d[%.3f,%.3f]",fInput->GetId(),fInput->GetMin(),fInput->GetMax());
+		fTitle = TString::Format("Fit %d[%.3f,%.3f]",fInput->GetId(),fInput->GetMin(),fInput->GetMax());
+	} else {
+		fName = "fit";
+		fTitle = "Fit";
+	}
 }
 
 void AliRsnOutTaskFit::Exec(Option_t* /*option*/) {
-
-	if (!fInput) return;
-
-	fName = TString::Format("fit_%d[%.3f,%.3f]",fInput->GetId(),fInput->GetMin(),fInput->GetMax());
-	fTitle = TString::Format("Fit %d[%.3f,%.3f]",fInput->GetId(),fInput->GetMin(),fInput->GetMax());
 
 	Fit(fInput->GetId(),fInput->GetMin(),fInput->GetMax());
 }
 
 void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
 
+	Printf(GetName());
 	if (!fParent->GetOutput()) return;
 
-	TH1 *hSig = (TH1*)fParent->GetOutput()->FindObject("hSignal")->Clone();
-
+	TH1 *hSig = (TH1*)fParent->GetOutput()->FindObject("hSignal");
 	if (!hSig) return;
+	hSig = (TH1*)hSig->Clone();
 
-	  const Double_t phi_mass  = 1.019445;
-	  const Double_t phi_width = 0.00426;
-	  const Double_t phi_sigma = 0.001;
+	const Double_t phi_mass = 1.019445;
+	const Double_t phi_width = 0.00426;
+	const Double_t phi_sigma = 0.001;
 
-	TF1 *func = 0;
-	if (fitId == 0)
-		func = new TF1("func1", AliRsnOutTaskFit::VoigtPol1, fitMin, fitMax, 6);
-	if (fitId == 1)
-		func = new TF1("func2", AliRsnOutTaskFit::VoigtPol2, fitMin, fitMax, 7);
-	if (fitId == 2)
-		func = new TF1("func3", AliRsnOutTaskFit::VoigtPol3, fitMin, fitMax, 8);
-
-	if (!func)
+	TF1 *sigBgFnc = 0;
+	TF1 *bgFnc = 0;
+	switch (fitId) {
+	case kVoightPol1 :
+		sigBgFnc = new TF1("VoightPol1", AliRsnOutTaskFit::VoigtPol1, fitMin, fitMax, 6);
+		bgFnc = new TF1("Pol1", Pol1, fitMin, fitMax, 2);
+		break;
+	case kVoightPol2 :
+		sigBgFnc = new TF1("VoightPol2", AliRsnOutTaskFit::VoigtPol2, fitMin, fitMax, 7);
+		bgFnc = new TF1("Pol2", Pol2, fitMin, fitMax, 3);
+		break;
+	case kVoightPol3 :
+		sigBgFnc = new TF1("VoightPol3", AliRsnOutTaskFit::VoigtPol3, fitMin, fitMax, 8);
+		bgFnc = new TF1("Pol3", Pol3, fitMin, fitMax, 4);
+		break;
+	}
+	if (!sigBgFnc||!bgFnc)
 		return;
 
-	func->SetNpx(200);
+	Double_t p0p = hSig->Integral(hSig->FindBin(fitMin), hSig->FindBin(fitMax))
+			* hSig->GetBinWidth(hSig->FindBin(fitMin));
+	sigBgFnc->SetParameters(p0p, phi_mass, phi_width, phi_sigma, 0.0, 0.0, 0.0,
+			0.0);
 
-//	  // find init parameters
-//	  // first fit exclude intervals for polynomials
-//	  TF1 *pol1r = new TF1("pol1r", rpol1, func1->GetXmin(), func1->GetXmax(), 2);
-//	  TF1 *pol2r = new TF1("pol2r", rpol2, func2->GetXmin(), func2->GetXmax(), 3);
-//	  TF1 *pol3r = new TF1("pol3r", rpol3, func3->GetXmin(), func3->GetXmax(), 4);
-//	  fstart = 0.99;
-//	  fstop  = histo->GetXaxis()->GetXmax();
-//	  //  fstart = phi_mass -  7*phi_width;
-//	  //  fstop  = phi_mass + 10*phi_width;
-//	  //  fstart = fmin;
-//	  //  fstop  = fmax;
-//	  histo->Fit(pol1r, "QN FC", "", fstart, fstop);
-//	  histo->Fit(pol2r, "QN FC", "", fstart, fstop);
-//	  histo->Fit(pol3r, "QN FC", "", fstart, fstop);
-//	  TF1::RejectPoint(kFALSE);
-
-
-	  Double_t p0p = hSig->Integral(hSig->FindBin(fitMin), hSig->FindBin(fitMax))*hSig->GetBinWidth(hSig->FindBin(fitMin));
-	  func->SetParameters(p0p, phi_mass, phi_width, phi_sigma, 0.0,0.0,0.0,0.0);
-//	  func2->SetParameters(p0p, phi_mass, phi_width, phi_sigma, pol2r->GetParameter(0), pol2r->GetParameter(1),
-//	                       pol2r->GetParameter(2));
-//	  func3->SetParameters(p0p, phi_mass, phi_width, phi_sigma, pol3r->GetParameter(0), pol3r->GetParameter(1),
-//	                       pol3r->GetParameter(2), pol3r->GetParameter(3));
-
-	gROOT->SetBatch();
-//	TCanvas *c = new TCanvas("canvas",fTitle.Data());
-//	gROOT->GetListOfCanvases()->Remove(c);
-
-
-
-//	hSig->Set
-	func->SetParNames ("yield","mass","width","sigma","p0","p1","p2","p3");
-	func->FixParameter(3,phi_sigma);
+	sigBgFnc->SetParNames ("yield","mass","width","sigma","p0","p1","p2","p3");
+	sigBgFnc->FixParameter(3,phi_sigma);
 
 	TFitResultPtr r;
-//	Double_t chi2Prev = 1e6;
-//	Double_t chi2Curr = 0;
-//	Double_t chi2Delta = 1e-2;
-	do {
-		r = hSig->Fit(func,"QN MFC S", "", fitMin, fitMax);
-		r = hSig->Fit(func,"QN MFC S", "", fitMin, fitMax);
-		r = hSig->Fit(func,"QN MFC S", "", fitMin, fitMax);
-		r = hSig->Fit(func,"Q MF S", "", fitMin, fitMax);
-		Printf("Status = %d",(Int_t)r);
-	} while (((Int_t)r)<0);
-	r->Print();
-//	TFitResult *fitResult = fitResultPtr.Get();
-//	fitResult->Print();
-//	hSig->Fit(func1,"QN FC", "", fitMin, fitMax);
-//	hSig->Fit(func1,"", "", fitMin, fitMax);
-//	hSig->Draw();
 
-	if ((r->Prob()<1e-4)||(r->Prob()>0.5+0.1)) {
-		SafeDelete(hSig);
+	r = hSig->Fit(sigBgFnc, "QN MFC S", "", fitMin, fitMax);
+	r = hSig->Fit(sigBgFnc, "QN MFC S", "", fitMin, fitMax);
+	r = hSig->Fit(sigBgFnc, "QN MFC S", "", fitMin, fitMax);
+	r = hSig->Fit(sigBgFnc, "QN MF S", "", fitMin, fitMax);
+
+	Double_t par[6];
+	sigBgFnc->GetParameters(par);
+	bgFnc->SetParameters(&par[4]);
+
+	if ((r->Prob()<fFitProbTestMin)||(r->Prob()>fFitProbTestMax)) {
+		hSig->SetName("hSignalBadFit");
 	}
 
 	if (hSig) {
+		hSig->GetListOfFunctions()->Add(sigBgFnc);
+		hSig->GetListOfFunctions()->Add(bgFnc);
 		fOutput->Add(hSig);
 	}
-	gROOT->SetBatch(kFALSE);
+}
 
+void AliRsnOutTaskFit::SetProbTest(Double_t min, Double_t max) {
+	fFitProbTestMin = min;
+	fFitProbTestMax = max;
 }

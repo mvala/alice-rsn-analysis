@@ -11,6 +11,7 @@ AliRsnOutTaskBin::AliRsnOutTaskBin(const char *name, const char *title) : AliRsn
 }
 
 AliRsnOutTaskBin::~AliRsnOutTaskBin() {
+	SafeDelete(fCuts);
 }
 
 void AliRsnOutTaskBin::Exec(Option_t* /*option*/) {
@@ -22,16 +23,15 @@ void AliRsnOutTaskBin::Exec(Option_t* /*option*/) {
 	THnSparse *bg = input->GetBg();
 
 	ApplyCuts(sigBg,bg);
+	Printf("Task=%s",GetName());
 
-	TH1 *hSigBg = sigBg->Projection(fValue.GetId());
+	TH1 *hSigBg = (TH1 *)sigBg->Projection(fValue.GetId())->Clone();
 	hSigBg->SetName("hSignalBg");
 	fOutput->Add(hSigBg);
 
-	TH1 *hBg = bg->Projection(fValue.GetId());
+	TH1 *hBg = (TH1 *)bg->Projection(fValue.GetId())->Clone();
 	hBg->SetName("hBg");
 	fOutput->Add(hBg);
-
-	fOutput->Print();
 
 }
 

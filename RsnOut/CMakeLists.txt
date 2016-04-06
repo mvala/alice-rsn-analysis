@@ -3,6 +3,7 @@ set(PACKAGE RsnOut)
 set(SRCS 
 AliRsnOutValue.cxx
 AliRsnOutTask.cxx
+AliRsnOutTaskMgr.cxx
 AliRsnOutTaskInput.cxx
 AliRsnOutTaskBin.cxx
 AliRsnOutTaskNorm.cxx

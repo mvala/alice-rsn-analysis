@@ -13,6 +13,9 @@ public:
   AliRsnOutTaskFit(const char *name="fit", const char *title="");
   virtual ~AliRsnOutTaskFit();
 
+  static Double_t Pol1(double *m, double *par);
+  static Double_t Pol2(double *m, double *par);
+  static Double_t Pol3(double *m, double *par);
   static Double_t VoigtPol1(double *m, double *par);
   static Double_t VoigtPol2(double *m, double *par);
   static Double_t VoigtPol3(double *m, double *par);
@@ -20,12 +23,16 @@ public:
 
   virtual void Exec(Option_t *option);
   void Fit(Int_t fitId, Double_t fitMin, Double_t fitMax);
-  void SetFit(AliRsnOutValue *fit) { fInput = fit;}
+  void SetFit(AliRsnOutValue *fit);
   AliRsnOutValue *GetFit() const { return fInput; }
+
+  void SetProbTest(Double_t min, Double_t max);
 
 private:
 
   AliRsnOutValue *fInput;
+  Double_t fFitProbTestMin;
+  Double_t fFitProbTestMax;
 
   ClassDef(AliRsnOutTaskFit, 1)
 

@@ -6,6 +6,7 @@
 
 #pragma link C++ class AliRsnOutValue+;
 #pragma link C++ class AliRsnOutTask+;
+#pragma link C++ class AliRsnOutTaskMgr+;
 #pragma link C++ class AliRsnOutTaskInput+;
 #pragma link C++ class AliRsnOutTaskBin+;
 #pragma link C++ class AliRsnOutTaskNorm+;

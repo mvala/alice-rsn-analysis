@@ -18,14 +18,19 @@ void RsnOutTasks(Bool_t buildJSON=kFALSE) {
 
 	Int_t cutAxis=1;
 	Int_t binStart=6;
-	Int_t binEnd = 20;
-	Int_t binStep = 5;
+	Int_t binEnd = 50;
+	Int_t binStep = 1;
+
+	cutAxis = 3;
+	binStart = 1;
+	binEnd = 21;
+	binStep = 1;
+
+	binEnd = 1;
 
 	TFile::SetCacheFileDir(gSystem->HomeDirectory(), 1, 1);
 
-	gStyle->SetOptFit(1111);
-
-	AliRsnOutTask *tMgr = new AliRsnOutTask("RsnMgr", "Rsn Task Manager");
+	AliRsnOutTaskMgr *tMgr = new AliRsnOutTaskMgr();
 
 	AliRsnOutTaskInput *tInput = new AliRsnOutTaskInput();
 	tInput->SetFileName("root://alieos.saske.sk///eos/alike.saske.sk/alice/alike/PWGLF/LF_pp/389_20160307-1141/merge_runlist_4/AnalysisResults.root");
@@ -35,7 +40,7 @@ void RsnOutTasks(Bool_t buildJSON=kFALSE) {
 	tMgr->Add(tInput);
 
 	TList *norms = new TList();
-	norms->Add(new AliRsnOutValue(0,1.10,1.40));
+	norms->Add(new AliRsnOutValue(0,1.10,1.15));
 
 	TList *fits = new TList();
 	Int_t nFits = 3;
@@ -53,18 +58,17 @@ void RsnOutTasks(Bool_t buildJSON=kFALSE) {
 
 	tMgr->ExecuteTask();
 
-	if (buildJSON) {
-		TString json = TBufferJSON::ConvertToJSON(tMgr);
-		Printf("size=%d", json.Length());
-		std::ofstream out("output.json");
-		out << json;
-		out.close();
-	}
+//	if (buildJSON) {
+//		TString json = TBufferJSON::ConvertToJSON(tMgr);
+//		Printf("size=%d", json.Length());
+//		std::ofstream out("output.json");
+//		out << json;
+//		out.close();
+//	}
 
 	TFile *f = TFile::Open("RsnOutMgr.root","RECREATE");
 	tMgr->Write();
 	f->Close();
-
 
 //	gROOT->GetListOfBrowsables()->Add(tMgr);
 //	new TBrowser;

@@ -5,6 +5,8 @@
 
 class THnSparse;
 class TH1;
+class TFile;
+class TList;
 class AliRsnOutTaskInput : public AliRsnOutTask {
 
 public:
@@ -13,6 +15,7 @@ public:
   virtual ~AliRsnOutTaskInput();
 
   virtual void Exec(Option_t *option);
+  virtual void ExecPost(Option_t *option);
 
   void SetFileName(TString filename) { fFileName = filename; fTitle = filename; }
   void SetListName(TString listname) { fListName = listname; }
@@ -28,6 +31,8 @@ private:
   TString fSigBgName;
   TString fBgName;
 
+  TFile *fFile;//!
+  TList *fList;//!
   THnSparse *fSigBg;//!
   THnSparse *fBg;//!
 
