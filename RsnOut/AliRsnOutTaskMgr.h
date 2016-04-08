@@ -16,6 +16,8 @@ public:
 
 protected:
 
+  Bool_t fAddDirectoryStatus;
+
 
   ClassDef(AliRsnOutTaskMgr, 1)
 

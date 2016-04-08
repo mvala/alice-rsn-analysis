@@ -118,15 +118,12 @@ void AliRsnOutTask::Export(TDirectory *parent) {
 	if (!parent) return;
 	TDirectory *out = parent->mkdir(GetName(),GetTitle());
 	if (!out) return;
-//	out->cd();
-
 
 	TIter next(fTasks);
 	AliRsnOutTask *t;
 	while ((t = (AliRsnOutTask*)next())) {
 		t->Export(out);
 	}
-
 	out->cd();
 	if (fOutput) fOutput->Write();
 

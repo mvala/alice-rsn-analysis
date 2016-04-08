@@ -20,7 +20,7 @@ public:
   virtual void ExecPost(Option_t *option);
 
   void SetParent(AliRsnOutTask *task) { fParent = task; }
-  AliRsnOutTask *GetPartent() const { return fParent; }
+  AliRsnOutTask *GetParent() const { return fParent; }
 
   TList *GetOutput() const { return fOutput; }
 
@@ -30,7 +30,7 @@ public:
 
 protected:
 
-  AliRsnOutTask *fParent;//!
+  AliRsnOutTask *fParent;//||
   TList *fOutput;
 
   ClassDef(AliRsnOutTask, 1)
