@@ -15,7 +15,7 @@
 ClassImp(AliRsnOutTaskInput)
 
 AliRsnOutTaskInput::AliRsnOutTaskInput(const char *name, const char *title) :
-		AliRsnOutTask(name, title), fFileName(), fListName(), fSigBgName(), fBgName(), fMCRecName(), fMCGenName(), fIsEffOnly(kFALSE), fMCEff(0), fListOfMC(0), fFile(
+		AliRsnOutTask(name, title), fFileName(), fListName(), fSigBgName(), fBgName(), fMCRecName(), fMCGenName(), fIsEffOnly(kFALSE), fMCEff(0), fNEvents(0), fListOfMC(0), fFile(
 				0), fList(0), fSigBg(0), fBg(0), fMCRec(0), fMCGen(0) {
 }
 
@@ -32,6 +32,10 @@ void AliRsnOutTaskInput::Exec(Option_t* /*option*/) {
 		fList = (TList *) fFile->Get(fListName.Data());
 		if (!fList)
 			return;
+
+		TList *extra = (TList*) fFile->Get(TString::Format("%s_extra",fListName.Data()).Data());
+		TH1 *hEvents = (TH1*) extra->FindObject("hEventStat");
+		fNEvents = hEvents->GetBinContent(4);
 
 		if (!fIsEffOnly) {
 			fSigBg = (THnSparse *) fList->FindObject(fSigBgName.Data());
@@ -157,14 +161,13 @@ void AliRsnOutTaskInput::GetResults() {
 				tFit = (AliRsnOutTaskFit *) tNorm->GetListOfTasks()->At(iFit);
 				iSparseBin[2] = iFit+1;
 
-				if ((mcGen&&mcRec)||fMCEff) {
-					// MC eff
-					iSparseBin[3] = 3;
-					s->SetBinContent(iSparseBin,valMCEff);
-					s->SetBinError(iSparseBin,errMCEff);
-				}
-
 				if (!fIsEffOnly) {
+					if ((mcGen&&mcRec)||fMCEff) {
+						// MC eff
+						iSparseBin[3] = 3;
+						s->SetBinContent(iSparseBin,valMCEff);
+						s->SetBinError(iSparseBin,errMCEff);
+					}
 					// Raw Bin Counting
 					iSparseBin[3] = 1;
 					tFit->GetYieldBinCounting(y,ey);
@@ -174,8 +177,8 @@ void AliRsnOutTaskInput::GetResults() {
 					if ((mcGen&&mcRec)||fMCEff)  {
 						// Corrected spectra Bin Counting
 						iSparseBin[3] = 4;
-						s->SetBinContent(iSparseBin,y/valMCEff);
-						s->SetBinError(iSparseBin,y/valMCEff*TMath::Sqrt(TMath::Power(ey/y,2)+TMath::Power(errMCEff/valMCEff,2)));
+						s->SetBinContent(iSparseBin,y/valMCEff/fNEvents);
+						s->SetBinError(iSparseBin,y/valMCEff*TMath::Sqrt(TMath::Power(ey/y,2)+TMath::Power(errMCEff/valMCEff,2))/fNEvents);
 					}
 					// Raw Fit Function
 					iSparseBin[3] = 2;
@@ -186,8 +189,8 @@ void AliRsnOutTaskInput::GetResults() {
 					if ((mcGen&&mcRec)||fMCEff)  {
 						// Corrected spectra Fit Function
 						iSparseBin[3] = 5;
-						s->SetBinContent(iSparseBin,y/valMCEff);
-						s->SetBinError(iSparseBin,y/valMCEff*TMath::Sqrt(TMath::Power(ey/y,2)+TMath::Power(errMCEff/valMCEff,2)));
+						s->SetBinContent(iSparseBin,y/valMCEff/fNEvents);
+						s->SetBinError(iSparseBin,y/valMCEff*TMath::Sqrt(TMath::Power(ey/y,2)+TMath::Power(errMCEff/valMCEff,2))/fNEvents);
 					}
 
 					// Chi2
@@ -223,32 +226,32 @@ void AliRsnOutTaskInput::GetResults() {
 	fOutput->Add(dRoot);
 	TFolder *dNorm, *dFit;
 	TH1D *h;
-	for (Int_t iBin = 0; iBin < fTasks->GetEntries(); ++iBin) {
-		tBin = (AliRsnOutTaskBin *) fTasks->At(iBin);
-		for (Int_t iNorm = 0; iNorm < tBin->GetListOfTasks()->GetEntries(); ++iNorm) {
-			tNorm = (AliRsnOutTaskNorm *) tBin->GetListOfTasks()->At(iNorm);
-			dNorm = dRoot->AddFolder(tNorm->GetName(),tNorm->GetTitle());
-			s->GetAxis(1)->SetRange(iNorm+1,iNorm+1);
-			for (Int_t iFit = 0; iFit < tNorm->GetListOfTasks()->GetEntries(); ++iFit) {
-				tFit = (AliRsnOutTaskFit *) tNorm->GetListOfTasks()->At(iFit);
-				dFit = dNorm->AddFolder(tFit->GetName(),tFit->GetTitle());
-				if (!fIsEffOnly) {
-					s->GetAxis(2)->SetRange(iFit+1,iFit+1);
-					s->GetAxis(3)->SetRange(1,1);h = s->Projection(0);h->SetName("hRawBC");dFit->Add(h);
-					s->GetAxis(3)->SetRange(2,2);h = s->Projection(0);h->SetName("hRawFF");dFit->Add(h);
-				}
-				if (fMCEff)
+	tBin = (AliRsnOutTaskBin *) fTasks->At(0);
+	if (!tBin) return;
+	for (Int_t iNorm = 0; iNorm < tBin->GetListOfTasks()->GetEntries(); ++iNorm) {
+		tNorm = (AliRsnOutTaskNorm *) tBin->GetListOfTasks()->At(iNorm);
+		if (!tNorm) continue;
+		dNorm = dRoot->AddFolder(tNorm->GetName(),tNorm->GetTitle());
+		s->GetAxis(1)->SetRange(iNorm+1,iNorm+1);
+		for (Int_t iFit = 0; iFit < tNorm->GetListOfTasks()->GetEntries(); ++iFit) {
+			tFit = (AliRsnOutTaskFit *) tNorm->GetListOfTasks()->At(iFit);
+			if (!tFit) continue;
+			dFit = dNorm->AddFolder(tFit->GetName(),tFit->GetTitle());
+			s->GetAxis(2)->SetRange(iFit+1,iFit+1);
+			if (!fIsEffOnly) {
+				s->GetAxis(3)->SetRange(1,1);h = s->Projection(0);h->SetName("hRawBC");dFit->Add(h);
+				s->GetAxis(3)->SetRange(2,2);h = s->Projection(0);h->SetName("hRawFF");dFit->Add(h);
+			}
+			if (!fIsEffOnly) {
+				if (fMCEff) {
 					s->GetAxis(3)->SetRange(3,3);h = s->Projection(0);h->SetName("hMCEff");dFit->Add(h);
-				if (!fIsEffOnly) {
-					if (fMCEff) {
-						s->GetAxis(3)->SetRange(4,4);h = s->Projection(0);h->SetName("hCorrBC");dFit->Add(h);
-						s->GetAxis(3)->SetRange(5,5);h = s->Projection(0);h->SetName("hCorrFF");dFit->Add(h);
-					}
-					s->GetAxis(3)->SetRange(6,6);h = s->Projection(0);h->SetName("hChi2");dFit->Add(h);
-					s->GetAxis(3)->SetRange(7,7);h = s->Projection(0);h->SetName("hNdf");dFit->Add(h);
-					s->GetAxis(3)->SetRange(8,8);h = s->Projection(0);h->SetName("hReducedChi2");dFit->Add(h);
-					s->GetAxis(3)->SetRange(9,9);h = s->Projection(0);h->SetName("hProb");dFit->Add(h);
+					s->GetAxis(3)->SetRange(4,4);h = s->Projection(0);h->SetName("hCorrBC");dFit->Add(h);
+					s->GetAxis(3)->SetRange(5,5);h = s->Projection(0);h->SetName("hCorrFF");dFit->Add(h);
 				}
+				s->GetAxis(3)->SetRange(6,6);h = s->Projection(0);h->SetName("hChi2");dFit->Add(h);
+				s->GetAxis(3)->SetRange(7,7);h = s->Projection(0);h->SetName("hNdf");dFit->Add(h);
+				s->GetAxis(3)->SetRange(8,8);h = s->Projection(0);h->SetName("hReducedChi2");dFit->Add(h);
+				s->GetAxis(3)->SetRange(9,9);h = s->Projection(0);h->SetName("hProb");dFit->Add(h);
 			}
 		}
 	}

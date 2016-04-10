@@ -49,6 +49,7 @@ private:
   TString fMCGenName;
   Bool_t  fIsEffOnly;
   TGraphAsymmErrors *fMCEff;
+  Long64_t fNEvents;
 
   TList *fListOfMC;
 
