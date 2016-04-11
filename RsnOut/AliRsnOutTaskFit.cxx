@@ -118,7 +118,9 @@ void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
 		bgFnc->SetParameters(&par[4]);
 
 		if ((fFitResult->Prob()<fFitProbTestMin)||(fFitResult->Prob()>fFitProbTestMax)) {
-			fResult->SetName("fSignalBadFit");
+			sigBgFnc->SetLineColor(kRed);
+			bgFnc->SetLineColor(kRed);
+
 		}
 
 		fResult->GetListOfFunctions()->Add(sigBgFnc);

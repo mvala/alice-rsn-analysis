@@ -121,6 +121,12 @@ void AliRsnOutTaskInput::GetResults() {
 	s->GetAxis(1)->SetName("norm");
 	s->GetAxis(2)->SetName("fit");
 	s->GetAxis(3)->SetName("value");
+
+//	Printf("nbins=%d min=%f max=%f",s->GetAxis(0)->GetNbins(),s->GetAxis(0)->GetXmin(),s->GetAxis(0)->GetXmax());
+//	Printf("nbins=%d min=%f max=%f",s->GetAxis(1)->GetNbins(),s->GetAxis(1)->GetXmin(),s->GetAxis(1)->GetXmax());
+//	Printf("nbins=%d min=%f max=%f",s->GetAxis(2)->GetNbins(),s->GetAxis(2)->GetXmin(),s->GetAxis(2)->GetXmax());
+//	Printf("nbins=%d min=%f max=%f",s->GetAxis(3)->GetNbins(),s->GetAxis(3)->GetXmin(),s->GetAxis(3)->GetXmax());
+
 	fOutput->Add(s);
 
 	TEfficiency *fMCEfficiency = 0;
@@ -255,7 +261,6 @@ void AliRsnOutTaskInput::GetResults() {
 			}
 		}
 	}
-
 }
 
 void AliRsnOutTaskInput::AddMC(TObject* mc) {
