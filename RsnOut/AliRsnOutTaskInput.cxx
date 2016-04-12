@@ -245,19 +245,19 @@ void AliRsnOutTaskInput::GetResults() {
 			dFit = dNorm->AddFolder(tFit->GetName(),tFit->GetTitle());
 			s->GetAxis(2)->SetRange(iFit+1,iFit+1);
 			if (!fIsEffOnly) {
-				s->GetAxis(3)->SetRange(1,1);h = s->Projection(0);h->SetName("hRawBC");dFit->Add(h);
-				s->GetAxis(3)->SetRange(2,2);h = s->Projection(0);h->SetName("hRawFF");dFit->Add(h);
+				s->GetAxis(3)->SetRange(1,1);h = s->Projection(0);h->SetName("hRawBC");h->GetYaxis()->SetRangeUser(0,h->GetMaximum()*1.1);dFit->Add(h);
+				s->GetAxis(3)->SetRange(2,2);h = s->Projection(0);h->SetName("hRawFF");h->GetYaxis()->SetRangeUser(0,h->GetMaximum()*1.1);dFit->Add(h);
 			}
 			if (!fIsEffOnly) {
 				if (fMCEff) {
-					s->GetAxis(3)->SetRange(3,3);h = s->Projection(0);h->SetName("hMCEff");dFit->Add(h);
-					s->GetAxis(3)->SetRange(4,4);h = s->Projection(0);h->SetName("hCorrBC");dFit->Add(h);
-					s->GetAxis(3)->SetRange(5,5);h = s->Projection(0);h->SetName("hCorrFF");dFit->Add(h);
+					s->GetAxis(3)->SetRange(3,3);h = s->Projection(0);h->SetName("hMCEff");h->GetYaxis()->SetRangeUser(0,h->GetMaximum()*1.1);dFit->Add(h);
+					s->GetAxis(3)->SetRange(4,4);h = s->Projection(0);h->SetName("hCorrBC");h->GetYaxis()->SetRangeUser(0,h->GetMaximum()*1.1);dFit->Add(h);
+					s->GetAxis(3)->SetRange(5,5);h = s->Projection(0);h->SetName("hCorrFF");h->GetYaxis()->SetRangeUser(0,h->GetMaximum()*1.1);dFit->Add(h);
 				}
-				s->GetAxis(3)->SetRange(6,6);h = s->Projection(0);h->SetName("hChi2");dFit->Add(h);
-				s->GetAxis(3)->SetRange(7,7);h = s->Projection(0);h->SetName("hNdf");dFit->Add(h);
-				s->GetAxis(3)->SetRange(8,8);h = s->Projection(0);h->SetName("hReducedChi2");dFit->Add(h);
-				s->GetAxis(3)->SetRange(9,9);h = s->Projection(0);h->SetName("hProb");dFit->Add(h);
+				s->GetAxis(3)->SetRange(6,6);h = s->Projection(0);h->SetName("hChi2");h->GetYaxis()->SetRangeUser(0,h->GetMaximum()*1.1);dFit->Add(h);
+				s->GetAxis(3)->SetRange(7,7);h = s->Projection(0);h->SetName("hNdf");h->GetYaxis()->SetRangeUser(0,h->GetMaximum()*1.1);dFit->Add(h);
+				s->GetAxis(3)->SetRange(8,8);h = s->Projection(0);h->SetName("hReducedChi2");h->GetYaxis()->SetRangeUser(0,h->GetMaximum()*1.1);dFit->Add(h);
+				s->GetAxis(3)->SetRange(9,9);h = s->Projection(0);h->SetName("hProb");h->GetYaxis()->SetRangeUser(0,h->GetMaximum()*1.1);dFit->Add(h);
 			}
 		}
 	}
