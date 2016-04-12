@@ -12,5 +12,6 @@
 #pragma link C++ class AliRsnOutTaskNorm+;
 #pragma link C++ class AliRsnOutTaskFit+;
 #pragma link C++ class AliRsnOutTaskRooFit+;
+#pragma link C++ class AliRsnOutTaskResult+;
 
 #endif
