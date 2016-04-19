@@ -4,7 +4,7 @@ trap '{ echo "Hey, you pressed Ctrl-C.  Time to quit." ; exit 1; }' INT
 
 OUT_EOS=/eos/alike.saske.sk
 OUT_ARCHIVE=${2}
-OUT_ARCHIVE_REPLACE="AliESDs.root"
+OUT_ARCHIVE_REPLACE=${3-"AliESDs.root"}
 
 
 function help() {
