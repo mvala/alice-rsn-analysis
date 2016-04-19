@@ -37,29 +37,27 @@ void CreateRsnOutTasks(TString names="pt:ctj:ctt") {
 	}
 
 	f->Close();
-
-
 }
+
 AliRsnOutTaskMgr * CreateRsnOutMgr(TString name,Int_t cutAxis=1,Int_t binStart=6,Int_t binEnd = 50,Int_t binStep = 1) {
 
 	AliRsnOutTaskMgr *tMgr = new AliRsnOutTaskMgr(name);
 
-	AliRsnOutTaskInput *tInputMC = new AliRsnOutTaskInput("mc");
+	AliRsnOutTaskInput *tInputMC = new AliRsnOutTaskInput("LHC15g3a3");
 	tInputMC->SetFileName("root://alieos.saske.sk///eos/alike.saske.sk/alice/alike/PWGLF/LF_pp_MC/376_20160308-1500/merge_runlist_X/AnalysisResults.root");
 	tInputMC->SetListName("RsnOut_tpc3s");
 	tInputMC->SetSigBgName("Unlike");
 	tInputMC->SetBgName("Mixing");
 	tInputMC->SetMCRecName("Trues");
 	tInputMC->SetMCGenName("Mother");
-	tInputMC->SetEfficiencyOnly(kTRUE);
+	tInputMC->SetEfficiencyOnly();
 	tMgr->Add(tInputMC);
 
-	AliRsnOutTaskInput *tInputData = new AliRsnOutTaskInput("data");
+	AliRsnOutTaskInput *tInputData = new AliRsnOutTaskInput("LHC15f");
 	tInputData->SetFileName("root://alieos.saske.sk///eos/alike.saske.sk/alice/alike/PWGLF/LF_pp/389_20160307-1141/merge_runlist_4/AnalysisResults.root");
 	tInputData->SetListName("RsnOut_tpc3s");
 	tInputData->SetSigBgName("Unlike");
 	tInputData->SetBgName("Mixing");
-	tInputData->AddMC(tInputMC);
 	tMgr->Add(tInputData);
 
 	TList *norms = new TList();
@@ -80,6 +78,15 @@ AliRsnOutTaskMgr * CreateRsnOutMgr(TString name,Int_t cutAxis=1,Int_t binStart=6
 		tBin = AddBin(cutAxis,i,i+binStep-1,norms,fits);
 		tInputMC->Add(tBin);
 	}
+
+	AliRsnOutTask *tResultsAll = new AliRsnOutTask("results","Results");
+
+	AliRsnOutTaskResult *tResult = new AliRsnOutTaskResult();
+	tResult->SetData(tInputData);
+	tResult->SetMC(tInputMC);
+
+	tResultsAll->Add(tResult);
+	tMgr->Add(tResultsAll);
 
 	return tMgr;
 }

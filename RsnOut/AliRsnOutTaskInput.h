@@ -23,21 +23,19 @@ public:
   void SetBgName(TString bgname) { fBgName = bgname; }
   void SetMCRecName(TString mcrecname) { fMCRecName = mcrecname; }
   void SetMCGenName(TString mcgenname) { fMCGenName = mcgenname; }
-  void SetEfficiencyOnly(Bool_t onlyEff) { fIsEffOnly = onlyEff;}
+  void SetEfficiencyOnly(Bool_t effOnly = kTRUE) { fEffOnly = effOnly; }
 
-  Bool_t IsEfficiencyOnly() const { return fIsEffOnly; }
   THnSparse *GetSigBg() const { return fSigBg; }
   THnSparse *GetBg() const { return fBg; }
   THnSparse *GetMCRec() const { return fMCRec; }
   THnSparse *GetMCGen() const { return fMCGen; }
+  Long64_t GetNEvents(Int_t bin=4) const;
 
   TGraphAsymmErrors *GetMCEfficiency() const { return fMCEff; }
-  TList *GetListOfMC() const { return fListOfMC; }
-  void AddMC(TObject*mc);
 
   virtual void 	Clear (Option_t *opt="");
 
-  void GetResults();
+  void CalculateEfficiency();
 
 private:
 
@@ -47,11 +45,10 @@ private:
   TString fBgName;
   TString fMCRecName;
   TString fMCGenName;
-  Bool_t  fIsEffOnly;
   TGraphAsymmErrors *fMCEff;
-  Long64_t fNEvents;
+  TH1* fEventStat;
+  Bool_t fEffOnly;
 
-  TList *fListOfMC;
 
   TFile *fFile;//!
   TList *fList;//!
