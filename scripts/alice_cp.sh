@@ -21,7 +21,7 @@ while read -r line; do
     name="$line"
     [[ $name == /alice* ]] || continue
     base_dir=$name
-    [ -n "$OUT_ARCHIVE" ] && name=${name/$OUT_ARCHIVE_REPLACE/$OUT_ARCHIVE/}
+    [ -n "$OUT_ARCHIVE" ] && name=${name/$OUT_ARCHIVE_REPLACE/$OUT_ARCHIVE}
     base_dir=$(dirname $name)
     [ -f $OUT_EOS$name ] && { echo "Skipping '$OUT_EOS$name' ..."; continue; }
     mkdir -p $OUT_EOS$base_dir || { echo "Cannot create directory '$OUT_EOS$base_dir' !!!"; exit 4; }
