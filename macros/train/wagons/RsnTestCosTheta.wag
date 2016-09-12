@@ -1,0 +1,3 @@
+Macro=AddRsnTaskTestCosTheta.C
+Arguments=
+Libs=libEventMixing.so,libPWGLFresonances.so

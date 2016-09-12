@@ -15,7 +15,7 @@
 
 /* $Id$ */
 
-/* AliRsnTaskTest.cxx
+/* AliRsnTaskTestCosTheta.cxx
  *
  * Template task producing a P_t spectrum and pseudorapidity distribution.
  * Includes explanations of physics and primary track selections
@@ -26,7 +26,7 @@
  * Based on tutorial example from offline pages
  * Edited by Arvinder Palaha
  */
-#include "AliRsnTaskTest.h"
+#include "AliRsnTaskTestCosTheta.h"
 
 #include "Riostream.h"
 #include "TCanvas.h"
@@ -45,11 +45,11 @@
 #include "AliMCEvent.h"
 #include "AliStack.h"
 
-ClassImp(AliRsnTaskTest)
+ClassImp(AliRsnTaskTestCosTheta)
 
     //________________________________________________________________________
-    AliRsnTaskTest::AliRsnTaskTest() // All data members should be initialised
-                                     // here
+    AliRsnTaskTestCosTheta::AliRsnTaskTestCosTheta() // All data members should
+                                                     // be initialised here
     : AliAnalysisTaskSE(),
       fOutput(0),
       fTrackCuts(0),
@@ -64,7 +64,7 @@ ClassImp(AliRsnTaskTest)
 }
 
 //________________________________________________________________________
-AliRsnTaskTest::AliRsnTaskTest(
+AliRsnTaskTestCosTheta::AliRsnTaskTestCosTheta(
     const char *name) // All data members should be initialised here
     : AliAnalysisTaskSE(name),
       fOutput(0),
@@ -85,7 +85,7 @@ AliRsnTaskTest::AliRsnTaskTest(
 }
 
 //________________________________________________________________________
-AliRsnTaskTest::~AliRsnTaskTest() {
+AliRsnTaskTestCosTheta::~AliRsnTaskTestCosTheta() {
   // Destructor. Clean-up the output list, but not the histograms that are put
   // inside
   // (the list is owner and will clean-up these histograms). Protect in PROOF
@@ -97,7 +97,7 @@ AliRsnTaskTest::~AliRsnTaskTest() {
 }
 
 //________________________________________________________________________
-void AliRsnTaskTest::UserCreateOutputObjects() {
+void AliRsnTaskTestCosTheta::UserCreateOutputObjects() {
   // Create histograms
   // Called once (on the worker node)
 
@@ -184,7 +184,7 @@ void AliRsnTaskTest::UserCreateOutputObjects() {
 }
 
 //________________________________________________________________________
-void AliRsnTaskTest::UserExec(Option_t *) {
+void AliRsnTaskTestCosTheta::UserExec(Option_t *) {
   // Main loop
   // Called for each event
 
@@ -198,6 +198,133 @@ void AliRsnTaskTest::UserExec(Option_t *) {
   AliESDEvent *esd = dynamic_cast<AliESDEvent *>(event);
   if (esd) {
     Printf("nTracks=%d", esd->GetNumberOfTracks());
+    AliMCEvent *mcEvent = MCEvent();
+    if (!mcEvent) {
+      Printf("ERROR: Could not retrieve MC event");
+      return;
+    }
+    Printf("MC particles: %d", mcEvent->GetNumberOfTracks());
+
+    // Track loop for reconstructed event
+    Int_t ntracks = mcEvent->GetNumberOfTracks();
+    for (Int_t i = 0; i < ntracks; i++) {
+      AliMCParticle *esdMcTrack = (AliMCParticle *)mcEvent->GetTrack(
+          i); // pointer to reconstructed to track
+      if (!esdMcTrack) {
+        AliError(Form("ERROR: Could not retrieve esdtrack %d", i));
+        continue;
+      }
+      if (esdMcTrack->PdgCode() == 333) {
+
+        AliMCParticle *k1 =
+            (AliMCParticle *)mcEvent->GetTrack(esdMcTrack->GetFirstDaughter());
+        AliMCParticle *k2 =
+            (AliMCParticle *)mcEvent->GetTrack(esdMcTrack->GetLastDaughter());
+        if ((TMath::Abs(k1->PdgCode())) == 321 &&
+            (TMath::Abs(k2->PdgCode()) == 321)) {
+          Printf("px,py,pz,E=(%f,%f,%f,%f) pdg=%d", esdMcTrack->Px(),
+                 esdMcTrack->Py(), esdMcTrack->Pz(), esdMcTrack->E(),
+                 esdMcTrack->PdgCode());
+
+          TLorentzVector k1_lab(k1->Px(), k1->Py(), k1->Pz(), k1->E());
+          TLorentzVector k2_lab(k2->Px(), k2->Py(), k2->Pz(), k2->E());
+          TLorentzVector phi_lab = k1_lab + k2_lab;
+
+          Printf("  K1 : px,py,pz,E=(%f,%f,%f,%f) ch=%d pdg=%d", k1->Px(),
+                 k1->Py(), k1->Pz(), k1->E(), k1->Charge(), k1->PdgCode());
+          Printf("  K2 : px,py,pz,E=(%f,%f,%f,%f) ch=%d pdg=%d", k2->Px(),
+                 k2->Py(), k2->Pz(), k2->E(), k2->Charge(), k2->PdgCode());
+
+          Printf("  TLorentzVector K1 (Lab): ");
+          k1_lab.Print();
+          Printf("  TLorentzVector K2 (Lab): ");
+          k2_lab.Print();
+          Printf("  TLorentzVector Phi (Lab): ");
+          phi_lab.Print();
+
+          TLorentzVector k1_phi = k1_lab;
+          TLorentzVector k2_phi = k2_lab;
+          TLorentzVector phi_phi = phi_lab;
+
+          k1_phi.Boost(-phi_lab.BoostVector());
+          k2_phi.Boost(-phi_lab.BoostVector());
+          //				phi_phi.Boost(-phi_lab.BoostVector());
+
+          Printf("  TLorentzVector K1 (Phi): ");
+          k1_phi.Print();
+          Printf("  TLorentzVector K2 (Phi): ");
+          k2_phi.Print();
+          //				Printf("  TLorentzVector Phi (Phi): ");
+          //				phi_phi.Print();
+
+          //				Double_t cosTheta =
+          //phi_lab.Angle(k1_phi.Vect());
+          //				Double_t cosTheta = phi_lab.Dot(k1_phi) /
+          //phi_lab.Mag();
+
+          Double_t cosThetaL = TMath::Cos(k1_lab.Theta());
+          Printf("  K1 cos(theta) : %f (%f) (%f)", cosThetaL, k1_lab.Theta(),
+                 k1_lab.Theta() * 180 / TMath::Pi());
+          Double_t cosThetaL2 = TMath::Cos(k2_lab.Theta());
+          Printf("  K1 cos(theta) : %f (%f) (%f)", cosThetaL2, k2_lab.Theta(),
+                 k2_lab.Theta() * 180 / TMath::Pi());
+
+          Double_t cosTheta = TMath::Cos(k1_phi.Theta());
+          Printf("  K1 cos(theta) : %f (%f) (%f)", cosTheta, k1_phi.Theta(),
+                 k1_phi.Theta() * 180 / TMath::Pi());
+          Double_t cosTheta2 = TMath::Cos(k2_phi.Theta());
+          Printf("  K2 cos(theta) : %f (%f) (%f)", cosTheta2, k2_phi.Theta(),
+                 k2_phi.Theta() * 180 / TMath::Pi());
+
+          TVector3 vBeamAxis(0, 0, 1);
+          Printf("Jackson frame");
+          Printf("  K1 cos(theta) : %f (%f) (%f)",
+                 TMath::Cos(k1_phi.Angle(vBeamAxis)), k1_phi.Angle(vBeamAxis),
+                 k1_phi.Angle(vBeamAxis) * TMath::RadToDeg());
+          Printf("  K2 cos(theta) : %f (%f) (%f)",
+                 TMath::Cos(k2_phi.Angle(vBeamAxis)), k2_phi.Angle(vBeamAxis),
+                 k2_phi.Angle(vBeamAxis) * TMath::RadToDeg());
+
+          TVector3 vTransFrame = vBeamAxis.Cross(phi_lab.Vect());
+          Printf("Transverity frame");
+          Printf("  K1 cos(theta) : %f (%f) (%f)",
+                 TMath::Cos(k1_phi.Angle(vTransFrame)),
+                 k1_phi.Angle(vTransFrame),
+                 k1_phi.Angle(vTransFrame) * TMath::RadToDeg());
+          Printf("  K2 cos(theta) : %f (%f) (%f)",
+                 TMath::Cos(k2_phi.Angle(vTransFrame)),
+                 k2_phi.Angle(vTransFrame),
+                 k2_phi.Angle(vTransFrame) * TMath::RadToDeg());
+
+          TLorentzVector *k_phi = k1->Charge() > 0 ? &k1_phi : &k2_phi;
+          //				Double_t cosThetaJ =
+          //TMath::Cos(k_phi->Angle(vBeamAxis));
+          //				Double_t cosThetaT =
+          //TMath::Cos(k_phi->Angle(vTransFrame));
+
+          //				Double_t cosThetaJ =
+          //TMath::Cos(k_phi->Angle(vBeamAxis));
+          TVector3 kv_phi = k_phi->Vect();
+          //				Double_t cosThetaJ =
+          //kv_phi.Dot(vBeamAxis)/(kv_phi.Mag()*vBeamAxis.Mag());
+          Double_t cosThetaJ = kv_phi.Dot(vBeamAxis) /
+                               TMath::Sqrt((kv_phi.Mag2() * vBeamAxis.Mag2()));
+
+          //				Double_t cosThetaT =
+          //TMath::Cos(k_phi->Angle(vTransFrame));
+          //				Double_t cosThetaT =
+          //kv_phi.Dot(vTransFrame)/(kv_phi.Mag()*vTransFrame.Mag());
+          Double_t cosThetaT =
+              kv_phi.Dot(vTransFrame) /
+              TMath::Sqrt((kv_phi.Mag2() * vTransFrame.Mag2()));
+
+          Printf("cos(theta) J=%f T=%f", cosThetaJ, cosThetaT);
+          fHistPt->Fill(esdMcTrack->Pt());
+          fHistCosThetaJ->Fill(cosThetaJ);
+          fHistCosThetaT->Fill(cosThetaT);
+        }
+      }
+    }
   }
   // NEW HISTO should be filled before this point, as PostData puts the
   // information for this iteration of the UserExec in the container
@@ -205,7 +332,7 @@ void AliRsnTaskTest::UserExec(Option_t *) {
 }
 
 //________________________________________________________________________
-void AliRsnTaskTest::Terminate(Option_t *) {
+void AliRsnTaskTestCosTheta::Terminate(Option_t *) {
   // Draw result to screen, or perform fitting, normalizations
   // Called once at the end of the query
   fOutput = dynamic_cast<TList *>(GetOutputData(1));
@@ -250,7 +377,8 @@ void AliRsnTaskTest::Terminate(Option_t *) {
   // NEW HISTO should be retrieved from the TList container in the above way,
   // so it is available to draw on a canvas such as below
 
-  TCanvas *c = new TCanvas("AliRsnTaskTest", "P_{T}", 10, 10, 1020, 510);
+  TCanvas *c =
+      new TCanvas("AliRsnTaskTestCosTheta", "P_{T}", 10, 10, 1020, 510);
   c->Divide(2, 1);
   c->cd(1);
   fHistCosThetaJ->DrawCopy("E");

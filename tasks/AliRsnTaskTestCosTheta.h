@@ -2,7 +2,7 @@
  * See cxx source for full Copyright notice                               */
 
 /* $Id$ */
-/* AliRsnTaskTest.h
+/* AliRsnTaskTestCosTheta.h
  *
  * Template task producing a P_t spectrum and pseudorapidity distribution.
  * Includes explanations of physics and primary track selections
@@ -10,8 +10,8 @@
  * Based on tutorial example from offline pages
  * Edited by Arvinder Palaha
  */
-#ifndef ALIRSNTASKTEST_H
-#define ALIRSNTASKTEST_H
+#ifndef AliRsnTaskTestCosTheta_H
+#define AliRsnTaskTestCosTheta_H
 
 #include "AliAnalysisTaskSE.h"
 
@@ -19,11 +19,11 @@ class TH1F;
 class TList;
 class AliESDtrackCuts;
 
-class AliRsnTaskTest : public AliAnalysisTaskSE {
+class AliRsnTaskTestCosTheta : public AliAnalysisTaskSE {
 public:
-  AliRsnTaskTest();
-  AliRsnTaskTest(const char *name);
-  virtual ~AliRsnTaskTest();
+  AliRsnTaskTestCosTheta();
+  AliRsnTaskTestCosTheta(const char *name);
+  virtual ~AliRsnTaskTestCosTheta();
 
   virtual void UserCreateOutputObjects();
   virtual void UserExec(Option_t *option);
@@ -38,10 +38,11 @@ private:
   TH1F *fHistCosThetaH;        // Cos(theta) Helicity frame
   TH1F *fHistCosThetaA;        // Cos(theta) Adair frame
 
-  AliRsnTaskTest(const AliRsnTaskTest &);            // not implemented
-  AliRsnTaskTest &operator=(const AliRsnTaskTest &); // not implemented
+  AliRsnTaskTestCosTheta(const AliRsnTaskTestCosTheta &); // not implemented
+  AliRsnTaskTestCosTheta &
+  operator=(const AliRsnTaskTestCosTheta &); // not implemented
 
-  ClassDef(AliRsnTaskTest, 1); // example of analysis
+  ClassDef(AliRsnTaskTestCosTheta, 1); // example of analysis
 };
 
 #endif

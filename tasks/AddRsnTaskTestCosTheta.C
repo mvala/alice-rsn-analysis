@@ -3,13 +3,13 @@
 #include <TString.h>
 #endif
 
-AliAnalysisTaskSE *AddRsnTaskTest() {
+AliAnalysisTaskSE *AddRsnTaskTestCosTheta() {
 
   AliAnalysisManager *mgr = AliAnalysisManager::GetAnalysisManager();
 
   // create task
   gROOT->LoadMacro("AliRsnTaskTest.cxx+g");
-  AliAnalysisTaskSE *task = new AliRsnTaskTest("RsnTestTask");
+  AliAnalysisTaskSE *task = new AliRsnTaskTestCosTheata("RsnTestCosThetaTask");
   task->SelectCollisionCandidates(AliVEvent::kMB); // if physics selection
                                                    // performed in UserExec(),
                                                    // this line should be
@@ -21,8 +21,8 @@ AliAnalysisTaskSE *AddRsnTaskTest() {
                                                // input/output
   AliAnalysisDataContainer *cinput = mgr->GetCommonInputContainer();
   AliAnalysisDataContainer *coutput1 = mgr->CreateContainer(
-      "rsnTaskTest", TList::Class(), AliAnalysisManager::kOutputContainer,
-      outputFileName.Data());
+      "rsnTaskCosThetaTest", TList::Class(),
+      AliAnalysisManager::kOutputContainer, outputFileName.Data());
 
   // connect input/output
   mgr->ConnectInput(task, 0, cinput);
