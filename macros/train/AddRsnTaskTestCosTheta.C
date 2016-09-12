@@ -1,1 +1,0 @@
-../../tasks/AddRsnTaskTestCosTheta.C
