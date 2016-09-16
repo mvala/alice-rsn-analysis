@@ -63,21 +63,22 @@ Bool_t Run(TString anSrc = "grid" /*or "local" or "proof"*/,
 
 	mgr->SetGridHandler(analysisPlugin);
 
-    if (!input.CompareTo("esd")) {
-        Printf("Adding PysicsSelection task ...");
-		gROOT->LoadMacro("$ALICE_PHYSICS/OADB/macros/AddTaskPhysicsSelection.C");
-		AliPhysicsSelectionTask *physSelTask = AddTaskPhysicsSelection(useMC);
-		if(!physSelTask) { Printf("no physSelTask"); return kFALSE; }
-    }
+//    if (!input.CompareTo("esd")) {
+//        Printf("Adding PysicsSelection task ...");
+//		gROOT->LoadMacro("$ALICE_PHYSICS/OADB/macros/AddTaskPhysicsSelection.C");
+//		AliPhysicsSelectionTask *physSelTask = AddTaskPhysicsSelection(useMC);
+//		if(!physSelTask) { Printf("no physSelTask"); return kFALSE; }
+//    }
 
-    Printf("Adding PIDResponse task ...");
-    gROOT->LoadMacro("$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDResponse.C");
-    AliAnalysisTaskPIDResponse *pidResponseTask = AddTaskPIDResponse(useMC);
-	if(!pidResponseTask) { Printf("no pidResponseTask"); return kFALSE; }
+//    Printf("Adding PIDResponse task ...");
+//    gROOT->LoadMacro("$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDResponse.C");
+//    AliAnalysisTaskPIDResponse *pidResponseTask = AddTaskPIDResponse(useMC);
+//	if(!pidResponseTask) { Printf("no pidResponseTask"); return kFALSE; }
 
-	TString wagons = gSystem->GetFromPipe("ls -C *.wag");
+	TString wagons = gSystem->GetFromPipe("ls *.wag");
 	if (wagons.IsNull()) return kFALSE;
-	TObjArray *listWagons = wagons.Tokenize(" ");
+        Printf("%s",wagons.Data());
+	TObjArray *listWagons = wagons.Tokenize("\n");
 	TObjString *strObj;
 	for (Int_t i=0;i<listWagons->GetEntries();i++) {
 		strObj = (TObjString *)listWagons->At(i);
@@ -205,6 +206,7 @@ Bool_t SetupPar(TString par) {
 
 Bool_t AddVagon(const char *fname) {
 
+        Printf("%s",fname);
 	ifstream input(fname);
 	TString macroStr;
 	TString macroFun;
