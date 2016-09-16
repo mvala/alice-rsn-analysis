@@ -1,0 +1,3 @@
+Macro=$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDResponse.C
+Arguments=kFALSE
+Libs=

@@ -1,0 +1,3 @@
+Macro=$ALICE_PHYSICS/OADB/macros/AddTaskCentrality.C
+Arguments=kFALSE,kFALSE
+Libs=

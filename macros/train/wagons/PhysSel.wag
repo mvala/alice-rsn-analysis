@@ -1,0 +1,3 @@
+Macro=$ALICE_PHYSICS/OADB/macros/AddTaskPhysicsSelection.C
+Arguments=kFALSE
+Libs=
