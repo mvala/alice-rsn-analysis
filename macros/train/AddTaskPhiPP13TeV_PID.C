@@ -51,6 +51,7 @@ AliRsnMiniAnalysisTask * AddTaskPhiPP13TeV_PID
   // event cuts
   //-------------------------------------------
   UInt_t      triggerMask=AliVEvent::kINT7;
+  if (!isPP) triggerMask=AliVEvent::kAny;
   Bool_t      rejectPileUp=kTRUE;
   Double_t    vtxZcut=10.0;//cm, default cut on vtx z
 
