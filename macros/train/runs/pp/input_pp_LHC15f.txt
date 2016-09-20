@@ -1,0 +1,1 @@
+root://alieos.saske.sk//eos/alike.saske.sk/alice/data/2015/LHC15f/000225000/pass2/15000225000019.10/root_archive.zip#AliESDs.root

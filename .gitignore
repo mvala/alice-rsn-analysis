@@ -45,5 +45,5 @@ build
 
 # VS
 .vscode/*
-!.vscode/*.json
+#!.vscode/*.json
 
