@@ -3,7 +3,7 @@
 #include <TString.h>
 #endif
 
-AliAnalysisTaskSE *AddRsnTaskTestCosTheta() {
+AliAnalysisTaskSE *AddRsnTaskEventPlaneTest() {
 
   // Taking task from same directory as this macro
   TString macroPathStr = ".";
@@ -13,8 +13,8 @@ AliAnalysisTaskSE *AddRsnTaskTestCosTheta() {
   if (macroPath) macroPathStr = macroPath->GetTitle();
 
   // create task
-  gROOT->LoadMacro(TString::Format("%s/AliRsnTaskTestCosTheta.cxx+g",macroPathStr.Data()).Data());
-  AliAnalysisTaskSE *task = new AliRsnTaskTestCosTheata("RsnTestCosThetaTask");
+  gROOT->LoadMacro(TString::Format("%s/AliRsnTaskEventPlaneTest.cxx+g",macroPathStr.Data()).Data());
+  AliAnalysisTaskSE *task = new AliRsnTaskTest("RsnTestEventPlaneTask");
   task->SelectCollisionCandidates(AliVEvent::kMB); // if physics selection
                                                    // performed in UserExec(),
                                                    // this line should be
@@ -26,8 +26,8 @@ AliAnalysisTaskSE *AddRsnTaskTestCosTheta() {
                                                // input/output
   AliAnalysisDataContainer *cinput = mgr->GetCommonInputContainer();
   AliAnalysisDataContainer *coutput1 = mgr->CreateContainer(
-      "rsnTaskCosThetaTest", TList::Class(),
-      AliAnalysisManager::kOutputContainer, outputFileName.Data());
+      "rsnTaskEventPlaneTest", TList::Class(), AliAnalysisManager::kOutputContainer,
+      outputFileName.Data());
 
   // connect input/output
   mgr->ConnectInput(task, 0, cinput);

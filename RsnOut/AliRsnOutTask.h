@@ -5,9 +5,8 @@
 class AliRsnOutTask : public TTask {
 
 public:
-
   AliRsnOutTask();
-  AliRsnOutTask(const char *name, const char *title="");
+  AliRsnOutTask(const char *name, const char *title = "");
   virtual ~AliRsnOutTask();
 
   virtual void Add(TTask *task);
@@ -29,13 +28,10 @@ public:
   virtual void Export(TDirectory *root);
 
 protected:
-
-  AliRsnOutTask *fParent;//||
+  AliRsnOutTask *fParent; //||
   TList *fOutput;
 
   ClassDef(AliRsnOutTask, 1)
-
 };
 
 #endif
-

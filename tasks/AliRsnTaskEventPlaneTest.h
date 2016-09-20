@@ -2,7 +2,7 @@
  * See cxx source for full Copyright notice                               */
 
 /* $Id$ */
-/* AliRsnTaskTest.h
+/* AliRsnTaskEventPlaneTest.h
  *
  * Template task producing a P_t spectrum and pseudorapidity distribution.
  * Includes explanations of physics and primary track selections
@@ -10,8 +10,8 @@
  * Based on tutorial example from offline pages
  * Edited by Arvinder Palaha
  */
-#ifndef ALIRSNTASKTEST_H
-#define ALIRSNTASKTEST_H
+#ifndef AliRsnTaskEventPlaneTest_H
+#define AliRsnTaskEventPlaneTest_H
 
 #include "AliAnalysisTaskSE.h"
 
@@ -19,26 +19,24 @@ class TH1F;
 class TList;
 class AliESDtrackCuts;
 
-class AliRsnTaskTest : public AliAnalysisTaskSE {
+class AliRsnTaskEventPlaneTest : public AliAnalysisTaskSE {
 public:
-  AliRsnTaskTest();
-  AliRsnTaskTest(const char *name);
-  virtual ~AliRsnTaskTest();
+  AliRsnTaskEventPlaneTest();
+  AliRsnTaskEventPlaneTest(const char *name);
+  virtual ~AliRsnTaskEventPlaneTest();
 
   virtual void UserCreateOutputObjects();
   virtual void UserExec(Option_t *option);
   virtual void Terminate(Option_t *);
 
 private:
-  TList *fOutput;              // Output list
-  AliESDtrackCuts *fTrackCuts; // Track cuts
-  TH1F *fHistPt;               // Pt spectrum
-  TH1F *fHistPtPrimary;        // Pt spectrum primary tracks
+  TList *fOutput; // Output list
 
-  AliRsnTaskTest(const AliRsnTaskTest &);            // not implemented
-  AliRsnTaskTest &operator=(const AliRsnTaskTest &); // not implemented
+  AliRsnTaskEventPlaneTest(const AliRsnTaskEventPlaneTest &); // not implemented
+  AliRsnTaskEventPlaneTest &
+  operator=(const AliRsnTaskEventPlaneTest &); // not implemented
 
-  ClassDef(AliRsnTaskTest, 1); // example of analysis
+  ClassDef(AliRsnTaskEventPlaneTest, 1); // example of analysis
 };
 
 #endif

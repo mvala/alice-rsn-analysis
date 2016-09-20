@@ -1,14 +1,13 @@
 #ifndef AliRsnOutTaskBin_cxx
 #define AliRsnOutTaskBin_cxx
 
-#include <AliRsnOutValue.h>
 #include <AliRsnOutTask.h>
+#include <AliRsnOutValue.h>
 
 class AliRsnOutTaskBin : public AliRsnOutTask {
 
 public:
-
-  AliRsnOutTaskBin(const char *name="bin", const char *title="");
+  AliRsnOutTaskBin(const char *name = "bin", const char *title = "");
   virtual ~AliRsnOutTaskBin();
 
   virtual void Exec(Option_t *option);
@@ -17,16 +16,13 @@ public:
   TList *GetListOfCuts() const { return fCuts; }
   void AddCut(AliRsnOutValue *cut);
 
-  void ApplyCuts(THnSparse *sigBg,THnSparse *bg);
+  void ApplyCuts(THnSparse *sigBg, THnSparse *bg);
 
 private:
-
   AliRsnOutValue fValue;
   TList *fCuts;
 
   ClassDef(AliRsnOutTaskBin, 1)
-
 };
 
 #endif
-

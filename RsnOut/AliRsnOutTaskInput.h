@@ -1,7 +1,7 @@
 #ifndef AliRsnOutTaskInput_cxx
 #define AliRsnOutTaskInput_cxx
-#include <TEfficiency.h>
 #include <AliRsnOutTask.h>
+#include <TEfficiency.h>
 
 class THnSparse;
 class TH1;
@@ -10,14 +10,16 @@ class TList;
 class AliRsnOutTaskInput : public AliRsnOutTask {
 
 public:
-
-  AliRsnOutTaskInput(const char *name="input", const char *title="");
+  AliRsnOutTaskInput(const char *name = "input", const char *title = "");
   virtual ~AliRsnOutTaskInput();
 
   virtual void Exec(Option_t *option);
   virtual void ExecPost(Option_t *option);
 
-  void SetFileName(TString filename) { fFileName = filename; fTitle = filename; }
+  void SetFileName(TString filename) {
+    fFileName = filename;
+    fTitle = filename;
+  }
   void SetListName(TString listname) { fListName = listname; }
   void SetSigBgName(TString sigbgname) { fSigBgName = sigbgname; }
   void SetBgName(TString bgname) { fBgName = bgname; }
@@ -29,16 +31,15 @@ public:
   THnSparse *GetBg() const { return fBg; }
   THnSparse *GetMCRec() const { return fMCRec; }
   THnSparse *GetMCGen() const { return fMCGen; }
-  Long64_t GetNEvents(Int_t bin=4) const;
+  Long64_t GetNEvents(Int_t bin = 4) const;
 
   TGraphAsymmErrors *GetMCEfficiency() const { return fMCEff; }
 
-  virtual void 	Clear (Option_t *opt="");
+  virtual void Clear(Option_t *opt = "");
 
   void CalculateEfficiency();
 
 private:
-
   TString fFileName;
   TString fListName;
   TString fSigBgName;
@@ -46,20 +47,17 @@ private:
   TString fMCRecName;
   TString fMCGenName;
   TGraphAsymmErrors *fMCEff;
-  TH1* fEventStat;
+  TH1 *fEventStat;
   Bool_t fEffOnly;
 
-
-  TFile *fFile;//!
-  TList *fList;//!
-  THnSparse *fSigBg;//!
-  THnSparse *fBg;//!
-  THnSparse *fMCRec;//!
-  THnSparse *fMCGen;//!
+  TFile *fFile;      //!
+  TList *fList;      //!
+  THnSparse *fSigBg; //!
+  THnSparse *fBg;    //!
+  THnSparse *fMCRec; //!
+  THnSparse *fMCGen; //!
 
   ClassDef(AliRsnOutTaskInput, 1)
-
 };
 
 #endif
-

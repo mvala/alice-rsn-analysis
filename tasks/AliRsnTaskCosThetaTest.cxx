@@ -15,7 +15,7 @@
 
 /* $Id$ */
 
-/* AliRsnTaskTestCosTheta.cxx
+/* AliRsnTaskCosThetaTest.cxx
  *
  * Template task producing a P_t spectrum and pseudorapidity distribution.
  * Includes explanations of physics and primary track selections
@@ -26,7 +26,7 @@
  * Based on tutorial example from offline pages
  * Edited by Arvinder Palaha
  */
-#include "AliRsnTaskTestCosTheta.h"
+#include "AliRsnTaskCosThetaTest.h"
 
 #include "Riostream.h"
 #include "TCanvas.h"
@@ -45,10 +45,10 @@
 #include "AliMCEvent.h"
 #include "AliStack.h"
 
-ClassImp(AliRsnTaskTestCosTheta)
+ClassImp(AliRsnTaskCosThetaTest)
 
     //________________________________________________________________________
-    AliRsnTaskTestCosTheta::AliRsnTaskTestCosTheta() // All data members should
+    AliRsnTaskCosThetaTest::AliRsnTaskCosThetaTest() // All data members should
                                                      // be initialised here
     : AliAnalysisTaskSE(),
       fOutput(0),
@@ -64,7 +64,7 @@ ClassImp(AliRsnTaskTestCosTheta)
 }
 
 //________________________________________________________________________
-AliRsnTaskTestCosTheta::AliRsnTaskTestCosTheta(
+AliRsnTaskCosThetaTest::AliRsnTaskCosThetaTest(
     const char *name) // All data members should be initialised here
     : AliAnalysisTaskSE(name),
       fOutput(0),
@@ -85,7 +85,7 @@ AliRsnTaskTestCosTheta::AliRsnTaskTestCosTheta(
 }
 
 //________________________________________________________________________
-AliRsnTaskTestCosTheta::~AliRsnTaskTestCosTheta() {
+AliRsnTaskCosThetaTest::~AliRsnTaskCosThetaTest() {
   // Destructor. Clean-up the output list, but not the histograms that are put
   // inside
   // (the list is owner and will clean-up these histograms). Protect in PROOF
@@ -97,7 +97,7 @@ AliRsnTaskTestCosTheta::~AliRsnTaskTestCosTheta() {
 }
 
 //________________________________________________________________________
-void AliRsnTaskTestCosTheta::UserCreateOutputObjects() {
+void AliRsnTaskCosThetaTest::UserCreateOutputObjects() {
   // Create histograms
   // Called once (on the worker node)
 
@@ -184,7 +184,7 @@ void AliRsnTaskTestCosTheta::UserCreateOutputObjects() {
 }
 
 //________________________________________________________________________
-void AliRsnTaskTestCosTheta::UserExec(Option_t *) {
+void AliRsnTaskCosThetaTest::UserExec(Option_t *) {
   // Main loop
   // Called for each event
 
@@ -258,9 +258,10 @@ void AliRsnTaskTestCosTheta::UserExec(Option_t *) {
           //				phi_phi.Print();
 
           //				Double_t cosTheta =
-          //phi_lab.Angle(k1_phi.Vect());
-          //				Double_t cosTheta = phi_lab.Dot(k1_phi) /
-          //phi_lab.Mag();
+          // phi_lab.Angle(k1_phi.Vect());
+          //				Double_t cosTheta = phi_lab.Dot(k1_phi)
+          ///
+          // phi_lab.Mag();
 
           Double_t cosThetaL = TMath::Cos(k1_lab.Theta());
           Printf("  K1 cos(theta) : %f (%f) (%f)", cosThetaL, k1_lab.Theta(),
@@ -298,22 +299,22 @@ void AliRsnTaskTestCosTheta::UserExec(Option_t *) {
 
           TLorentzVector *k_phi = k1->Charge() > 0 ? &k1_phi : &k2_phi;
           //				Double_t cosThetaJ =
-          //TMath::Cos(k_phi->Angle(vBeamAxis));
+          // TMath::Cos(k_phi->Angle(vBeamAxis));
           //				Double_t cosThetaT =
-          //TMath::Cos(k_phi->Angle(vTransFrame));
+          // TMath::Cos(k_phi->Angle(vTransFrame));
 
           //				Double_t cosThetaJ =
-          //TMath::Cos(k_phi->Angle(vBeamAxis));
+          // TMath::Cos(k_phi->Angle(vBeamAxis));
           TVector3 kv_phi = k_phi->Vect();
           //				Double_t cosThetaJ =
-          //kv_phi.Dot(vBeamAxis)/(kv_phi.Mag()*vBeamAxis.Mag());
+          // kv_phi.Dot(vBeamAxis)/(kv_phi.Mag()*vBeamAxis.Mag());
           Double_t cosThetaJ = kv_phi.Dot(vBeamAxis) /
                                TMath::Sqrt((kv_phi.Mag2() * vBeamAxis.Mag2()));
 
           //				Double_t cosThetaT =
-          //TMath::Cos(k_phi->Angle(vTransFrame));
+          // TMath::Cos(k_phi->Angle(vTransFrame));
           //				Double_t cosThetaT =
-          //kv_phi.Dot(vTransFrame)/(kv_phi.Mag()*vTransFrame.Mag());
+          // kv_phi.Dot(vTransFrame)/(kv_phi.Mag()*vTransFrame.Mag());
           Double_t cosThetaT =
               kv_phi.Dot(vTransFrame) /
               TMath::Sqrt((kv_phi.Mag2() * vTransFrame.Mag2()));
@@ -332,7 +333,7 @@ void AliRsnTaskTestCosTheta::UserExec(Option_t *) {
 }
 
 //________________________________________________________________________
-void AliRsnTaskTestCosTheta::Terminate(Option_t *) {
+void AliRsnTaskCosThetaTest::Terminate(Option_t *) {
   // Draw result to screen, or perform fitting, normalizations
   // Called once at the end of the query
   fOutput = dynamic_cast<TList *>(GetOutputData(1));
@@ -378,7 +379,7 @@ void AliRsnTaskTestCosTheta::Terminate(Option_t *) {
   // so it is available to draw on a canvas such as below
 
   TCanvas *c =
-      new TCanvas("AliRsnTaskTestCosTheta", "P_{T}", 10, 10, 1020, 510);
+      new TCanvas("AliRsnTaskCosThetaTest", "P_{T}", 10, 10, 1020, 510);
   c->Divide(2, 1);
   c->cd(1);
   fHistCosThetaJ->DrawCopy("E");

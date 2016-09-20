@@ -6,8 +6,7 @@ class AliRsnOutValue;
 class AliRsnOutTaskNorm : public AliRsnOutTask {
 
 public:
-
-  AliRsnOutTaskNorm(const char *name="rsn", const char *title="");
+  AliRsnOutTaskNorm(const char *name = "rsn", const char *title = "");
   virtual ~AliRsnOutTaskNorm();
 
   virtual void Exec(Option_t *option);
@@ -16,12 +15,9 @@ public:
   TList *GetRanges() const { return fRanges; }
 
 private:
-
   TList *fRanges;
 
   ClassDef(AliRsnOutTaskNorm, 1)
-
 };
 
 #endif
-

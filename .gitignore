@@ -34,6 +34,7 @@
 *.root
 *.par
 macros/train/*.wag
+macros/train/runs/*/*Test.wag
 macros/train/*.txt
 scripts/*.txt
 

@@ -6,8 +6,7 @@
 class AliRsnOutTaskResult : public AliRsnOutTask {
 
 public:
-
-  AliRsnOutTaskResult(const char *name="results", const char *title="");
+  AliRsnOutTaskResult(const char *name = "results", const char *title = "");
   virtual ~AliRsnOutTaskResult();
 
   virtual void Exec(Option_t *option);
@@ -16,12 +15,9 @@ public:
   void SetMC(AliRsnOutTask *mc);
 
 private:
-
   AliRsnOutTask *fData;
   AliRsnOutTask *fMC;
   ClassDef(AliRsnOutTaskResult, 1)
-
 };
 
 #endif
-
