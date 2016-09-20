@@ -1,3 +1,0 @@
-Macro=$ALICE_PHYSICS/PWGLF/RESONANCES/macros/mini/AddAnalysisTaskPhiRAAPbPb.C
-Arguments=kFALSE,kFALSE,"$ALICE_PHYSICS/PWGLF/RESONANCES/macros/mini/"
-Libs=libEventMixing.so,libPWGLFresonances.so
