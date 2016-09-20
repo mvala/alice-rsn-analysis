@@ -1,0 +1,9 @@
+root://alieos.saske.sk//eos/alike.saske.sk/alice/data/2010/LHC10h/000137161/ESDs/pass2/10000137161001.10/root_archive.zip#AliESDs.root
+root://alieos.saske.sk//eos/alike.saske.sk/alice/data/2010/LHC10h/000137161/ESDs/pass2/10000137161001.100/root_archive.zip#AliESDs.root
+root://alieos.saske.sk//eos/alike.saske.sk/alice/data/2010/LHC10h/000137161/ESDs/pass2/10000137161001.1000/root_archive.zip#AliESDs.root
+root://alieos.saske.sk//eos/alike.saske.sk/alice/data/2010/LHC10h/000137161/ESDs/pass2/10000137161001.1010/root_archive.zip#AliESDs.root
+root://alieos.saske.sk//eos/alike.saske.sk/alice/data/2010/LHC10h/000137161/ESDs/pass2/10000137161001.1030/root_archive.zip#AliESDs.root
+root://alieos.saske.sk//eos/alike.saske.sk/alice/data/2010/LHC10h/000137161/ESDs/pass2/10000137161001.1040/root_archive.zip#AliESDs.root
+root://alieos.saske.sk//eos/alike.saske.sk/alice/data/2010/LHC10h/000137161/ESDs/pass2/10000137161001.1050/root_archive.zip#AliESDs.root
+root://alieos.saske.sk//eos/alike.saske.sk/alice/data/2010/LHC10h/000137161/ESDs/pass2/10000137161001.1060/root_archive.zip#AliESDs.root
+root://alieos.saske.sk//eos/alike.saske.sk/alice/data/2010/LHC10h/000137161/ESDs/pass2/10000137161001.1070/root_archive.zip#AliESDs.root

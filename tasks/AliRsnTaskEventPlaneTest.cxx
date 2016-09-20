@@ -112,7 +112,7 @@ void AliRsnTaskEventPlaneTest::UserExec(Option_t *) {
 
   AliESDEvent *esd = dynamic_cast<AliESDEvent *>(event);
   if (esd) {
-    Printf("nTracks=%d", esd->GetNumberOfTracks());
+    // Printf("nTracks=%d", esd->GetNumberOfTracks());
   }
   // NEW HISTO should be filled before this point, as PostData puts the
   // information for this iteration of the UserExec in the container
