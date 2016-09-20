@@ -14,7 +14,7 @@ AliAnalysisTaskSE *AddRsnTaskEventPlaneTest() {
 
   // create task
   gROOT->LoadMacro(TString::Format("%s/AliRsnTaskEventPlaneTest.cxx+g",macroPathStr.Data()).Data());
-  AliAnalysisTaskSE *task = new AliRsnTaskTest("RsnTestEventPlaneTask");
+  AliAnalysisTaskSE *task = new AliRsnTaskEventPlaneTest("RsnTestEventPlaneTask");
   task->SelectCollisionCandidates(AliVEvent::kMB); // if physics selection
                                                    // performed in UserExec(),
                                                    // this line should be

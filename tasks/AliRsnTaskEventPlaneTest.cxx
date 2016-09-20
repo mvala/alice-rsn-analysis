@@ -83,7 +83,6 @@ AliRsnTaskEventPlaneTest::~AliRsnTaskEventPlaneTest() {
   if (fOutput && !AliAnalysisManager::GetAnalysisManager()->IsProofMode()) {
     delete fOutput;
   }
-  delete fTrackCuts;
 }
 
 //________________________________________________________________________
@@ -114,11 +113,6 @@ void AliRsnTaskEventPlaneTest::UserExec(Option_t *) {
   AliESDEvent *esd = dynamic_cast<AliESDEvent *>(event);
   if (esd) {
     Printf("nTracks=%d", esd->GetNumberOfTracks());
-    AliESDtrack *esdTrack = 0;
-    for (Int_t iTrack = 0; iTrack < esd->GetNumberOfTracks(); iTrack++) {
-      esdTrack = (AliESDtrack *)esd->GetTrack(iTrack);
-      fHistPt->Fill(esdTrack->Pt());
-    }
   }
   // NEW HISTO should be filled before this point, as PostData puts the
   // information for this iteration of the UserExec in the container
