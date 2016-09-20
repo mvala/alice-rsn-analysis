@@ -99,6 +99,8 @@ void AliRsnTaskTest::UserCreateOutputObjects() {
   fOutput->SetOwner(); // IMPORTANT!
 
   fTrackCuts = AliESDtrackCuts::GetStandardITSTPCTrackCuts2010(kTRUE);
+  fTrackCuts->SetMaxDCAToVertexXYPtDep("0.0182+0.0350/pt^1.01");
+
   // === Primary Track Selection ===
   //
   // The definition of a primary track is taken from the ALICE Twiki
