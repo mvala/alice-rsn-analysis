@@ -5,10 +5,15 @@
 
 AliAnalysisTaskSE *AddRsnTaskTest() {
 
+  // Taking task from same directory as this macro
+  TString macroPathStr = ".";
   AliAnalysisManager *mgr = AliAnalysisManager::GetAnalysisManager();
+  TMap *map = mgr->GetGlobals();
+  TNamed *macroPath = map->GetValue("alice-rsn-macro-path");
+  if (macroPath) macroPathStr = macroPath->GetTitle();
 
   // create task
-  gROOT->LoadMacro("AliRsnTaskTest.cxx+g");
+  gROOT->LoadMacro(TString::Format("%s/AliRsnTaskTest.cxx+g",macroPathStr.Data()).Data());
   AliAnalysisTaskSE *task = new AliRsnTaskTest("RsnTestTask");
   task->SelectCollisionCandidates(AliVEvent::kMB); // if physics selection
                                                    // performed in UserExec(),

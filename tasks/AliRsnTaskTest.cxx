@@ -53,12 +53,8 @@ ClassImp(AliRsnTaskTest)
     : AliAnalysisTaskSE(),
       fOutput(0),
       fTrackCuts(0),
-      fHistPt(0),
-      fHistCosThetaJ(0),
-      fHistCosThetaT(0),
-      fHistCosThetaH(0),
-      fHistCosThetaA(
-          0) // The last in the above list should not have a comma after it
+      fHistPt(0)
+       // The last in the above list should not have a comma after it
 {
   // Dummy constructor ALWAYS needed for I/O.
 }
@@ -69,12 +65,8 @@ AliRsnTaskTest::AliRsnTaskTest(
     : AliAnalysisTaskSE(name),
       fOutput(0),
       fTrackCuts(0),
-      fHistPt(0),
-      fHistCosThetaJ(0),
-      fHistCosThetaT(0),
-      fHistCosThetaH(0),
-      fHistCosThetaA(
-          0) // The last in the above list should not have a comma after it
+      fHistPt(0) 
+      // The last in the above list should not have a comma after it
 {
   // Constructor
   // Define input and output slots here (never in the dummy constructor)
@@ -147,37 +139,9 @@ void AliRsnTaskTest::UserCreateOutputObjects() {
   fHistPt->GetYaxis()->SetTitle("dN/dP_{T} (c/GeV)");
   fHistPt->SetMarkerStyle(kFullCircle);
 
-  fHistCosThetaJ =
-      new TH1F("fHistCosThetaJ", "cos(#theta) Jackson frame", 15, -1, 1);
-  fHistCosThetaJ->GetXaxis()->SetTitle("cos(#theta)");
-  fHistCosThetaJ->GetYaxis()->SetTitle("N");
-  fHistCosThetaJ->SetMarkerStyle(kFullCircle);
-
-  fHistCosThetaT =
-      new TH1F("fHistCosThetaT", "cos(#theta) Transverse frame", 15, -1, 1);
-  fHistCosThetaT->GetXaxis()->SetTitle("cos(#theta)");
-  fHistCosThetaT->GetYaxis()->SetTitle("N");
-  fHistCosThetaT->SetMarkerStyle(kFullCircle);
-
-  fHistCosThetaH =
-      new TH1F("fHistCosThetaH", "cos(#theta) Helicity frame", 15, -1, 1);
-  fHistCosThetaH->GetXaxis()->SetTitle("cos(#theta)");
-  fHistCosThetaH->GetYaxis()->SetTitle("N");
-  fHistCosThetaH->SetMarkerStyle(kFullCircle);
-
-  fHistCosThetaA =
-      new TH1F("fHistCosThetaA", "cos(#theta) Adair Frame", 15, -1, 1);
-  fHistCosThetaA->GetXaxis()->SetTitle("cos(#theta)");
-  fHistCosThetaA->GetYaxis()->SetTitle("N");
-  fHistCosThetaA->SetMarkerStyle(kFullCircle);
-
   // NEW HISTO should be defined here, with a sensible name,
 
   fOutput->Add(fHistPt);
-  fOutput->Add(fHistCosThetaJ);
-  fOutput->Add(fHistCosThetaT);
-  fOutput->Add(fHistCosThetaH);
-  fOutput->Add(fHistCosThetaA);
   // NEW HISTO added to fOutput here
   PostData(1, fOutput); // Post data for ALL output slots >0 here, to get at
                         // least an empty histogram
@@ -198,6 +162,11 @@ void AliRsnTaskTest::UserExec(Option_t *) {
   AliESDEvent *esd = dynamic_cast<AliESDEvent *>(event);
   if (esd) {
     Printf("nTracks=%d", esd->GetNumberOfTracks());
+    AliESDtrack *esdTrack = 0;
+    for (Int_t iTrack = 0; iTrack < esd->GetNumberOfTracks(); iTrack++) {
+      esdTrack = (AliESDtrack*) esd->GetTrack(iTrack);
+      fHistPt->Fill(esdTrack->Pt());
+    }
   }
   // NEW HISTO should be filled before this point, as PostData puts the
   // information for this iteration of the UserExec in the container
@@ -220,27 +189,6 @@ void AliRsnTaskTest::Terminate(Option_t *) {
     return;
   }
 
-  fHistCosThetaJ = dynamic_cast<TH1F *>(fOutput->FindObject("fHistCosThetaJ"));
-  if (!fHistCosThetaJ) {
-    Printf("ERROR: could not retrieve fHistCosThetaJ");
-    return;
-  }
-  fHistCosThetaT = dynamic_cast<TH1F *>(fOutput->FindObject("fHistCosThetaT"));
-  if (!fHistCosThetaT) {
-    Printf("ERROR: could not retrieve fHistCosThetaT");
-    return;
-  }
-  fHistCosThetaH = dynamic_cast<TH1F *>(fOutput->FindObject("fHistCosThetaH"));
-  if (!fHistCosThetaH) {
-    Printf("ERROR: could not retrieve fHistCosThetaH");
-    return;
-  }
-  fHistCosThetaA = dynamic_cast<TH1F *>(fOutput->FindObject("fHistCosThetaA"));
-  if (!fHistCosThetaA) {
-    Printf("ERROR: could not retrieve fHistCosThetaA");
-    return;
-  }
-
   // Get the physics selection histograms with the selection statistics
   // AliAnalysisManager *mgr = AliAnalysisManager::GetAnalysisManager();
   // AliESDInputHandler *inputH =
@@ -250,10 +198,7 @@ void AliRsnTaskTest::Terminate(Option_t *) {
   // NEW HISTO should be retrieved from the TList container in the above way,
   // so it is available to draw on a canvas such as below
 
-  TCanvas *c = new TCanvas("AliRsnTaskTest", "P_{T}", 10, 10, 1020, 510);
-  c->Divide(2, 1);
-  c->cd(1);
-  fHistCosThetaJ->DrawCopy("E");
-  c->cd(2);
-  fHistCosThetaT->DrawCopy("E");
+  TCanvas *c = new TCanvas("AliRsnTaskTest", "P_{T}", 10, 10, 510, 510);
+  c->SetLogy();
+  fHistPt->DrawCopy("E");
 }

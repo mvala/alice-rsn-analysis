@@ -33,10 +33,6 @@ private:
   TList *fOutput;              // Output list
   AliESDtrackCuts *fTrackCuts; // Track cuts
   TH1F *fHistPt;               // Pt spectrum
-  TH1F *fHistCosThetaJ;        // Cos(theta) Jackson frame
-  TH1F *fHistCosThetaT;        // Cos(theta) Transverse frame
-  TH1F *fHistCosThetaH;        // Cos(theta) Helicity frame
-  TH1F *fHistCosThetaA;        // Cos(theta) Adair frame
 
   AliRsnTaskTest(const AliRsnTaskTest &);            // not implemented
   AliRsnTaskTest &operator=(const AliRsnTaskTest &); // not implemented

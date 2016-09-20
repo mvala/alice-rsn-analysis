@@ -63,18 +63,6 @@ Bool_t Run(TString anSrc = "grid" /*or "local" or "proof"*/,
 
 	mgr->SetGridHandler(analysisPlugin);
 
-//    if (!input.CompareTo("esd")) {
-//        Printf("Adding PysicsSelection task ...");
-//		gROOT->LoadMacro("$ALICE_PHYSICS/OADB/macros/AddTaskPhysicsSelection.C");
-//		AliPhysicsSelectionTask *physSelTask = AddTaskPhysicsSelection(useMC);
-//		if(!physSelTask) { Printf("no physSelTask"); return kFALSE; }
-//    }
-
-//    Printf("Adding PIDResponse task ...");
-//    gROOT->LoadMacro("$ALICE_ROOT/ANALYSIS/macros/AddTaskPIDResponse.C");
-//    AliAnalysisTaskPIDResponse *pidResponseTask = AddTaskPIDResponse(useMC);
-//	if(!pidResponseTask) { Printf("no pidResponseTask"); return kFALSE; }
-
 	TString wagons = gSystem->GetFromPipe("ls *.wag");
 	if (wagons.IsNull()) return kFALSE;
         Printf("%s",wagons.Data());
@@ -205,8 +193,6 @@ Bool_t SetupPar(TString par) {
 }
 
 Bool_t AddVagon(const char *fname) {
-
-        Printf("%s",fname);
 	ifstream input(fname);
 	TString macroStr;
 	TString macroFun;
@@ -256,6 +242,17 @@ Bool_t AddVagon(const char *fname) {
 		input.close();
 	}
 
+	TString macroPathStr = gSystem->DirName(gSystem->ExpandPathName(macroStr.Data()));
+
+	AliAnalysisManager *mgr = AliAnalysisManager::GetAnalysisManager();
+	TMap *map = mgr->GetGlobals();
+	TNamed *macroPath = map->GetValue("alice-rsn-macro-path");
+	if (!macroPath) {
+		macroPath = new TNamed("alice-rsn-macro-path", macroPathStr.Data());
+		map->Add(new TNamed("alice-rsn-macro-path",""), macroPath);
+	} else {
+		macroPath->SetTitle(macroPathStr.Data());
+	}
 	Printf("Loading macro '%s' ...",macroStr.Data());
 	gROOT->LoadMacro(macroStr.Data());
 	Printf("Running function '%s' ...",argsStr.Data());
