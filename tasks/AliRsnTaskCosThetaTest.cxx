@@ -47,34 +47,34 @@
 
 ClassImp(AliRsnTaskCosThetaTest)
 
-    //________________________________________________________________________
-    AliRsnTaskCosThetaTest::AliRsnTaskCosThetaTest() // All data members should
-                                                     // be initialised here
-    : AliAnalysisTaskSE(),
-      fOutput(0),
-      fTrackCuts(0),
-      fHistPt(0),
-      fHistCosThetaJ(0),
-      fHistCosThetaT(0),
-      fHistCosThetaH(0),
-      fHistCosThetaA(
-          0) // The last in the above list should not have a comma after it
+  //________________________________________________________________________
+  AliRsnTaskCosThetaTest::AliRsnTaskCosThetaTest() // All data members should
+                                                   // be initialised here
+  : AliAnalysisTaskSE(),
+    fOutput(0),
+    fTrackCuts(0),
+    fHistPt(0),
+    fHistCosThetaJ(0),
+    fHistCosThetaT(0),
+    fHistCosThetaH(0),
+    fHistCosThetaA(
+      0) // The last in the above list should not have a comma after it
 {
   // Dummy constructor ALWAYS needed for I/O.
 }
 
 //________________________________________________________________________
 AliRsnTaskCosThetaTest::AliRsnTaskCosThetaTest(
-    const char *name) // All data members should be initialised here
-    : AliAnalysisTaskSE(name),
-      fOutput(0),
-      fTrackCuts(0),
-      fHistPt(0),
-      fHistCosThetaJ(0),
-      fHistCosThetaT(0),
-      fHistCosThetaH(0),
-      fHistCosThetaA(
-          0) // The last in the above list should not have a comma after it
+  const char *name) // All data members should be initialised here
+  : AliAnalysisTaskSE(name),
+    fOutput(0),
+    fTrackCuts(0),
+    fHistPt(0),
+    fHistCosThetaJ(0),
+    fHistCosThetaT(0),
+    fHistCosThetaH(0),
+    fHistCosThetaA(
+      0) // The last in the above list should not have a comma after it
 {
   // Constructor
   // Define input and output slots here (never in the dummy constructor)
@@ -148,25 +148,25 @@ void AliRsnTaskCosThetaTest::UserCreateOutputObjects() {
   fHistPt->SetMarkerStyle(kFullCircle);
 
   fHistCosThetaJ =
-      new TH1F("fHistCosThetaJ", "cos(#theta) Jackson frame", 15, -1, 1);
+    new TH1F("fHistCosThetaJ", "cos(#theta) Jackson frame", 15, -1, 1);
   fHistCosThetaJ->GetXaxis()->SetTitle("cos(#theta)");
   fHistCosThetaJ->GetYaxis()->SetTitle("N");
   fHistCosThetaJ->SetMarkerStyle(kFullCircle);
 
   fHistCosThetaT =
-      new TH1F("fHistCosThetaT", "cos(#theta) Transverse frame", 15, -1, 1);
+    new TH1F("fHistCosThetaT", "cos(#theta) Transverse frame", 15, -1, 1);
   fHistCosThetaT->GetXaxis()->SetTitle("cos(#theta)");
   fHistCosThetaT->GetYaxis()->SetTitle("N");
   fHistCosThetaT->SetMarkerStyle(kFullCircle);
 
   fHistCosThetaH =
-      new TH1F("fHistCosThetaH", "cos(#theta) Helicity frame", 15, -1, 1);
+    new TH1F("fHistCosThetaH", "cos(#theta) Helicity frame", 15, -1, 1);
   fHistCosThetaH->GetXaxis()->SetTitle("cos(#theta)");
   fHistCosThetaH->GetYaxis()->SetTitle("N");
   fHistCosThetaH->SetMarkerStyle(kFullCircle);
 
   fHistCosThetaA =
-      new TH1F("fHistCosThetaA", "cos(#theta) Adair Frame", 15, -1, 1);
+    new TH1F("fHistCosThetaA", "cos(#theta) Adair Frame", 15, -1, 1);
   fHistCosThetaA->GetXaxis()->SetTitle("cos(#theta)");
   fHistCosThetaA->GetYaxis()->SetTitle("N");
   fHistCosThetaA->SetMarkerStyle(kFullCircle);
@@ -209,7 +209,7 @@ void AliRsnTaskCosThetaTest::UserExec(Option_t *) {
     Int_t ntracks = mcEvent->GetNumberOfTracks();
     for (Int_t i = 0; i < ntracks; i++) {
       AliMCParticle *esdMcTrack = (AliMCParticle *)mcEvent->GetTrack(
-          i); // pointer to reconstructed to track
+        i); // pointer to reconstructed to track
       if (!esdMcTrack) {
         AliError(Form("ERROR: Could not retrieve esdtrack %d", i));
         continue;
@@ -217,9 +217,9 @@ void AliRsnTaskCosThetaTest::UserExec(Option_t *) {
       if (esdMcTrack->PdgCode() == 333) {
 
         AliMCParticle *k1 =
-            (AliMCParticle *)mcEvent->GetTrack(esdMcTrack->GetFirstDaughter());
+          (AliMCParticle *)mcEvent->GetTrack(esdMcTrack->GetFirstDaughter());
         AliMCParticle *k2 =
-            (AliMCParticle *)mcEvent->GetTrack(esdMcTrack->GetLastDaughter());
+          (AliMCParticle *)mcEvent->GetTrack(esdMcTrack->GetLastDaughter());
         if ((TMath::Abs(k1->PdgCode())) == 321 &&
             (TMath::Abs(k2->PdgCode()) == 321)) {
           Printf("px,py,pz,E=(%f,%f,%f,%f) pdg=%d", esdMcTrack->Px(),
@@ -316,8 +316,8 @@ void AliRsnTaskCosThetaTest::UserExec(Option_t *) {
           //				Double_t cosThetaT =
           // kv_phi.Dot(vTransFrame)/(kv_phi.Mag()*vTransFrame.Mag());
           Double_t cosThetaT =
-              kv_phi.Dot(vTransFrame) /
-              TMath::Sqrt((kv_phi.Mag2() * vTransFrame.Mag2()));
+            kv_phi.Dot(vTransFrame) /
+            TMath::Sqrt((kv_phi.Mag2() * vTransFrame.Mag2()));
 
           Printf("cos(theta) J=%f T=%f", cosThetaJ, cosThetaT);
           fHistPt->Fill(esdMcTrack->Pt());
@@ -379,7 +379,7 @@ void AliRsnTaskCosThetaTest::Terminate(Option_t *) {
   // so it is available to draw on a canvas such as below
 
   TCanvas *c =
-      new TCanvas("AliRsnTaskCosThetaTest", "P_{T}", 10, 10, 1020, 510);
+    new TCanvas("AliRsnTaskCosThetaTest", "P_{T}", 10, 10, 1020, 510);
   c->Divide(2, 1);
   c->cd(1);
   fHistCosThetaJ->DrawCopy("E");

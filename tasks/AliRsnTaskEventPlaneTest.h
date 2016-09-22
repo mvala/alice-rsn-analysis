@@ -18,6 +18,7 @@
 class TH1F;
 class TList;
 class AliESDtrackCuts;
+class AliQnCorrectionsQnVector;
 
 class AliRsnTaskEventPlaneTest : public AliAnalysisTaskSE {
 public:
@@ -29,8 +30,13 @@ public:
   virtual void UserExec(Option_t *option);
   virtual void Terminate(Option_t *);
 
+  const AliQnCorrectionsQnVector *
+  GetQnVectorFromList(const TList *list, const char *subdetector,
+                      const char *expectedstep, const char *altstep) const;
+
 private:
   TList *fOutput; // Output list
+  TH1D *fHistEpAngle;
 
   AliRsnTaskEventPlaneTest(const AliRsnTaskEventPlaneTest &); // not implemented
   AliRsnTaskEventPlaneTest &

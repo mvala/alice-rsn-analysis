@@ -14,13 +14,13 @@
 
 ClassImp(AliRsnOutTaskFit)
 
-    AliRsnOutTaskFit::AliRsnOutTaskFit(const char *name, const char *title)
-    : AliRsnOutTask(name, title),
-      fInput(0),
-      fFitProbTestMin(1e-4),
-      fFitProbTestMax(0.6),
-      fFitResult(0),
-      fResult(0) {}
+  AliRsnOutTaskFit::AliRsnOutTaskFit(const char *name, const char *title)
+  : AliRsnOutTask(name, title),
+    fInput(0),
+    fFitProbTestMin(1e-4),
+    fFitProbTestMax(0.6),
+    fFitResult(0),
+    fResult(0) {}
 
 AliRsnOutTaskFit::~AliRsnOutTaskFit() {}
 
@@ -73,8 +73,7 @@ void AliRsnOutTaskFit::Exec(Option_t * /*option*/) {
 void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
 
   Printf(GetName());
-  if (!fParent->GetOutput())
-    return;
+  if (!fParent->GetOutput()) return;
 
   fResult = (TH1 *)fParent->GetOutput()->FindObject("hSignal");
   if (fResult) {
@@ -89,26 +88,25 @@ void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
     switch (fitId) {
     case kVoightPol1:
       sigBgFnc =
-          new TF1("VoightPol1", AliRsnOutTaskFit::VoigtPol1, fitMin, fitMax, 6);
+        new TF1("VoightPol1", AliRsnOutTaskFit::VoigtPol1, fitMin, fitMax, 6);
       bgFnc = new TF1("Pol1", Pol1, fitMin, fitMax, 2);
       break;
     case kVoightPol2:
       sigBgFnc =
-          new TF1("VoightPol2", AliRsnOutTaskFit::VoigtPol2, fitMin, fitMax, 7);
+        new TF1("VoightPol2", AliRsnOutTaskFit::VoigtPol2, fitMin, fitMax, 7);
       bgFnc = new TF1("Pol2", Pol2, fitMin, fitMax, 3);
       break;
     case kVoightPol3:
       sigBgFnc =
-          new TF1("VoightPol3", AliRsnOutTaskFit::VoigtPol3, fitMin, fitMax, 8);
+        new TF1("VoightPol3", AliRsnOutTaskFit::VoigtPol3, fitMin, fitMax, 8);
       bgFnc = new TF1("Pol3", Pol3, fitMin, fitMax, 4);
       break;
     }
-    if (!sigBgFnc || !bgFnc)
-      return;
+    if (!sigBgFnc || !bgFnc) return;
 
     Double_t p0p =
-        fResult->Integral(fResult->FindBin(fitMin), fResult->FindBin(fitMax)) *
-        fResult->GetBinWidth(fResult->FindBin(fitMin));
+      fResult->Integral(fResult->FindBin(fitMin), fResult->FindBin(fitMax)) *
+      fResult->GetBinWidth(fResult->FindBin(fitMin));
     sigBgFnc->SetParameters(p0p, phi_mass, phi_width, phi_sigma, 0.0, 0.0, 0.0,
                             0.0);
 
@@ -157,10 +155,10 @@ void AliRsnOutTaskFit::GetYieldBinCounting(Double_t &val, Double_t &err) {
   Double_t bg = bgFnc->Integral(fInput->GetMin(), fInput->GetMax()) / histWidth;
   // TODO Verify it
   Double_t bgErr =
-      bgFnc->IntegralError(fInput->GetMin(), fInput->GetMax(),
-                           fFitResult->GetParams(),
-                           fFitResult->GetCovarianceMatrix().GetMatrixArray()) /
-      histWidth;
+    bgFnc->IntegralError(fInput->GetMin(), fInput->GetMax(),
+                         fFitResult->GetParams(),
+                         fFitResult->GetCovarianceMatrix().GetMatrixArray()) /
+    histWidth;
 
   //	Printf("val=%f err=%f bg=%f bgErr=%f",val,err,bg,bgErr);
 
@@ -181,17 +179,17 @@ void AliRsnOutTaskFit::GetYieldFitFunction(Double_t &val, Double_t &err) {
 
   val = sigBgFnc->Integral(fInput->GetMin(), fInput->GetMax()) / histWidth;
   err = sigBgFnc->IntegralError(
-            fInput->GetMin(), fInput->GetMax(), fFitResult->GetParams(),
-            fFitResult->GetCovarianceMatrix().GetMatrixArray()) /
+          fInput->GetMin(), fInput->GetMax(), fFitResult->GetParams(),
+          fFitResult->GetCovarianceMatrix().GetMatrixArray()) /
         histWidth;
 
   Double_t bg = bgFnc->Integral(fInput->GetMin(), fInput->GetMax()) / histWidth;
   // TODO Verify it
   Double_t bgErr =
-      bgFnc->IntegralError(fInput->GetMin(), fInput->GetMax(),
-                           fFitResult->GetParams(),
-                           fFitResult->GetCovarianceMatrix().GetMatrixArray()) /
-      histWidth;
+    bgFnc->IntegralError(fInput->GetMin(), fInput->GetMax(),
+                         fFitResult->GetParams(),
+                         fFitResult->GetCovarianceMatrix().GetMatrixArray()) /
+    histWidth;
 
   //	Printf("val=%f err=%f bg=%f bgErr=%f",val,err,bg,bgErr);
 

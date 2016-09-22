@@ -12,17 +12,15 @@
 
 ClassImp(AliRsnOutTaskResult)
 
-    AliRsnOutTaskResult::AliRsnOutTaskResult(const char *name,
-                                             const char *title)
-    : AliRsnOutTask(name, title), fData(0), fMC(0) {}
+  AliRsnOutTaskResult::AliRsnOutTaskResult(const char *name, const char *title)
+  : AliRsnOutTask(name, title), fData(0), fMC(0) {}
 
 AliRsnOutTaskResult::~AliRsnOutTaskResult() {}
 
 void AliRsnOutTaskResult::Exec(Option_t * /*option*/) {
 
   AliRsnOutTaskInput *tInputData = dynamic_cast<AliRsnOutTaskInput *>(fData);
-  if (!tInputData)
-    return;
+  if (!tInputData) return;
 
   Printf("%s", GetName());
 
@@ -63,7 +61,7 @@ void AliRsnOutTaskResult::Exec(Option_t * /*option*/) {
   maxs[3] = nResultsBins;
 
   THnSparseD *s =
-      new THnSparseD("sparse", "Results Sparse", nAxis, bins, mins, maxs);
+    new THnSparseD("sparse", "Results Sparse", nAxis, bins, mins, maxs);
   const Int_t nVariableBins = tInputData->GetListOfTasks()->GetEntries();
   Double_t varBins[nVariableBins + 1];
 
@@ -87,8 +85,7 @@ void AliRsnOutTaskResult::Exec(Option_t * /*option*/) {
   TGraphAsymmErrors *mcEff = 0;
   if (fMC) {
     tInputMC = dynamic_cast<AliRsnOutTaskInput *>(fMC);
-    if (tInputMC)
-      mcEff = tInputMC->GetMCEfficiency();
+    if (tInputMC) mcEff = tInputMC->GetMCEfficiency();
   }
 
   Int_t iSparseBin[nAxis];
@@ -132,9 +129,9 @@ void AliRsnOutTaskResult::Exec(Option_t * /*option*/) {
           s->SetBinContent(iSparseBin, y / valMCEff / nEvents);
           s->SetBinError(iSparseBin,
                          y / valMCEff *
-                             TMath::Sqrt(TMath::Power(ey / y, 2) +
-                                         TMath::Power(errMCEff / valMCEff, 2)) /
-                             nEvents);
+                           TMath::Sqrt(TMath::Power(ey / y, 2) +
+                                       TMath::Power(errMCEff / valMCEff, 2)) /
+                           nEvents);
         }
 
         // Raw Fit Function
@@ -148,9 +145,9 @@ void AliRsnOutTaskResult::Exec(Option_t * /*option*/) {
           s->SetBinContent(iSparseBin, y / valMCEff / nEvents);
           s->SetBinError(iSparseBin,
                          y / valMCEff *
-                             TMath::Sqrt(TMath::Power(ey / y, 2) +
-                                         TMath::Power(errMCEff / valMCEff, 2)) /
-                             nEvents);
+                           TMath::Sqrt(TMath::Power(ey / y, 2) +
+                                       TMath::Power(errMCEff / valMCEff, 2)) /
+                           nEvents);
         }
 
         // Chi2
@@ -181,18 +178,15 @@ void AliRsnOutTaskResult::Exec(Option_t * /*option*/) {
   TFolder *dNorm, *dFit;
   TH1D *h;
   tBin = (AliRsnOutTaskBin *)tInputData->GetListOfTasks()->At(0);
-  if (!tBin)
-    return;
+  if (!tBin) return;
   for (Int_t iNorm = 0; iNorm < tBin->GetListOfTasks()->GetEntries(); ++iNorm) {
     tNorm = (AliRsnOutTaskNorm *)tBin->GetListOfTasks()->At(iNorm);
-    if (!tNorm)
-      continue;
+    if (!tNorm) continue;
     dNorm = dRoot->AddFolder(tNorm->GetName(), tNorm->GetTitle());
     s->GetAxis(1)->SetRange(iNorm + 1, iNorm + 1);
     for (Int_t iFit = 0; iFit < tNorm->GetListOfTasks()->GetEntries(); ++iFit) {
       tFit = (AliRsnOutTaskFit *)tNorm->GetListOfTasks()->At(iFit);
-      if (!tFit)
-        continue;
+      if (!tFit) continue;
       dFit = dNorm->AddFolder(tFit->GetName(), tFit->GetTitle());
       s->GetAxis(2)->SetRange(iFit + 1, iFit + 1);
       s->GetAxis(3)->SetRange(1, 1);
@@ -247,8 +241,7 @@ void AliRsnOutTaskResult::Exec(Option_t * /*option*/) {
 }
 
 void AliRsnOutTaskResult::SetData(AliRsnOutTask *data) {
-  if (!data)
-    return;
+  if (!data) return;
   fData = data;
   fName = TString::Format("%s_%s", fData ? fData->GetName() : "no_data",
                           fMC ? fMC->GetName() : "no_eff");
@@ -257,8 +250,7 @@ void AliRsnOutTaskResult::SetData(AliRsnOutTask *data) {
 }
 
 void AliRsnOutTaskResult::SetMC(AliRsnOutTask *mc) {
-  if (!mc)
-    return;
+  if (!mc) return;
   fMC = mc;
   fName = TString::Format("%s_%s", fData ? fData->GetName() : "no_data",
                           fMC ? fMC->GetName() : "no_eff");

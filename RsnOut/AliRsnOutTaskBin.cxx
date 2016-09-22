@@ -7,16 +7,15 @@
 
 ClassImp(AliRsnOutTaskBin)
 
-    AliRsnOutTaskBin::AliRsnOutTaskBin(const char *name, const char *title)
-    : AliRsnOutTask(name, title), fValue(), fCuts(0) {}
+  AliRsnOutTaskBin::AliRsnOutTaskBin(const char *name, const char *title)
+  : AliRsnOutTask(name, title), fValue(), fCuts(0) {}
 
 AliRsnOutTaskBin::~AliRsnOutTaskBin() { SafeDelete(fCuts); }
 
 void AliRsnOutTaskBin::Exec(Option_t * /*option*/) {
 
   AliRsnOutTaskInput *input = dynamic_cast<AliRsnOutTaskInput *>(GetParent());
-  if (!input)
-    return;
+  if (!input) return;
 
   THnSparse *sigBg = input->GetSigBg();
   THnSparse *bg = input->GetBg();
@@ -51,12 +50,11 @@ void AliRsnOutTaskBin::Exec(Option_t * /*option*/) {
 }
 
 void AliRsnOutTaskBin::AddCut(AliRsnOutValue *cut) {
-  if (!cut)
-    return;
+  if (!cut) return;
   if (!fCuts) {
     fCuts = new TList();
-    fName = TString::Format("bin[%d,%d]", (Int_t)cut->GetMin(),
-                            (Int_t)cut->GetMax());
+    fName =
+      TString::Format("bin[%d,%d]", (Int_t)cut->GetMin(), (Int_t)cut->GetMax());
   }
   fCuts->Add(cut);
 }
@@ -73,11 +71,11 @@ void AliRsnOutTaskBin::ApplyCuts(THnSparse *one, THnSparse *two) {
     one->GetAxis(v->GetId())->SetRange((Int_t)v->GetMin(), (Int_t)v->GetMax());
     if (two)
       two->GetAxis(v->GetId())
-          ->SetRange((Int_t)v->GetMin(), (Int_t)v->GetMax());
+        ->SetRange((Int_t)v->GetMin(), (Int_t)v->GetMax());
     minVal = one->GetAxis(v->GetId())->GetBinLowEdge((Int_t)v->GetMin());
     maxVal = one->GetAxis(v->GetId())->GetBinUpEdge((Int_t)v->GetMax());
     fName += TString::Format(
-        "%s[%.2f,%.2f]", one->GetAxis(v->GetId())->GetName(), minVal, maxVal);
+      "%s[%.2f,%.2f]", one->GetAxis(v->GetId())->GetName(), minVal, maxVal);
     fValue.SetMin(minVal);
     fValue.SetMax(maxVal);
   }

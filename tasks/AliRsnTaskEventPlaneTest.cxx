@@ -45,26 +45,28 @@
 #include "AliMCEvent.h"
 #include "AliStack.h"
 
+#include "AliAnalysisTaskFlowVectorCorrections.h"
+#include "AliQnCorrectionsManager.h"
+#include "AliQnCorrectionsQnVector.h"
+
 ClassImp(AliRsnTaskEventPlaneTest)
 
-    //________________________________________________________________________
-    AliRsnTaskEventPlaneTest::AliRsnTaskEventPlaneTest() // All data members
-                                                         // should be
-                                                         // initialised
-                                                         // here
-    : AliAnalysisTaskSE(),
-      fOutput(0)
-// The last in the above list should not have a comma after it
+  //________________________________________________________________________
+  AliRsnTaskEventPlaneTest::AliRsnTaskEventPlaneTest()
+  : AliAnalysisTaskSE(),
+    fOutput(0),
+    fHistEpAngle(0)
+
 {
   // Dummy constructor ALWAYS needed for I/O.
 }
 
 //________________________________________________________________________
-AliRsnTaskEventPlaneTest::AliRsnTaskEventPlaneTest(
-    const char *name) // All data members should be initialised here
-    : AliAnalysisTaskSE(name),
-      fOutput(0)
-// The last in the above list should not have a comma after it
+AliRsnTaskEventPlaneTest::AliRsnTaskEventPlaneTest(const char *name)
+  : AliAnalysisTaskSE(name),
+    fOutput(0),
+    fHistEpAngle(0)
+
 {
   // Constructor
   // Define input and output slots here (never in the dummy constructor)
@@ -93,6 +95,9 @@ void AliRsnTaskEventPlaneTest::UserCreateOutputObjects() {
   fOutput = new TList();
   fOutput->SetOwner(); // IMPORTANT!
 
+  fHistEpAngle = new TH1D("fHistEpAngle", "EP angle", 360, -180, 180);
+  fOutput->Add(fHistEpAngle);
+
   // NEW HISTO added to fOutput here
   PostData(1, fOutput); // Post data for ALL output slots >0 here, to get at
                         // least an empty histogram
@@ -103,17 +108,30 @@ void AliRsnTaskEventPlaneTest::UserExec(Option_t *) {
   // Main loop
   // Called for each event
 
-  // Create pointer to reconstructed event
-  AliVEvent *event = InputEvent();
-  if (!event) {
-    Printf("ERROR: Could not retrieve event");
-    return;
+  AliQnCorrectionsManager *flowQnVectorMgr;
+  AliAnalysisTaskFlowVectorCorrections *flowQnVectorTask =
+    dynamic_cast<AliAnalysisTaskFlowVectorCorrections *>(
+      AliAnalysisManager::GetAnalysisManager()->GetTask(
+        "FlowQnVectorCorrections"));
+  if (flowQnVectorTask != NULL) {
+    flowQnVectorMgr = flowQnVectorTask->GetAliQnCorrectionsManager();
+  } else {
+    AliFatal("This task needs the Flow Qn vector corrections framework and it "
+             "is not present. Aborting!!!");
   }
 
-  AliESDEvent *esd = dynamic_cast<AliESDEvent *>(event);
-  if (esd) {
-    // Printf("nTracks=%d", esd->GetNumberOfTracks());
-  }
+  TList *qnlist = flowQnVectorMgr->GetQnVectorList();
+  if (!qnlist) return;
+
+  const AliQnCorrectionsQnVector *qnVect;
+  qnVect = GetQnVectorFromList(qnlist, "VZEROA", "latest", "latest");
+  if (!qnVect) return;
+
+  Printf("qnX=%f qnY=%f", qnVect->Qx(1), qnVect->Qy(1));
+  Double_t epAngle = TMath::ATan2(qnVect->Qy(1), qnVect->Qx(1)) / 2.;
+  Printf("epAngle=%f epAngleDeg=%f", epAngle, epAngle * TMath::RadToDeg());
+  fHistEpAngle->Fill(epAngle * TMath::RadToDeg());
+
   // NEW HISTO should be filled before this point, as PostData puts the
   // information for this iteration of the UserExec in the container
   PostData(1, fOutput);
@@ -128,4 +146,44 @@ void AliRsnTaskEventPlaneTest::Terminate(Option_t *) {
     Printf("ERROR: could not retrieve TList fOutput");
     return;
   }
+
+  fHistEpAngle = dynamic_cast<TH1D *>(fOutput->FindObject("fHistEpAngle"));
+  if (!fHistEpAngle) {
+    Printf("ERROR: could not retrieve fHistEpAngle");
+    return;
+  }
+  fHistEpAngle->DrawCopy("E");
+}
+
+const AliQnCorrectionsQnVector *AliRsnTaskEventPlaneTest::GetQnVectorFromList(
+  const TList *list, const char *subdetector, const char *expectedstep,
+  const char *altstep) const {
+
+  AliQnCorrectionsQnVector *theQnVector = NULL;
+
+  TList *pQvecList = dynamic_cast<TList *>(list->FindObject(subdetector));
+  if (pQvecList != NULL) {
+    /* the detector is present */
+    if (TString(expectedstep).EqualTo("latest"))
+      theQnVector = (AliQnCorrectionsQnVector *)pQvecList->First();
+    else
+      theQnVector =
+        (AliQnCorrectionsQnVector *)pQvecList->FindObject(expectedstep);
+
+    if (theQnVector == NULL) {
+      /* the Qn vector for the expected step was not there */
+      if (TString(altstep).EqualTo("latest"))
+        theQnVector = (AliQnCorrectionsQnVector *)pQvecList->First();
+      else
+        theQnVector =
+          (AliQnCorrectionsQnVector *)pQvecList->FindObject(altstep);
+    }
+  }
+  if (theQnVector != NULL) {
+    /* check the Qn vector quality */
+    if (!(theQnVector->IsGoodQuality()) || !(theQnVector->GetN() != 0))
+      /* not good quality, discarded */
+      theQnVector = NULL;
+  }
+  return theQnVector;
 }

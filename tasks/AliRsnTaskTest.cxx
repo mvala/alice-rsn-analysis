@@ -47,14 +47,14 @@
 
 ClassImp(AliRsnTaskTest)
 
-    //________________________________________________________________________
-    AliRsnTaskTest::AliRsnTaskTest() // All data members should be initialised
-                                     // here
-    : AliAnalysisTaskSE(),
-      fOutput(0),
-      fTrackCuts(0),
-      fHistPt(0),
-      fHistPtPrimary(0)
+  //________________________________________________________________________
+  AliRsnTaskTest::AliRsnTaskTest() // All data members should be initialised
+                                   // here
+  : AliAnalysisTaskSE(),
+    fOutput(0),
+    fTrackCuts(0),
+    fHistPt(0),
+    fHistPtPrimary(0)
 // The last in the above list should not have a comma after it
 {
   // Dummy constructor ALWAYS needed for I/O.
@@ -62,12 +62,12 @@ ClassImp(AliRsnTaskTest)
 
 //________________________________________________________________________
 AliRsnTaskTest::AliRsnTaskTest(
-    const char *name) // All data members should be initialised here
-    : AliAnalysisTaskSE(name),
-      fOutput(0),
-      fTrackCuts(0),
-      fHistPt(0),
-      fHistPtPrimary(0)
+  const char *name) // All data members should be initialised here
+  : AliAnalysisTaskSE(name),
+    fOutput(0),
+    fTrackCuts(0),
+    fHistPt(0),
+    fHistPtPrimary(0)
 // The last in the above list should not have a comma after it
 {
   // Constructor
@@ -144,7 +144,7 @@ void AliRsnTaskTest::UserCreateOutputObjects() {
   fHistPt->SetMarkerStyle(kFullCircle);
 
   fHistPtPrimary =
-      new TH1F("fHistPtPrimary", "P_{T} primary", ptbins, ptlow, ptup);
+    new TH1F("fHistPtPrimary", "P_{T} primary", ptbins, ptlow, ptup);
   fHistPtPrimary->GetXaxis()->SetTitle("P_{T} (GeV/c)");
   fHistPtPrimary->GetYaxis()->SetTitle("dN/dP_{T} (c/GeV)");
   fHistPtPrimary->SetMarkerStyle(kFullCircle);
@@ -177,8 +177,7 @@ void AliRsnTaskTest::UserExec(Option_t *) {
     for (Int_t iTrack = 0; iTrack < esd->GetNumberOfTracks(); iTrack++) {
       esdTrack = (AliESDtrack *)esd->GetTrack(iTrack);
       fHistPt->Fill(esdTrack->Pt());
-      if (!fTrackCuts->IsSelected(esdTrack))
-        continue;
+      if (!fTrackCuts->IsSelected(esdTrack)) continue;
       fHistPtPrimary->Fill(esdTrack->Pt());
     }
   }
@@ -219,7 +218,7 @@ void AliRsnTaskTest::Terminate(Option_t *) {
   // so it is available to draw on a canvas such as below
 
   TCanvas *c =
-      new TCanvas("AliRsnTaskCosThetaTest", "P_{T}", 10, 10, 1020, 510);
+    new TCanvas("AliRsnTaskCosThetaTest", "P_{T}", 10, 10, 1020, 510);
   c->Divide(2, 1);
   c->cd(1);
   gPad->SetLogy();

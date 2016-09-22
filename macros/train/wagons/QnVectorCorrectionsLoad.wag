@@ -1,0 +1,3 @@
+Macro=$ALICE_PHYSICS/PWGPP/EVCHAR/FlowVectorCorrections/QnCorrectionsInterface/macros/loadRunOptions.C
+Arguments=
+Libs=

@@ -5,11 +5,11 @@
 
 ClassImp(AliRsnOutTask)
 
-    AliRsnOutTask::AliRsnOutTask()
-    : TTask("task", "Task"), fParent(0), fOutput(0) {}
+  AliRsnOutTask::AliRsnOutTask()
+  : TTask("task", "Task"), fParent(0), fOutput(0) {}
 
 AliRsnOutTask::AliRsnOutTask(const char *name, const char *title)
-    : TTask(name, title), fParent(0), fOutput(0) {
+  : TTask(name, title), fParent(0), fOutput(0) {
   fOutput = new TList();
   fOutput->SetName("out");
   fOutput->SetOwner();
@@ -18,8 +18,7 @@ AliRsnOutTask::AliRsnOutTask(const char *name, const char *title)
 AliRsnOutTask::~AliRsnOutTask() {}
 
 void AliRsnOutTask::Add(TTask *task) {
-  if (!task)
-    return;
+  if (!task) return;
 
   TTask::Add(task);
 
@@ -34,15 +33,13 @@ void AliRsnOutTask::ExecuteTask(Option_t *option) {
           GetName(), fgBeginTask->GetName());
     return;
   }
-  if (!IsActive())
-    return;
+  if (!IsActive()) return;
 
   fOption = option;
   fgBeginTask = this;
   fgBreakPoint = 0;
 
-  if (fBreakin)
-    return;
+  if (fBreakin) return;
   if (gDebug > 1) {
     TROOT::IndentLevel();
     std::cout << "Execute task:" << GetName() << " : " << GetTitle()
@@ -56,10 +53,8 @@ void AliRsnOutTask::ExecuteTask(Option_t *option) {
   ExecuteTasks(option);
   ExecPost(option);
 
-  if (gDebug > 1)
-    TROOT::DecreaseDirLevel();
-  if (fBreakout)
-    return;
+  if (gDebug > 1) TROOT::DecreaseDirLevel();
+  if (fBreakout) return;
 
   if (!fgBreakPoint) {
     fgBeginTask->CleanTasks();
@@ -74,10 +69,8 @@ void AliRsnOutTask::ExecuteTasks(Option_t *option) {
   TIter next(fTasks);
   AliRsnOutTask *task;
   while ((task = (AliRsnOutTask *)next())) {
-    if (fgBreakPoint)
-      return;
-    if (!task->IsActive())
-      continue;
+    if (fgBreakPoint) return;
+    if (!task->IsActive()) continue;
     if (task->fHasExecuted) {
       task->ExecuteTasks(option);
       continue;
@@ -99,8 +92,7 @@ void AliRsnOutTask::ExecuteTasks(Option_t *option) {
     task->fHasExecuted = kTRUE;
     task->ExecuteTasks(option);
     task->ExecPost(option);
-    if (gDebug > 1)
-      TROOT::DecreaseDirLevel();
+    if (gDebug > 1) TROOT::DecreaseDirLevel();
     if (task->fBreakout == 1) {
       printf("Break at exit of task: %s\n", task->GetName());
       fgBreakPoint = this;
@@ -116,26 +108,20 @@ void AliRsnOutTask::ExecPost(Option_t * /*option*/) {}
 
 void AliRsnOutTask::Browse(TBrowser *b) {
   fTasks->Browse(b);
-  if (fOutput)
-    fOutput->Browse(b);
+  if (fOutput) fOutput->Browse(b);
 }
 
 void AliRsnOutTask::Export(TDirectory *parent) {
 
-  if (!parent)
-    return;
+  if (!parent) return;
   TDirectory *out = parent->mkdir(GetName(), GetTitle());
-  if (!out)
-    return;
+  if (!out) return;
 
   TIter next(fTasks);
   AliRsnOutTask *t;
-  while ((t = (AliRsnOutTask *)next())) {
-    t->Export(out);
-  }
+  while ((t = (AliRsnOutTask *)next())) { t->Export(out); }
   out->cd();
-  if (fOutput)
-    fOutput->Write();
+  if (fOutput) fOutput->Write();
 
   parent->cd();
 }
