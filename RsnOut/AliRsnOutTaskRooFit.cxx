@@ -82,7 +82,7 @@ void AliRsnOutTaskRooFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
   RooRealVar c2("c2", "coefficient #2", -0.1, -10., 10.);
   RooPolynomial bkg("pol", "background p.d.f.", x, RooArgList(c0, c1));
   //	RooPolynomial bkg("pol", "background p.d.f.", x, RooArgList(c0, c1,
-  //c2));
+  // c2));
   //	RooChebychev bkg("pol","background p.d.f.",x,RooArgList(c0,c1)) ;
   //	RooChebychev bkg("pol","background p.d.f.",x,RooArgList(c0,c1,c2)) ;
 
@@ -107,7 +107,7 @@ void AliRsnOutTaskRooFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
   fitResult = model.chi2FitTo(data, Save(), SumW2Error(kTRUE),
                               Range(minFit, maxFit), PrintLevel(-1));
   //	fitResult = model.fitTo(data, Save(),SumW2Error(kTRUE), Range(minFit,
-  //maxFit),PrintLevel(-1));
+  // maxFit),PrintLevel(-1));
   fitResult->Print();
   if (!fitResult)
     return;
@@ -123,7 +123,7 @@ void AliRsnOutTaskRooFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
   model.plotOn(frame, Name("background"), Components(bkg), LineStyle(kDashed));
 
   //	TPaveLabel *t1 = new TPaveLabel(0.7,0.6,0.9,0.68, Form("#chi^{2} = %f",
-  //frame->chiSquare("model","data",5)),"brNDC");
+  // frame->chiSquare("model","data",5)),"brNDC");
   //	frame->addObject(t1);
   frame->Draw();
   //	model.paramOn(frame, Layout(0.55));

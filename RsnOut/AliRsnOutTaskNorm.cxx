@@ -62,9 +62,9 @@ void AliRsnOutTaskNorm::Exec(Option_t * /*option*/) {
   }
 
   //	TH1 *hSigMCGen = (TH1*)
-  //fParent->GetOutput()->FindObject("hSignalMCGen");
+  // fParent->GetOutput()->FindObject("hSignalMCGen");
   //	TH1 *hSigMCRec = (TH1*)
-  //fParent->GetOutput()->FindObject("hSignalMCRec");
+  // fParent->GetOutput()->FindObject("hSignalMCRec");
   //
   //	// Check if has to be Cloned
   //	fOutput->Add(hSigMCGen);

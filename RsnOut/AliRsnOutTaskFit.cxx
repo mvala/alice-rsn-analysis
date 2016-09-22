@@ -15,8 +15,12 @@
 ClassImp(AliRsnOutTaskFit)
 
     AliRsnOutTaskFit::AliRsnOutTaskFit(const char *name, const char *title)
-    : AliRsnOutTask(name, title), fInput(0), fFitProbTestMin(1e-4),
-      fFitProbTestMax(0.6), fFitResult(0), fResult(0) {}
+    : AliRsnOutTask(name, title),
+      fInput(0),
+      fFitProbTestMin(1e-4),
+      fFitProbTestMax(0.6),
+      fFitResult(0),
+      fResult(0) {}
 
 AliRsnOutTaskFit::~AliRsnOutTaskFit() {}
 
