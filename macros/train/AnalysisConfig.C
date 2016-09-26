@@ -67,10 +67,12 @@ void MySetupAnalysisPluginAliEn(AliAnalysisAlien *plugin)
 {
 
    plugin->SetAPIVersion("V1.1x");
-   plugin->SetROOTVersion("v5-28-00c");
-   plugin->SetAliROOTVersion("v4-20-13-AN");
-   plugin->SetAliROOTVersion("v4-20-13-AN");
+   plugin->SetROOTVersion("v5-34-30-alice5-2");
+   plugin->SetAliROOTVersion("v5-08-16-1");
+   plugin->SetAliPhysicsVersion("vAN-20160910-1");
    plugin->SetExecutableCommand("aliroot -b -q");
+
+   plugin->AddIncludePath("$ALICE_PHYSICS/include");
 //
 //
 //   // Method 1: Create automatically XML collections using alien 'find' command.
@@ -105,7 +107,7 @@ void MySetupAnalysisPluginAliEn(AliAnalysisAlien *plugin)
    plugin->SetGridDataDir("/alice/data/2010/LHC10h");
    plugin->SetDataPattern("*ESDs/pass2/*ESDs.root"); // real data check reco pass and data base directory
    plugin->SetRunPrefix("000");   // real data
-   plugin->AddRunNumber("137366");
+   plugin->AddRunNumber(137366);
 //   runs = "137366";
 // //    runs = "137366, 138200, 139172";
    plugin->SetSplitMaxInputFileNumber(100);
