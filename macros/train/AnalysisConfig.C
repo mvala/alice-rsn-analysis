@@ -66,10 +66,11 @@ void MySetupAnalysisPluginProof(AliAnalysisAlien *plugin,TString analysisMode)
 void MySetupAnalysisPluginAliEn(AliAnalysisAlien *plugin)
 {
 
-//   plugin->SetAPIVersion("V1.1x");
-//   plugin->SetROOTVersion("v5-28-00c");
-// //    plugin->SetAliROOTVersion("v4-20-13-AN");
-//   plugin->SetExecutableCommand("aliroot -b -q");
+   plugin->SetAPIVersion("V1.1x");
+   plugin->SetROOTVersion("v5-28-00c");
+   plugin->SetAliROOTVersion("v4-20-13-AN");
+   plugin->SetAliROOTVersion("v4-20-13-AN");
+   plugin->SetExecutableCommand("aliroot -b -q");
 //
 //
 //   // Method 1: Create automatically XML collections using alien 'find' command.
@@ -101,12 +102,13 @@ void MySetupAnalysisPluginAliEn(AliAnalysisAlien *plugin)
 // // //     runs = "120829,120825,120824,120823,120822,120821,120820,120758,120750";
 // //    plugin->SetSplitMaxInputFileNumber(10);
 //
-//   plugin->SetGridDataDir("/alice/data/2010/LHC10h");
-//   plugin->SetDataPattern("*ESDs/pass2/*ESDs.root"); // real data check reco pass and data base directory
-//   plugin->SetRunPrefix("000");   // real data
+   plugin->SetGridDataDir("/alice/data/2010/LHC10h");
+   plugin->SetDataPattern("*ESDs/pass2/*ESDs.root"); // real data check reco pass and data base directory
+   plugin->SetRunPrefix("000");   // real data
+   plugin->AddRunNumber("137366");
 //   runs = "137366";
 // //    runs = "137366, 138200, 139172";
-//   plugin->SetSplitMaxInputFileNumber(100);
+   plugin->SetSplitMaxInputFileNumber(100);
 //
 //
 //   // AOD
@@ -135,17 +137,17 @@ void MySetupAnalysisPluginAliEn(AliAnalysisAlien *plugin)
 // //   plugin->AddDataFile("/alice/data/2008/LHC08c/000057657/raw/Run57657.Merged.RAW.tag.root");
 //
 // // Define alien work directory where all files will be copied. Relative to alien $HOME.
-//   plugin->SetGridWorkingDir("work/rsn/PbPb/0001/");
+    plugin->SetGridWorkingDir("work/rsn/PbPb_ep/0001/");
 // // Declare alien output directory. Relative to working directory.
-//   plugin->SetGridOutputDir("output"); // In this case will be $HOME/work/output
+    plugin->SetGridOutputDir("output"); // In this case will be $HOME/work/output
 // // Declare the analysis source files names separated by blancs. To be compiled runtime
 // // using ACLiC on the worker nodes.
-// //    plugin->SetAnalysisSource("AliAnalysisTaskCustomMix.cxx");
+    plugin->SetAnalysisSource("AliRsnTaskEventPlaneTest.cxx");
 // //    plugin->SetAdditionalRootLibs("CORRFW PWG2resonances");
 // //    plugin->SetAdditionalRootLibs("PWG2resonances");
 // //    plugin->SetAdditionalRootLibs("PWG2resonances");
 // //
-// //    plugin->SetAdditionalLibs("AliAnalysisTaskCustomMix.h AliAnalysisTaskCustomMix.cxx");
+    plugin->SetAdditionalLibs("AliRsnTaskEventPlaneTest.h AliRsnTaskEventPlaneTest.cxx");
 // //    plugin->EnablePackage("PWG2resonances");
 // //    plugin->EnablePackage("");
 // //    plugin->EnablePackage("");
