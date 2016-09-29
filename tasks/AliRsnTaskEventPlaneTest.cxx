@@ -128,7 +128,7 @@ void AliRsnTaskEventPlaneTest::UserExec(Option_t *) {
   if (!qnVect) return;
 
   Printf("qnX=%f qnY=%f", qnVect->Qx(1), qnVect->Qy(1));
-  Double_t epAngle = TMath::ATan2(qnVect->Qy(1), qnVect->Qx(1)) / 2.;
+  Double_t epAngle = TMath::ATan2(qnVect->Qy(1), qnVect->Qx(1)) / 1.;
   Printf("epAngle=%f epAngleDeg=%f", epAngle, epAngle * TMath::RadToDeg());
   fHistEpAngle->Fill(epAngle * TMath::RadToDeg());
 
