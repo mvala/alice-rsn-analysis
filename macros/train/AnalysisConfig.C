@@ -141,6 +141,7 @@ void MySetupAnalysisPluginAliEn(AliAnalysisAlien *plugin) {
   //   }
   //
   //
+  plugin->SetOverwriteMode(kFALSE);
   //   if (nRunsPerMaster > maxRunsPerMaster) nRunsPerMaster = maxRunsPerMaster;
   //   plugin->SetNrunsPerMaster(nRunsPerMaster);
   //
@@ -178,6 +179,7 @@ void MySetupAnalysisPluginAliEn(AliAnalysisAlien *plugin) {
   // // loaded by the generated analysis macro. Add all extra files (task
   // .cxx/.h) here.
   //
+
   plugin->SetDefaultOutputs(kFALSE);
   plugin->SetOutputFiles("AnalysisResults.root");
   // // No need for output file names. Procedure is automatic.
