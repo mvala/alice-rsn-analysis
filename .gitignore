@@ -50,3 +50,11 @@ build
 #!.vscode/*.json
 
 tmp
+
+# analysis note tmp files
+*.aux
+*.log
+*.pdf
+!notes/Phi_pol_PbPb_LHC10h/alicelogo.pdf
+!notes/Phi_pol_PbPb_LHC10h/cernlogo.pdf
+
