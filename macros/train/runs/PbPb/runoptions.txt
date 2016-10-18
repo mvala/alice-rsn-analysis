@@ -6,7 +6,8 @@ Run options:
 # grid, local, train
 # when grid is chosen the GRID datafiles are configured in GRIDrealdata.txt or GRIDMCdata.txt if MC is chosen
 # when local is chosen the datafiles are taken from filelist.txt or filelist_mc.txt
-local
+#local
+grid
 # real, MC
 real
 
@@ -67,8 +68,8 @@ Corrections file:
 #filename: CalibrationHistograms.root
 
 source: local
-path: .
-filename: CalibrationHistograms.root
+path: alien:///alice/cern.ch/user/v/victor/TESTS
+filename: 2010hCalibrationHistograms.root
 
 
 # run the Qn vector analysis task
