@@ -35,6 +35,7 @@
 *.par
 macros/train/*.wag
 macros/train/runs/*/*Test.wag
+macros/train/runs/*_*/
 macros/train/*.txt
 scripts/*.txt
 
