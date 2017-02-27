@@ -19,6 +19,7 @@ class TH1F;
 class TList;
 class AliESDtrackCuts;
 class AliQnCorrectionsQnVector;
+class AliQnCorrectionsManager;
 
 class AliRsnTaskEventPlaneTest : public AliAnalysisTaskSE {
 public:
@@ -37,6 +38,8 @@ public:
 private:
   TList *fOutput; // Output list
   TH1D *fHistEpAngle;
+
+  AliQnCorrectionsManager *fFlowQnVectorMgr;
 
   AliRsnTaskEventPlaneTest(const AliRsnTaskEventPlaneTest &); // not implemented
   AliRsnTaskEventPlaneTest &
