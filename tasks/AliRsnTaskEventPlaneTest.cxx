@@ -115,20 +115,27 @@ void AliRsnTaskEventPlaneTest::UserCreateOutputObjects() {
 void AliRsnTaskEventPlaneTest::UserExec(Option_t *) {
   // Main loop
   // Called for each event
-  
 
   if (fFlowQnVectorMgr) {
     TList *qnlist = fFlowQnVectorMgr->GetQnVectorList();
-    if (!qnlist) return;
+    if (!qnlist) {
+      Printf("Error: qnlist is null !!!");
+      return;
+    }
 
     const AliQnCorrectionsQnVector *qnVect;
     qnVect = GetQnVectorFromList(qnlist, "VZEROA", "latest", "latest");
-    if (!qnVect) return;
+    if (!qnVect) {
+      Printf("Error: qnVect is null !!!");
+      return;
+    }
 
     Printf("qnX=%f qnY=%f", qnVect->Qx(1), qnVect->Qy(1));
     Double_t epAngle = TMath::ATan2(qnVect->Qy(1), qnVect->Qx(1)) / 1.;
     Printf("epAngle=%f epAngleDeg=%f", epAngle, epAngle * TMath::RadToDeg());
     fHistEpAngle->Fill(epAngle * TMath::RadToDeg());
+  } else {
+    Printf("Error: fFlowQnVectorMgr is null !!!");
   }
   // NEW HISTO should be filled before this point, as PostData puts the
   // information for this iteration of the UserExec in the container
