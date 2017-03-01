@@ -1,0 +1,3 @@
+Macro=$ALICE_PHYSICS/PWGPP/EVCHAR/FlowVectorCorrections/QnCorrectionsInterface/macros/AddTaskFlowQnVectorCorrectionsToLegoTrain.C
+Arguments="alien:///alice/cern.ch/user/m/mvala/QnVectorCorrections/LHC10h"
+Libs=
