@@ -96,22 +96,22 @@ AliRsnOutTaskBin *AddBin(Int_t id, Double_t min, Double_t max,TList *norms, TLis
 	tBin->GetValue()->SetId(0);
 	tBin->AddCut(new AliRsnOutValue(id,min,max));
 
-	TIter next(norms);
+	// Loop over norms
+	TIter nextNorm(norms);
 	AliRsnOutValue *vNorm;
-	while ((vNorm = (AliRsnOutValue*)next())) {
-
+	while ((vNorm = (AliRsnOutValue*)nextNorm())) {
 		AliRsnOutTaskNorm *tNorm = new AliRsnOutTaskNorm();
 		tNorm->AddRange(vNorm);
 		tBin->Add(tNorm);
 
-		TIter next(fits);
+		// Loop over fits
+		TIter nextFit(fits);
 		AliRsnOutValue *vFit;
-		while ((vFit = (AliRsnOutValue*)next())) {
+		while ((vFit = (AliRsnOutValue*)nextFit())) {
 			AliRsnOutTaskFit *tFit = new AliRsnOutTaskFit();
 			tFit->SetFit(vFit);
 			tNorm->Add(tFit);
 		}
 	}
-
 	return tBin;
 }
