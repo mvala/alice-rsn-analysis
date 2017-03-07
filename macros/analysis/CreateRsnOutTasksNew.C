@@ -51,8 +51,13 @@ void CreateRsnOutTasksNew(const char*config = "RsnOutMgrNew.root", const char* o
   arrPt->SetAt(6,0);
   arrPt->SetAt(11,1);
   arrPt->SetAt(16,2);
-
   listVariations->Add(new AliRsnOutValue(1,arrPt));
+  
+  TArrayD *arrMult = new TArrayD(3);
+  arrMult->SetAt(21,0);
+  arrMult->SetAt(31,1);
+  arrMult->SetAt(51,2);
+  listVariations->Add(new AliRsnOutValue(2,arrMult));
 
   TList *norms = new TList();
   norms->Add(new AliRsnOutValue(0, 1.10, 1.15));
@@ -76,11 +81,11 @@ void CreateRsnOutTasksNew(const char*config = "RsnOutMgrNew.root", const char* o
   tInputMC->Add((AliRsnOutTaskBinMgr *)binMgr->Clone());
   tInputData->Add((AliRsnOutTaskBinMgr *)binMgr->Clone());
 
+  // // return;
+  // // TMP
+  // gROOT->GetListOfBrowsables()->Add(tMgr);
+  // new TBrowser;
   // return;
-  // TMP
-  gROOT->GetListOfBrowsables()->Add(tMgr);
-  new TBrowser;
-  return;
 
   if (tMgr)
     tMgr->Write();

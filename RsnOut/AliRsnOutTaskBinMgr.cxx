@@ -84,10 +84,10 @@ void AliRsnOutTaskBinMgr::GenerateBinVariations(Int_t index, AliRsnOutTask *task
     
     GenerateBinVariations(index-1, task);
 
-    for (Int_t i = 0; i < index ;i++) {
+    for (Int_t i = index-1; i < index ;i++) {
       Printf("i=%d index=%d", i, index);
 
-      b = new AliRsnOutTaskBin();
+      b = new AliRsnOutTaskBin(TString::Format("bin%d",i).Data());
       AliRsnOutValue *v = (AliRsnOutValue *) fListOfVariations->At(i);
       if (v) {     
         Int_t id = v->GetId();
