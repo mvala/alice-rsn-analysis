@@ -31,9 +31,9 @@ void AliRsnOutTaskBinMgr::Init() {
     TArrayD *arr = v->GetArray();
     for (Int_t i = 0; i < arr->GetSize()-1;i++) {
       Printf("Adding id=%d min=%.0f max=%.0f", id, arr->At(i), arr->At(i+1)-1);
-      b = new AliRsnOutTaskBin();
+      b = (AliRsnOutTaskBin *) fBinTmpl->Clone();
       b->AddCut(new AliRsnOutValue(id, arr->At(i), arr->At(i+1)-1));
-      b->Add((AliRsnOutTaskBin *) fBinTmpl->Clone());
+
       bMgr->Add(b);
     }
 
@@ -43,7 +43,7 @@ void AliRsnOutTaskBinMgr::Init() {
 }
 
 void AliRsnOutTaskBinMgr::Exec(Option_t * /*option*/) {
-  Printf("%s", GetName());
+
     AliRsnOutTaskInput *input = dynamic_cast<AliRsnOutTaskInput *>(GetParent());
   if (!input) return;
 
@@ -60,4 +60,6 @@ void AliRsnOutTaskBinMgr::Exec(Option_t * /*option*/) {
     Int_t id = v->GetId();
     if (s) t->SetName(s->GetAxis(id)->GetName());
   }
+
+  Printf("%s", GetName());
 }
