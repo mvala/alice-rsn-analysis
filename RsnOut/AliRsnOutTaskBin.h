@@ -7,7 +7,8 @@
 class AliRsnOutTaskBin : public AliRsnOutTask {
 
 public:
-  AliRsnOutTaskBin(const char *name = "bin", const char *title = "");
+  AliRsnOutTaskBin(const char *name = "bin", const char *title = "",
+                   Bool_t isCutsOnly = kFALSE);
   virtual ~AliRsnOutTaskBin();
 
   virtual void Exec(Option_t *option);
@@ -21,6 +22,7 @@ public:
 private:
   AliRsnOutValue fValue;
   TList *fCuts;
+  Bool_t fCutsOnly;
 
   ClassDef(AliRsnOutTaskBin, 1)
 };

@@ -6,6 +6,7 @@ AliRsnOutTask.cxx
 AliRsnOutTaskMgr.cxx
 AliRsnOutTaskInput.cxx
 AliRsnOutTaskBin.cxx
+AliRsnOutTaskBinMgr.cxx
 AliRsnOutTaskNorm.cxx
 AliRsnOutTaskFit.cxx
 AliRsnOutTaskRooFit.cxx

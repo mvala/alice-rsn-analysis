@@ -3,6 +3,9 @@
 
 #include <AliRsnOutTask.h>
 
+class THnSparse;
+class TFolder;
+
 class AliRsnOutTaskResult : public AliRsnOutTask {
 
 public:
@@ -13,6 +16,9 @@ public:
 
   void SetData(AliRsnOutTask *data);
   void SetMC(AliRsnOutTask *mc);
+
+  void FillSparse(AliRsnOutTask *task,THnSparse *s, Int_t *sparseBin, Int_t index);
+  void FolderFromSparse(AliRsnOutTask *task,THnSparse *s, Int_t index, TFolder *folder, Int_t indexBinFixed);
 
 private:
   AliRsnOutTask *fData;

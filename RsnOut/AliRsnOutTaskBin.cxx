@@ -7,14 +7,24 @@
 
 ClassImp(AliRsnOutTaskBin)
 
-  AliRsnOutTaskBin::AliRsnOutTaskBin(const char *name, const char *title)
-  : AliRsnOutTask(name, title), fValue(), fCuts(0) {}
+  AliRsnOutTaskBin::AliRsnOutTaskBin(const char *name, const char *title,
+                                     Bool_t isCutsOnly)
+  : AliRsnOutTask(name, title), fValue(), fCuts(0), fCutsOnly(isCutsOnly) {}
 
 AliRsnOutTaskBin::~AliRsnOutTaskBin() { SafeDelete(fCuts); }
 
 void AliRsnOutTaskBin::Exec(Option_t * /*option*/) {
 
-  AliRsnOutTaskInput *input = dynamic_cast<AliRsnOutTaskInput *>(GetParent());
+  AliRsnOutTask *parent = GetParent();
+  AliRsnOutTaskInput *input = dynamic_cast<AliRsnOutTaskInput *>(parent);
+  while (!input && parent) {
+    if (parent) {
+      Printf("AliRsnOutTaskBin::while %s input=%p", parent->GetName(), input);
+    }
+    parent = parent->GetParent();
+    input = dynamic_cast<AliRsnOutTaskInput *>(parent);
+  }
+  Printf("AliRsnOutTaskBin: %p", input);
   if (!input) return;
 
   THnSparse *sigBg = input->GetSigBg();
@@ -25,25 +35,28 @@ void AliRsnOutTaskBin::Exec(Option_t * /*option*/) {
   if (sigBg) {
     ApplyCuts(sigBg, bg);
 
-    TH1 *hSigBg = (TH1 *)sigBg->Projection(fValue.GetId())->Clone();
-    hSigBg->SetName("hSignalBg");
-    fOutput->Add(hSigBg);
+    if (!fCutsOnly) {
+      TH1 *hSigBg = (TH1 *)sigBg->Projection(fValue.GetId())->Clone();
+      hSigBg->SetName("hSignalBg");
+      fOutput->Add(hSigBg);
 
-    TH1 *hBg = (TH1 *)bg->Projection(fValue.GetId())->Clone();
-    hBg->SetName("hBg");
-    fOutput->Add(hBg);
+      TH1 *hBg = (TH1 *)bg->Projection(fValue.GetId())->Clone();
+      hBg->SetName("hBg");
+      fOutput->Add(hBg);
+    }
   }
 
   if (mcGen && mcRec) {
     ApplyCuts(mcGen, mcRec);
+    if (!fCutsOnly) {
+      TH1 *hMCGen = (TH1 *)mcGen->Projection(fValue.GetId())->Clone();
+      hMCGen->SetName("hSignalMCGen");
+      fOutput->Add(hMCGen);
 
-    TH1 *hMCGen = (TH1 *)mcGen->Projection(fValue.GetId())->Clone();
-    hMCGen->SetName("hSignalMCGen");
-    fOutput->Add(hMCGen);
-
-    TH1 *hMCRec = (TH1 *)mcRec->Projection(fValue.GetId())->Clone();
-    hMCRec->SetName("hSignalMCRec");
-    fOutput->Add(hMCRec);
+      TH1 *hMCRec = (TH1 *)mcRec->Projection(fValue.GetId())->Clone();
+      hMCRec->SetName("hSignalMCRec");
+      fOutput->Add(hMCRec);
+    }
   }
 
   Printf("%s", GetName());
@@ -62,6 +75,7 @@ void AliRsnOutTaskBin::AddCut(AliRsnOutValue *cut) {
 void AliRsnOutTaskBin::ApplyCuts(THnSparse *one, THnSparse *two) {
 
   // TODO reset all cuts with Range(0,0)
+  if (!fCuts) return;
 
   TIter next(fCuts);
   AliRsnOutValue *v;

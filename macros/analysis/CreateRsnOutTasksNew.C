@@ -17,42 +17,12 @@
 AliRsnOutTaskBin *AddBin(Int_t id, Double_t min, Double_t max, TList *norms,
                          TList *fits);
 
-void CreateRsnOutTasks(TString names = "pt:ctj:ctt")
+void CreateRsnOutTasksNew(const char*config = "RsnOutMgrNew.root", const char* outFileName="RsnOutMgrNewResults.root")
 {
 
-  TFile *f = TFile::Open("RsnOutMgr.root", "RECREATE");
+  TFile *f = TFile::Open(config, "RECREATE");
 
-  AliRsnOutTaskMgr *tMgr = 0;
-  TObjArray *a = names.Tokenize(":");
-  TObjString *s;
-  TString sname;
-  for (Int_t i = 0; i < a->GetEntries(); ++i)
-  {
-    s = (TObjString *)a->At(i);
-    sname = s->GetString();
-    sname.ToLower();
-    if (!sname.CompareTo("pt"))
-      tMgr = CreateRsnOutMgr(sname, 1, 6, 50, 1);
-    else if (!sname.CompareTo("ctj"))
-      tMgr = CreateRsnOutMgr(sname, 3, 1, 21, 1);
-    else if (!sname.CompareTo("ctt"))
-      tMgr = CreateRsnOutMgr(sname, 4, 1, 21, 1);
-    else if (!sname.CompareTo("test"))
-      tMgr = CreateRsnOutMgr(sname, 1, 6, 15, 5);
-
-    if (tMgr)
-      tMgr->Write();
-  }
-
-  f->Close();
-}
-
-AliRsnOutTaskMgr *CreateRsnOutMgr(TString name, Int_t cutAxis = 1,
-                                  Int_t binStart = 6, Int_t binEnd = 50,
-                                  Int_t binStep = 1)
-{
-
-  AliRsnOutTaskMgr *tMgr = new AliRsnOutTaskMgr(name);
+  AliRsnOutTaskMgr *tMgr = new AliRsnOutTaskMgr("mgr");
 
   AliRsnOutTaskInput *tInputMC = new AliRsnOutTaskInput("LHC15g3a3");
   tInputMC->SetFileName("root://alieos.saske.sk///eos/alike.saske.sk/alice/"
@@ -66,6 +36,7 @@ AliRsnOutTaskMgr *CreateRsnOutMgr(TString name, Int_t cutAxis = 1,
   tInputMC->SetEfficiencyOnly();
   tMgr->Add(tInputMC);
 
+
   AliRsnOutTaskInput *tInputData = new AliRsnOutTaskInput("LHC15f");
   tInputData->SetFileName("root://alieos.saske.sk///eos/alike.saske.sk/alice/"
                           "alike/PWGLF/LF_pp/389_20160307-1141/merge_runlist_4/"
@@ -74,6 +45,114 @@ AliRsnOutTaskMgr *CreateRsnOutMgr(TString name, Int_t cutAxis = 1,
   tInputData->SetSigBgName("Unlike");
   tInputData->SetBgName("Mixing");
   tMgr->Add(tInputData);
+
+  TList *listVariations = new TList();
+  TArrayD *arrPt = new TArrayD(3);
+  arrPt->SetAt(6,0);
+  arrPt->SetAt(11,1);
+  arrPt->SetAt(16,2);
+
+  listVariations->Add(new AliRsnOutValue(1,arrPt));
+
+  TList *norms = new TList();
+  norms->Add(new AliRsnOutValue(0, 1.10, 1.15));
+  // norms->Add(new AliRsnOutValue(0, 1.11, 1.15));
+
+  TList *fits = new TList();
+  Int_t nFits = 3;
+  for (Int_t fitId = 0; fitId < nFits; fitId++)
+  {
+    fits->Add(new AliRsnOutValue(fitId, 0.997, 1.050));
+    // fits->Add(new AliRsnOutValue(fitId, 1.000, 1.080));
+    // fits->Add(new AliRsnOutValue(fitId, 0.997, 1.130));
+  }
+
+
+  AliRsnOutTaskBinMgr *binMgr = new AliRsnOutTaskBinMgr("binMgr");
+  binMgr->SetBinTemplate(GenerateBinTemplate(norms, fits));
+  binMgr->SetListOfVartiations(listVariations);
+
+
+  binMgr->Init();
+  
+  tInputMC->Add((AliRsnOutTaskBinMgr *)binMgr->Clone());
+  tInputData->Add((AliRsnOutTaskBinMgr *)binMgr->Clone());
+
+
+
+  if (tMgr)
+    tMgr->Write();
+
+  f->Close();
+
+  f = TFile::Open(config,"READ");
+  TFile *fOut = TFile::Open(outFileName, "RECREATE");
+
+
+  tMgr = (AliRsnOutTaskMgr*) f->Get("mgr");
+  tMgr->ExecuteTask("");
+    
+  if (tMgr) {
+    fOut->cd();
+    tMgr->Write();
+  }
+
+  fOut->Close();
+
+  f->Close();
+
+  // gROOT->GetListOfBrowsables()->Add(tMgr);
+  // new TBrowser;
+
+
+}
+
+AliRsnOutTaskBin *GenerateBinTemplate(TList *norms,TList *fits) {
+  AliRsnOutTaskBin *tBin = new AliRsnOutTaskBin();
+  // tBin->GetValue()->SetId(0);
+  // tBin->AddCut(new AliRsnOutValue(id, min, max));
+
+  // Loop over norms
+  TIter nextNorm(norms);
+  AliRsnOutValue *vNorm;
+  while ((vNorm = (AliRsnOutValue *)nextNorm()))
+  {
+    AliRsnOutTaskNorm *tNorm = new AliRsnOutTaskNorm();
+    tNorm->AddRange(vNorm);
+    tBin->Add(tNorm);
+
+    // Loop over fits
+    TIter nextFit(fits);
+    AliRsnOutValue *vFit;
+    while ((vFit = (AliRsnOutValue *)nextFit()))
+    {
+      AliRsnOutTaskFit *tFit = new AliRsnOutTaskFit();
+      tFit->SetFit(vFit);
+      tNorm->Add(tFit);
+    }
+  }
+  return tBin;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+AliRsnOutTaskMgr *CreateRsnOutMgr(TString name, Int_t cutAxis = 1,
+                                  Int_t binStart = 6, Int_t binEnd = 50,
+                                  Int_t binStep = 1)
+{
+
+  AliRsnOutTaskMgr *tMgr = new AliRsnOutTaskMgr(name);
+
+
 
   TList *norms = new TList();
   norms->Add(new AliRsnOutValue(0, 1.10, 1.15));
