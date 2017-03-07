@@ -12,6 +12,8 @@ public:
   void SetListOfVartiations(TList *l) { fListOfVariations = l; }
   void SetBinTemplate(AliRsnOutTaskBin *bt) { fBinTmpl = bt; }
   void Init();
+
+  void GenerateBinVariations(Int_t index, AliRsnOutTask *task);
   
   virtual void Exec(Option_t *option);
 

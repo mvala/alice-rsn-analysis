@@ -71,19 +71,23 @@ void CreateRsnOutTasksNew(const char*config = "RsnOutMgrNew.root", const char* o
   AliRsnOutTaskBinMgr *binMgr = new AliRsnOutTaskBinMgr("binMgr");
   binMgr->SetBinTemplate(GenerateBinTemplate(norms, fits));
   binMgr->SetListOfVartiations(listVariations);
-
-
   binMgr->Init();
   
   tInputMC->Add((AliRsnOutTaskBinMgr *)binMgr->Clone());
   tInputData->Add((AliRsnOutTaskBinMgr *)binMgr->Clone());
 
-
+  // return;
+  // TMP
+  gROOT->GetListOfBrowsables()->Add(tMgr);
+  new TBrowser;
+  return;
 
   if (tMgr)
     tMgr->Write();
 
+
   f->Close();
+
 
   f = TFile::Open(config,"READ");
   TFile *fOut = TFile::Open(outFileName, "RECREATE");

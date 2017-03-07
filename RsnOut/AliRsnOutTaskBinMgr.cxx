@@ -15,6 +15,9 @@ AliRsnOutTaskBinMgr::~AliRsnOutTaskBinMgr() {}
 void AliRsnOutTaskBinMgr::Init() {
 
 
+  GenerateBinVariations(fListOfVariations->GetSize(), this);
+  return;
+
 
   AliRsnOutTaskBin *binIntegrated = (AliRsnOutTaskBin *) fBinTmpl->Clone();
   binIntegrated->SetName("no_cut");
@@ -62,4 +65,45 @@ void AliRsnOutTaskBinMgr::Exec(Option_t * /*option*/) {
   }
 
   Printf("%s", GetName());
+}
+
+
+void AliRsnOutTaskBinMgr::GenerateBinVariations(Int_t index, AliRsnOutTask *task) {
+
+    if (index < 0) return;
+
+    AliRsnOutTaskBin *b;
+    if (!index) {
+        Printf("Doing no_cut");
+        b = (AliRsnOutTaskBin *) fBinTmpl->Clone();
+        b->SetName("no_cut");
+        task->Add(b);
+        
+        return;
+    }
+    
+    GenerateBinVariations(index-1, task);
+
+    for (Int_t i = 0; i < index ;i++) {
+      Printf("i=%d index=%d", i, index);
+
+      b = new AliRsnOutTaskBin();
+      AliRsnOutValue *v = (AliRsnOutValue *) fListOfVariations->At(i);
+      if (v) {     
+        Int_t id = v->GetId();
+        TArrayD *arr = v->GetArray();
+        AliRsnOutTaskBin *b2;
+        for (Int_t i = 0; i < arr->GetSize()-1;i++) {
+          Printf("Adding id=%d min=%.0f max=%.0f", id, arr->At(i), arr->At(i+1)-1);
+          b2 = (AliRsnOutTaskBin *) fBinTmpl->Clone();
+          b2->AddCut(new AliRsnOutValue(id, arr->At(i), arr->At(i+1)-1));
+          b->Add(b2);
+        }
+        task->Add(b);
+      }
+
+      
+    }
+
+
 }
