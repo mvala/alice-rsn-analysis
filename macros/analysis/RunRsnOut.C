@@ -12,8 +12,11 @@
 #include <TTask.h>
 #endif
 
-void RunRsnOut(TString config = "RsnOutMgrNew.root", TString outFileName="RsnOutMgrNewResults.root")
+void RunRsnOut(TString config = "RsnOutMgrNew.root", TString outPostfix="Results")
 {
+
+  TString outFileName = config;
+  outFileName.ReplaceAll(".root",TString::Format("%s.root", outPostfix.Data()).Data());
 
   TFile *f = TFile::Open(config, "RECREATE");
 
@@ -89,9 +92,9 @@ void RunRsnOut(TString config = "RsnOutMgrNew.root", TString outFileName="RsnOut
   f = TFile::Open(config,"READ");
   tMgr = (AliRsnOutTaskMgr*) f->Get("mgr");
 
-  if (!outFileName.IsNull()) {
+  if (!outPostfix.IsNull()) {
     tMgr->ExecuteTask("");
-    TFile *fOut = TFile::Open(outFileName, "RECREATE");
+    TFile *fOut = TFile::Open(outFileName.Data(), "RECREATE");
     if (tMgr) {
       fOut->cd();
       tMgr->Write();
