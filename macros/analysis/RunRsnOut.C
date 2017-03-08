@@ -84,32 +84,23 @@ void RunRsnOut(TString config = "RsnOutMgrNew.root", TString outFileName="RsnOut
 
   if (tMgr)
     tMgr->Write();
-
-
   f->Close();
-
-  if (outFileName.IsNull())
-    return;
-
 
   f = TFile::Open(config,"READ");
-  TFile *fOut = TFile::Open(outFileName, "RECREATE");
-
-
   tMgr = (AliRsnOutTaskMgr*) f->Get("mgr");
-  tMgr->ExecuteTask("");
-    
-  if (tMgr) {
-    fOut->cd();
-    tMgr->Write();
+
+  if (!outFileName.IsNull()) {
+    tMgr->ExecuteTask("");
+    TFile *fOut = TFile::Open(outFileName, "RECREATE");
+    if (tMgr) {
+      fOut->cd();
+      tMgr->Write();
+    }
+    fOut->Close();
+  } else {
+    gROOT->GetListOfBrowsables()->Add(tMgr);
+    new TBrowser;
   }
 
-  fOut->Close();
-
   f->Close();
-
-  // gROOT->GetListOfBrowsables()->Add(tMgr);
-  // new TBrowser;
-
-
 }
