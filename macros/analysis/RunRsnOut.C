@@ -115,20 +115,13 @@ void RunRsnOutGenerate(TString config = "RsnOutConfig.root") {
 
     AliRsnOutTask *tResultsAll = new AliRsnOutTask("results","Results");
 
-    // AliRsnOutTaskResult *tResult = new AliRsnOutTaskResult();
-    // tResult->SetData(tInputData);
-    // tResult->SetMC(tInputMC);
+    AliRsnOutTaskResult *tResult = new AliRsnOutTaskResult();
+    tResult->SetData(tInputData);
+    tResult->SetMC(tInputMC);
 
-    // tResultsAll->Add(tResult);
+    tResultsAll->Add(tResult);
     tMgr->Add(tResultsAll);
-
-
-    // // return;
-    // // TMP
-    // gROOT->GetListOfBrowsables()->Add(tMgr);
-    // new TBrowser;
-    // return;
-
+    
     if (tMgr)
       tMgr->Write();
     f->Close();

@@ -31,7 +31,7 @@ void AliRsnOutTaskResult::Exec(Option_t * /*option*/) {
 
   Printf("%s", GetName());
 
-    AliRsnOutTaskBin *tBin;
+  AliRsnOutTaskBin *tBin;
   AliRsnOutTaskNorm *tNorm;
   AliRsnOutTaskFit *tFit;
   AliRsnOutValue *v;
