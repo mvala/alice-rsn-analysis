@@ -79,22 +79,25 @@ void AliRsnOutTaskBinMgr::GenerateBinVariations(Int_t index, AliRsnOutTask *task
         Printf("Doing no_cut");
         b = (AliRsnOutTaskBin *) fBinTmpl->Clone();
         b->SetName("no_cut");
-        task->Add(b);
-        
+        task->Add(b);    
         return;
     }
     
+    Printf("Calling GenerateBinVariations %d %s",index-1, task->GetName());
     GenerateBinVariations(index-1, task);
 
+    AliRsnOutTaskBin *b2;
+    // Adding parameter distribution (P - no_otehr_cuts)
     for (Int_t i = index-1; i < index ;i++) {
       Printf("i=%d index=%d", i, index);
 
-      b = new AliRsnOutTaskBin(TString::Format("bin%d",i).Data());
+
       AliRsnOutValue *v = (AliRsnOutValue *) fListOfVariations->At(i);
-      if (v) {     
+      if (v) {
+        b = new AliRsnOutTaskBin(TString::Format("bin%d",v->GetId()).Data());
         Int_t id = v->GetId();
         TArrayD *arr = v->GetArray();
-        AliRsnOutTaskBin *b2;
+        
         for (Int_t i = 0; i < arr->GetSize()-1;i++) {
           Printf("Adding id=%d min=%.0f max=%.0f", id, arr->At(i), arr->At(i+1)-1);
           b2 = (AliRsnOutTaskBin *) fBinTmpl->Clone();
@@ -102,9 +105,34 @@ void AliRsnOutTaskBinMgr::GenerateBinVariations(Int_t index, AliRsnOutTask *task
           b->Add(b2);
         }
         task->Add(b);
-      }
+      }      
+    }
 
-      
+    // Adding 2D variations
+    AliRsnOutTaskBin *b3;
+    if (index == 2) {
+      AliRsnOutValue *v1 = (AliRsnOutValue *) fListOfVariations->At(0);
+      AliRsnOutValue *v2 = (AliRsnOutValue *) fListOfVariations->At(1);
+      if (v1&&v2) {
+        Printf("Creating %d vs %d", v1->GetId(),v2->GetId());
+        b = new AliRsnOutTaskBin(TString::Format("bin%d_vs_bin%d",v1->GetId(),v2->GetId()).Data());
+        TArrayD *arr1 = v1->GetArray();
+        TArrayD *arr2 = v2->GetArray();
+        for (Int_t i = 0; i < arr1->GetSize()-1;i++) {
+          b2 = new AliRsnOutTaskBin(TString::Format("bin_%d",i).Data());
+          b2->AddCut(new AliRsnOutValue(v1->GetId(), arr1->At(i), arr1->At(i+1)-1));
+          for (Int_t j = 0; j < arr2->GetSize()-1;j++) {
+            Printf("Adding id=%d min=%.0f max=%.0f vs id=%d min=%.0f max=%.0f", v1->GetId(), arr1->At(i), arr1->At(i+1)-1, v2->GetId(), arr2->At(j), arr2->At(j+1)-1);
+            b3 = (AliRsnOutTaskBin *) fBinTmpl->Clone();
+            b3->AddCut(new AliRsnOutValue(v2->GetId(), arr2->At(j), arr2->At(j+1)-1));
+            b2->Add(b3);
+          }
+          b->Add(b2);
+        }
+
+
+        task->Add(b);
+      }
     }
 
 

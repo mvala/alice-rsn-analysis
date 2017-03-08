@@ -12,8 +12,7 @@
 #include <TTask.h>
 #endif
 
-void RunRsnOut(TString config = "RsnOutMgrNew.root", TString outPostfix="Results")
-{
+void RunRsnOut(TString config = "RsnOutMgrNew.root", TString outPostfix="Results", Bool_t useLocalCache=kTRUE) {
 
   TString outFileName = config;
   outFileName.ReplaceAll(".root",TString::Format("%s.root", outPostfix.Data()).Data());
@@ -93,6 +92,9 @@ void RunRsnOut(TString config = "RsnOutMgrNew.root", TString outPostfix="Results
   tMgr = (AliRsnOutTaskMgr*) f->Get("mgr");
 
   if (!outPostfix.IsNull()) {
+    if (useLocalCache)
+      TFile::SetCacheFileDir(gSystem->HomeDirectory(), 1, 1);
+    
     tMgr->ExecuteTask("");
     TFile *fOut = TFile::Open(outFileName.Data(), "RECREATE");
     if (tMgr) {
