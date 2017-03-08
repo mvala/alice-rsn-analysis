@@ -14,6 +14,7 @@ public:
   void Init();
 
   void GenerateBinVariations(Int_t index, AliRsnOutTask *task);
+  void GenerateBinTemplate(TList *norms,TList *fits);
   
   virtual void Exec(Option_t *option);
 

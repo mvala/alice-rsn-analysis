@@ -4,6 +4,8 @@
 
 #include <AliRsnOutTaskBin.h>
 #include <AliRsnOutTaskInput.h>
+#include <AliRsnOutTaskNorm.h>
+#include <AliRsnOutTaskFit.h>
 
 ClassImp(AliRsnOutTaskBinMgr)
 
@@ -107,3 +109,32 @@ void AliRsnOutTaskBinMgr::GenerateBinVariations(Int_t index, AliRsnOutTask *task
 
 
 }
+
+void AliRsnOutTaskBinMgr::GenerateBinTemplate(TList *norms,TList *fits) {
+
+  if (fBinTmpl) delete fBinTmpl;
+
+  fBinTmpl = new AliRsnOutTaskBin();
+
+  // Loop over norms
+  TIter nextNorm(norms);
+  AliRsnOutValue *vNorm;
+  while ((vNorm = (AliRsnOutValue *)nextNorm()))
+  {
+    AliRsnOutTaskNorm *tNorm = new AliRsnOutTaskNorm();
+    tNorm->AddRange(vNorm);
+    fBinTmpl->Add(tNorm);
+
+    // Loop over fits
+    TIter nextFit(fits);
+    AliRsnOutValue *vFit;
+    while ((vFit = (AliRsnOutValue *)nextFit()))
+    {
+      AliRsnOutTaskFit *tFit = new AliRsnOutTaskFit();
+      tFit->SetFit(vFit);
+      tNorm->Add(tFit);
+    }
+  }
+}
+
+
