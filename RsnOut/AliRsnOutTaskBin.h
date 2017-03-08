@@ -3,7 +3,7 @@
 
 #include <AliRsnOutTask.h>
 #include <AliRsnOutValue.h>
-
+class AliRsnOutTaskInput;
 class AliRsnOutTaskBin : public AliRsnOutTask {
 
 public:
@@ -12,6 +12,7 @@ public:
   virtual ~AliRsnOutTaskBin();
 
   virtual void Exec(Option_t *option);
+  virtual void ExecPost(Option_t *option);
 
   AliRsnOutValue *GetValue() { return &fValue; }
   TList *GetListOfCuts() const { return fCuts; }
@@ -23,6 +24,7 @@ private:
   AliRsnOutValue fValue;
   TList *fCuts;
   Bool_t fCutsOnly;
+  AliRsnOutTaskInput *fInputTask;
 
   ClassDef(AliRsnOutTaskBin, 1)
 };

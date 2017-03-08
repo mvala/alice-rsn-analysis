@@ -2,35 +2,38 @@
 #include <TH1.h>
 #include <THnSparse.h>
 
-#include "AliRsnOutTaskBin.h"
 #include "AliRsnOutTaskInput.h"
+#include "AliRsnOutTaskBin.h"
+#include "AliRsnOutTaskBinMgr.h"
 
 ClassImp(AliRsnOutTaskBin)
 
   AliRsnOutTaskBin::AliRsnOutTaskBin(const char *name, const char *title,
                                      Bool_t isCutsOnly)
-  : AliRsnOutTask(name, title), fValue(), fCuts(0), fCutsOnly(isCutsOnly) {}
+  : AliRsnOutTask(name, title), fValue(), fCuts(0), fCutsOnly(isCutsOnly), fInputTask(0) {}
 
 AliRsnOutTaskBin::~AliRsnOutTaskBin() { SafeDelete(fCuts); }
 
 void AliRsnOutTaskBin::Exec(Option_t * /*option*/) {
 
-  AliRsnOutTask *parent = GetParent();
-  AliRsnOutTaskInput *input = dynamic_cast<AliRsnOutTaskInput *>(parent);
-  while (!input && parent) {
-    if (parent) {
-      Printf("AliRsnOutTaskBin::while %s input=%p", parent->GetName(), input);
+  if (!fInputTask) {
+    AliRsnOutTask *parent = GetParent();
+    fInputTask = dynamic_cast<AliRsnOutTaskInput *>(parent);
+    while (!fInputTask && parent) {
+      if (parent) {
+        Printf("AliRsnOutTaskBin::while %s input=%p", parent->GetName(), fInputTask);
+      }
+      parent = parent->GetParent();
+      fInputTask = dynamic_cast<AliRsnOutTaskInput *>(parent);
     }
-    parent = parent->GetParent();
-    input = dynamic_cast<AliRsnOutTaskInput *>(parent);
+    Printf("AliRsnOutTaskBin: %p", fInputTask);
+    if (!fInputTask) return;
   }
-  Printf("AliRsnOutTaskBin: %p", input);
-  if (!input) return;
 
-  THnSparse *sigBg = input->GetSigBg();
-  THnSparse *bg = input->GetBg();
-  THnSparse *mcRec = input->GetMCRec();
-  THnSparse *mcGen = input->GetMCGen();
+  THnSparse *sigBg = fInputTask->GetSigBg();
+  THnSparse *bg = fInputTask->GetBg();
+  THnSparse *mcRec = fInputTask->GetMCRec();
+  THnSparse *mcGen = fInputTask->GetMCGen();
 
   if (sigBg) {
     ApplyCuts(sigBg, bg);
@@ -62,6 +65,30 @@ void AliRsnOutTaskBin::Exec(Option_t * /*option*/) {
   Printf("%s", GetName());
 }
 
+void AliRsnOutTaskBin::ExecPost(Option_t * /*option*/) {
+
+  AliRsnOutTaskBin *b = dynamic_cast<AliRsnOutTaskBin*> (fTasks->At(0));
+  if (!b) return;
+
+  THnSparse *sigBg = fInputTask->GetSigBg();
+  THnSparse *bg = fInputTask->GetBg();
+  THnSparse *mcRec = fInputTask->GetMCRec();
+  THnSparse *mcGen = fInputTask->GetMCGen();
+
+  for (Int_t i=0;i<fTasks->GetSize();i++) {
+    b = (AliRsnOutTaskBin*) fTasks->At(i);
+    // Printf("Reseting sparses axis in %s", b->GetName());
+    TIter next(b->GetListOfCuts());
+    AliRsnOutValue *v;
+    while ((v = (AliRsnOutValue *)next())) {
+      if (sigBg) sigBg->GetAxis(v->GetId())->SetRange(0,0);
+      if (bg) bg->GetAxis(v->GetId())->SetRange(0,0);
+      if (mcRec) mcRec->GetAxis(v->GetId())->SetRange(0,0);
+      if (mcGen) mcGen->GetAxis(v->GetId())->SetRange(0,0);
+    }
+  }
+}
+
 void AliRsnOutTaskBin::AddCut(AliRsnOutValue *cut) {
   if (!cut) return;
   if (!fCuts) {
@@ -74,7 +101,6 @@ void AliRsnOutTaskBin::AddCut(AliRsnOutValue *cut) {
 
 void AliRsnOutTaskBin::ApplyCuts(THnSparse *one, THnSparse *two) {
 
-  // TODO reset all cuts with Range(0,0)
   if (!fCuts) return;
 
   TIter next(fCuts);
