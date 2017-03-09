@@ -8,8 +8,15 @@ set(CPACK_PACKAGE_VERSION_PATCH "0")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -std=c++1y")
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
-find_package(ROOT REQUIRED)
-include(root-utils)
+ find_package(ROOT REQUIRED)
+ string(REPLACE "." ";" VERSION_LIST ${ROOT_VERSION})
+ list(GET VERSION_LIST 0 ROOT_VERSION_MAJOR)
+ if (ROOT_VERSION_MAJOR GREATER 5)
+   include(Root6Macros)
+ else (ROOT_VERSION_MAJOR GREATER 5)
+   add_compile_options("-std=c++1y")
+ endif (ROOT_VERSION_MAJOR GREATER 5)
+ include(RootMacros)
 
 add_custom_target(par-all ALL)
 

@@ -12,7 +12,6 @@ function(add_par PACKAGE)
     COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_SOURCE_DIR}/pars tar --exclude=.svn -czhf ${CMAKE_SOURCE_DIR}/pars/${PACKAGE}.par ${PACKAGE}
     COMMAND ${CMAKE_COMMAND} -E chdir ${CMAKE_SOURCE_DIR}/pars rm -rf ${PACKAGE}
     COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --red --bold "${PACKAGE}.par has been created in ${CMAKE_SOURCE_DIR}/pars"
-#    DEPENDS ${PARSRCS}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   )
 

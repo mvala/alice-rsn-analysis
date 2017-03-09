@@ -313,13 +313,34 @@ void AliRsnOutTaskResult::ProcessBinMgrElement(AliRsnOutTaskBin *bme) {
 }
 
 void AliRsnOutTaskResult::CreateSparse(AliRsnOutTaskBin *bme) {
+
+  // Number of bins for different result parameter (BC,FC,...)
+  Int_t nResultsBins = 10;
+
+  // Setting up axis for sparse
+  Int_t nAxis = 1; // (1 x ResultBin)
+  Int_t nBinAxis = 0;
+
+  TString sClassName;
+  AliRsnOutTask *t = (AliRsnOutTask *)bme->GetListOfTasks()->At(0);
+  // Looping over first tasks to find out number of levels
+  while (t) {
+    nAxis++;
+
+    sClassName = t->ClassName();
+    if (sClassName.CompareTo("AliRsnOutTaskBin"))
+      nBinAxis++;
+    t = (AliRsnOutTask *)t->GetListOfTasks()->At(0);
+  }
+
+  Printf("nAxis=%d nBinAxis=%d", nAxis, nBinAxis);
+
   // AliRsnOutTaskBin *tBin;
   //   AliRsnOutTaskNorm *tNorm;
   //   AliRsnOutTaskFit *tFit;
   //   AliRsnOutValue *v;
 
-  //   // Number of bins for different result parameter (BC,FC,...)
-  //   Int_t nResultsBins = 10;
+  //
 
   //   Int_t nAxis = 0; // (+1xResultBin -1xBinMgr)
   //   Int_t nBinAxis = 0;

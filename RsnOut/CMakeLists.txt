@@ -9,7 +9,7 @@ AliRsnOutTaskBin.cxx
 AliRsnOutTaskBinMgr.cxx
 AliRsnOutTaskNorm.cxx
 AliRsnOutTaskFit.cxx
-AliRsnOutTaskRooFit.cxx
+#AliRsnOutTaskRooFit.cxx
 AliRsnOutTaskResult.cxx
 )
 
