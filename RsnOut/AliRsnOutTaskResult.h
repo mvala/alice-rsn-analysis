@@ -17,6 +17,9 @@ public:
   void SetData(AliRsnOutTask *data);
   void SetMC(AliRsnOutTask *mc);
 
+  void ProcessBinMgrElement(AliRsnOutTaskBin *bme);
+
+  void CreateSparse(AliRsnOutTaskBin *bme);
   void FillSparse(AliRsnOutTask *task,THnSparse *s, Int_t *sparseBin, Int_t index);
   void FolderFromSparse(AliRsnOutTask *task,THnSparse *s, Int_t index, TFolder *folder, Int_t indexBinFixed);
 

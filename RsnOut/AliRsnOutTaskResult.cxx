@@ -4,6 +4,8 @@
 #include <THnSparse.h>
 
 #include "AliRsnOutTaskBin.h"
+#include "AliRsnOutTaskBinMgr.h"
+
 #include "AliRsnOutTaskFit.h"
 #include "AliRsnOutTaskInput.h"
 #include "AliRsnOutTaskNorm.h"
@@ -19,17 +21,32 @@ AliRsnOutTaskResult::~AliRsnOutTaskResult() {}
 
 void AliRsnOutTaskResult::Exec(Option_t * /*option*/) {
 
+  Printf("%s", GetName());
+
   AliRsnOutTaskInput *tInputData = dynamic_cast<AliRsnOutTaskInput *>(fData);
   if (!tInputData) return;
 
-  AliRsnOutTaskInput *tInputMC = 0;
-  TGraphAsymmErrors *mcEff = 0;
-  if (fMC) {
-    tInputMC = dynamic_cast<AliRsnOutTaskInput *>(fMC);
-    if (tInputMC) mcEff = tInputMC->GetMCEfficiency();
+  AliRsnOutTaskBinMgr *tBinMgr;
+  AliRsnOutTaskBin *tBinMgrElement;
+  TIter nextBinMgr(tInputData->GetListOfTasks());
+  // Loop over all Bin Managers
+  while ((tBinMgr = (AliRsnOutTaskBinMgr *)nextBinMgr())) {
+    tBinMgr->Print();
+    TIter nextBin(tBinMgr->GetListOfTasks());
+    // Loop over all bin combinations in bin manager
+    while ((tBinMgrElement = (AliRsnOutTaskBin *)nextBin())) {
+      ProcessBinMgrElement(tBinMgrElement);
+    }
   }
 
-  Printf("%s", GetName());
+
+
+  return;
+
+  AliRsnOutTaskInput *tInputMC = dynamic_cast<AliRsnOutTaskInput *>(fMC);
+  TGraphAsymmErrors *mcEff = 0;
+
+  if (tInputMC) mcEff = tInputMC->GetMCEfficiency();
 
   AliRsnOutTaskBin *tBin;
   AliRsnOutTaskNorm *tNorm;
@@ -40,7 +57,7 @@ void AliRsnOutTaskResult::Exec(Option_t * /*option*/) {
   // Number of bins for different result parameter (BC,FC,...)
   Int_t nResultsBins = 10;
 
-  Int_t nAxis = 1;
+  Int_t nAxis = 0; // (+1xResultBin -1xBinMgr)
   Int_t nBinAxis = 0;
   TString sClassName;
   AliRsnOutTask *t = (AliRsnOutTask *)tInputData->GetListOfTasks()->At(0);
@@ -287,7 +304,68 @@ void AliRsnOutTaskResult::Exec(Option_t * /*option*/) {
   // }
 }
 
-  void AliRsnOutTaskResult::FillSparse(AliRsnOutTask *task,THnSparse *s, Int_t *sparseBin, Int_t index) {
+void AliRsnOutTaskResult::ProcessBinMgrElement(AliRsnOutTaskBin *bme) {
+  bme->Print();
+  CreateSparse(bme);
+
+
+  
+}
+
+void AliRsnOutTaskResult::CreateSparse(AliRsnOutTaskBin *bme) {
+// AliRsnOutTaskBin *tBin;
+//   AliRsnOutTaskNorm *tNorm;
+//   AliRsnOutTaskFit *tFit;
+//   AliRsnOutValue *v;
+
+
+//   // Number of bins for different result parameter (BC,FC,...)
+//   Int_t nResultsBins = 10;
+
+//   Int_t nAxis = 0; // (+1xResultBin -1xBinMgr)
+//   Int_t nBinAxis = 0;
+//   TString sClassName;
+//   AliRsnOutTask *t = (AliRsnOutTask *)tInputData->GetListOfTasks()->At(0);
+//   while (t) {
+//     sClassName = t->ClassName();
+//     if (sClassName.CompareTo("AliRsnOutTaskBin")) nBinAxis++;
+//     Printf("%s %s", t->GetName(), t->ClassName());
+//     t = (AliRsnOutTask *) t->GetListOfTasks()->At(0);
+//     nAxis++;
+//   }
+
+//   Int_t bins[nAxis];
+//   Double_t mins[nAxis];
+//   Double_t maxs[nAxis];
+
+//   Int_t iAxis = 0;
+//   t = (AliRsnOutTask *)tInputData->GetListOfTasks()->At(0);
+//   while (t) {
+//     bins[iAxis] = t->GetListOfTasks()->GetEntries();
+//     mins[iAxis] = 0;
+//     maxs[iAxis] = t->GetListOfTasks()->GetEntries();
+
+
+//     Printf("%s %s", t->GetName(), t->ClassName());
+//     t = (AliRsnOutTask *) t->GetListOfTasks()->At(0);
+//     iAxis++;
+//   }
+  
+//   bins[iAxis] = nResultsBins;
+//   mins[iAxis] = 0;
+//   maxs[iAxis] = nResultsBins;
+
+//   Long64_t nEvents = tInputData->GetNEvents();
+//   Printf("nAxis = %d", nAxis);
+
+
+//   THnSparseD *s = new THnSparseD("sparse", "Results Sparse", nAxis, bins, mins, maxs);
+//   s->Print();
+
+}
+
+
+void AliRsnOutTaskResult::FillSparse(AliRsnOutTask *task,THnSparse *s, Int_t *sparseBin, Int_t index) {
     AliRsnOutValue *v;
 
     AliRsnOutTask *t;
