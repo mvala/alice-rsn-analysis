@@ -12,6 +12,8 @@
 #include <TTask.h>
 #endif
 
+void RunRsnOutGenerate(TString config = "RsnOutConfig.root");
+
 void RunRsnOut(Bool_t generateConfig = kTRUE,
                TString config = "RsnOutConfig.root",
                TString outPostfix = "Results", Bool_t useLocalCache = kTRUE) {
@@ -37,7 +39,7 @@ void RunRsnOut(Bool_t generateConfig = kTRUE,
 
   AliRsnOutTaskMgr *tMgr = (AliRsnOutTaskMgr *)f->Get("mgr");
   if (!tMgr) {
-    Printf("Error getting AliRsnOutTaskMgr from '%s' !!!", config);
+    Printf("Error getting AliRsnOutTaskMgr from '%s' !!!", config.Data());
     return;
   }
 
@@ -69,7 +71,7 @@ void RunRsnOut(Bool_t generateConfig = kTRUE,
   f->Close();
 }
 
-void RunRsnOutGenerate(TString config = "RsnOutConfig.root") {
+void RunRsnOutGenerate(TString config) {
   TFile *f = TFile::Open(config, "RECREATE");
 
   AliRsnOutTaskMgr *tMgr = new AliRsnOutTaskMgr("mgr");
