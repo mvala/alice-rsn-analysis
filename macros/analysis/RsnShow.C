@@ -95,7 +95,7 @@ void RsnShow(Int_t cutAxix, Int_t cutBinMin, Int_t cutBinMax,
   RooRealVar c2("c2", "coefficient #2", -0.1, -1., 1.);
   RooPolynomial bkg("pol", "background p.d.f.", x, RooArgList(c0, c1));
   //	RooPolynomial bkg("pol", "background p.d.f.", x, RooArgList(c0, c1,
-  //c2));
+  // c2));
   //	RooChebychev bkg("pol","background p.d.f.",x,RooArgList(c0,c1)) ;
   //	RooChebychev bkg("pol","background p.d.f.",x,RooArgList(c0,c1,c2)) ;
 
@@ -126,7 +126,7 @@ void RsnShow(Int_t cutAxix, Int_t cutBinMin, Int_t cutBinMax,
   model.plotOn(frame, Components(bkg), LineStyle(kDashed));
 
   //	TPaveLabel *t1 = new TPaveLabel(0.7,0.6,0.9,0.68, Form("#chi^{2} = %f",
-  //frame->chiSquare("model","data",5)),"brNDC");
+  // frame->chiSquare("model","data",5)),"brNDC");
   //	frame->addObject(t1);
   //	model.paramOn(frame, Layout(0.55));
   frame->Draw();
