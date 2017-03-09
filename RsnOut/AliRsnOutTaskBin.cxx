@@ -6,10 +6,10 @@
 #include "AliRsnOutTaskBinMgr.h"
 #include "AliRsnOutTaskInput.h"
 
-ClassImp(AliRsnOutTaskBin)
+ClassImp(AliRsnOutTaskBin);
 
-    AliRsnOutTaskBin::AliRsnOutTaskBin(const char *name, const char *title,
-                                       Bool_t isCutsOnly)
+AliRsnOutTaskBin::AliRsnOutTaskBin(const char *name, const char *title,
+                                   Bool_t isCutsOnly)
     : AliRsnOutTask(name, title), fValue(), fCuts(0), fCutsOnly(isCutsOnly),
       fInputTask(0) {}
 

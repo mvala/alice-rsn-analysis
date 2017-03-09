@@ -12,9 +12,9 @@
 #include <TROOT.h>
 #include <TStyle.h>
 
-ClassImp(AliRsnOutTaskInput)
+ClassImp(AliRsnOutTaskInput);
 
-    AliRsnOutTaskInput::AliRsnOutTaskInput(const char *name, const char *title)
+AliRsnOutTaskInput::AliRsnOutTaskInput(const char *name, const char *title)
     : AliRsnOutTask(name, title), fFileName(), fListName(), fSigBgName(),
       fBgName(), fMCRecName(), fMCGenName(), fMCEff(0), fEventStat(0),
       fEffOnly(0), fFile(0), fList(0), fSigBg(0), fBg(0), fMCRec(0), fMCGen(0) {

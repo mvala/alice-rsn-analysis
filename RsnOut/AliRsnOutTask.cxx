@@ -3,9 +3,9 @@
 #include <TDirectory.h>
 #include <TROOT.h>
 
-ClassImp(AliRsnOutTask)
+ClassImp(AliRsnOutTask);
 
-    AliRsnOutTask::AliRsnOutTask()
+AliRsnOutTask::AliRsnOutTask()
     : TTask("task", "Task"), fParent(0), fOutput(0) {}
 
 AliRsnOutTask::AliRsnOutTask(const char *name, const char *title)

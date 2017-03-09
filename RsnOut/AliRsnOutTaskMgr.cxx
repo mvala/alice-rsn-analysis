@@ -3,9 +3,9 @@
 #include <TROOT.h>
 #include <TStyle.h>
 
-ClassImp(AliRsnOutTaskMgr)
+ClassImp(AliRsnOutTaskMgr);
 
-    AliRsnOutTaskMgr::AliRsnOutTaskMgr(const char *name, const char *title)
+AliRsnOutTaskMgr::AliRsnOutTaskMgr(const char *name, const char *title)
     : AliRsnOutTask(name, title), fAddDirectoryStatus(kTRUE) {}
 
 AliRsnOutTaskMgr::~AliRsnOutTaskMgr() {}

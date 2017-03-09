@@ -1,8 +1,8 @@
 #include "AliRsnOutValue.h"
 
-ClassImp(AliRsnOutValue)
+ClassImp(AliRsnOutValue);
 
-    AliRsnOutValue::AliRsnOutValue(Int_t id, Double_t min, Double_t max)
+AliRsnOutValue::AliRsnOutValue(Int_t id, Double_t min, Double_t max)
     : TObject(), fId(id), fMin(min), fMax(max), fArray(0) {}
 
 AliRsnOutValue::AliRsnOutValue(Int_t id, TArrayD *arr)

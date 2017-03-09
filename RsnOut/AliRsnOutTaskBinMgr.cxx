@@ -7,10 +7,9 @@
 #include <AliRsnOutTaskInput.h>
 #include <AliRsnOutTaskNorm.h>
 
-ClassImp(AliRsnOutTaskBinMgr)
+ClassImp(AliRsnOutTaskBinMgr);
 
-    AliRsnOutTaskBinMgr::AliRsnOutTaskBinMgr(const char *name,
-                                             const char *title)
+AliRsnOutTaskBinMgr::AliRsnOutTaskBinMgr(const char *name, const char *title)
     : AliRsnOutTask(name, title), fListOfVariations(0), fBinTmpl(0) {}
 
 AliRsnOutTaskBinMgr::~AliRsnOutTaskBinMgr() {}

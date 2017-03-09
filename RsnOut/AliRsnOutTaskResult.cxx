@@ -12,10 +12,9 @@
 
 #include "AliRsnOutTaskResult.h"
 
-ClassImp(AliRsnOutTaskResult)
+ClassImp(AliRsnOutTaskResult);
 
-    AliRsnOutTaskResult::AliRsnOutTaskResult(const char *name,
-                                             const char *title)
+AliRsnOutTaskResult::AliRsnOutTaskResult(const char *name, const char *title)
     : AliRsnOutTask(name, title), fData(0), fMC(0) {}
 
 AliRsnOutTaskResult::~AliRsnOutTaskResult() {}
@@ -41,115 +40,116 @@ void AliRsnOutTaskResult::Exec(Option_t * /*option*/) {
     }
   }
 
-  return;
+  // return;
 
-  AliRsnOutTaskInput *tInputMC = dynamic_cast<AliRsnOutTaskInput *>(fMC);
-  TGraphAsymmErrors *mcEff = 0;
+  // AliRsnOutTaskInput *tInputMC = dynamic_cast<AliRsnOutTaskInput *>(fMC);
+  // TGraphAsymmErrors *mcEff = 0;
 
-  if (tInputMC)
-    mcEff = tInputMC->GetMCEfficiency();
+  // if (tInputMC)
+  //   mcEff = tInputMC->GetMCEfficiency();
 
-  AliRsnOutTaskBin *tBin;
-  AliRsnOutTaskNorm *tNorm;
-  AliRsnOutTaskFit *tFit;
-  AliRsnOutValue *v;
+  // AliRsnOutTaskBin *tBin;
+  // AliRsnOutTaskNorm *tNorm;
+  // AliRsnOutTaskFit *tFit;
+  // AliRsnOutValue *v;
 
-  // Number of bins for different result parameter (BC,FC,...)
-  Int_t nResultsBins = 10;
+  // // Number of bins for different result parameter (BC,FC,...)
+  // Int_t nResultsBins = 10;
 
-  Int_t nAxis = 0; // (+1xResultBin -1xBinMgr)
-  Int_t nBinAxis = 0;
-  TString sClassName;
-  AliRsnOutTask *t = (AliRsnOutTask *)tInputData->GetListOfTasks()->At(0);
-  while (t) {
-    sClassName = t->ClassName();
-    if (sClassName.CompareTo("AliRsnOutTaskBin"))
-      nBinAxis++;
-    Printf("%s %s", t->GetName(), t->ClassName());
-    t = (AliRsnOutTask *)t->GetListOfTasks()->At(0);
-    nAxis++;
-  }
-
-  Int_t bins[nAxis];
-  Double_t mins[nAxis];
-  Double_t maxs[nAxis];
-
-  Int_t iAxis = 0;
-  t = (AliRsnOutTask *)tInputData->GetListOfTasks()->At(0);
-  while (t) {
-    bins[iAxis] = t->GetListOfTasks()->GetEntries();
-    mins[iAxis] = 0;
-    maxs[iAxis] = t->GetListOfTasks()->GetEntries();
-
-    Printf("%s %s", t->GetName(), t->ClassName());
-    t = (AliRsnOutTask *)t->GetListOfTasks()->At(0);
-    iAxis++;
-  }
-
-  bins[iAxis] = nResultsBins;
-  mins[iAxis] = 0;
-  maxs[iAxis] = nResultsBins;
-
-  Long64_t nEvents = tInputData->GetNEvents();
-  Printf("nAxis = %d", nAxis);
-
-  THnSparseD *s =
-      new THnSparseD("sparse", "Results Sparse", nAxis, bins, mins, maxs);
-  s->Print();
-
-  iAxis = 0;
-  t = (AliRsnOutTask *)tInputData;
-  while (t) {
-    Printf("Variable Bins %s %s", t->GetName(), t->ClassName());
-    if (t) {
-      const Int_t nVariableBins = t->GetListOfTasks()->GetEntries();
-      Double_t varBins[nVariableBins + 1];
-
-      Int_t iBin;
-      for (iBin = 0; iBin < t->GetListOfTasks()->GetEntries(); ++iBin) {
-        tBin = dynamic_cast<AliRsnOutTaskBin *>(t->GetListOfTasks()->At(iBin));
-        if (!tBin)
-          break;
-        v = (AliRsnOutValue *)tBin->GetValue();
-        varBins[iBin] = v->GetMin();
-        Printf("varBins[%d]=%f", iBin, varBins[iBin]);
-        if (iBin == t->GetListOfTasks()->GetEntries() - 1) {
-          varBins[iBin + 1] = v->GetMax();
-          Printf("varBins[%d+1]=%f", iBin, varBins[iBin + 1]);
-        }
-      }
-      if (tBin) {
-        s->GetAxis(iAxis)->Set(nVariableBins, varBins);
-        s->GetAxis(iAxis)->SetName(TString::Format("bin%d", iAxis).Data());
-        iAxis++;
-      }
-      t = (AliRsnOutTask *)t->GetListOfTasks()->At(0);
-      t = dynamic_cast<AliRsnOutTaskBin *>(t);
-
-    } else {
-      break;
-    }
-  }
-  s->GetAxis(iAxis++)->SetName("norm");
-  s->GetAxis(iAxis++)->SetName("fit");
-  s->GetAxis(iAxis++)->SetName("value");
-
-  fOutput->Add(s);
-  s->Print();
-
-  Int_t iSparseBin[nAxis];
-
-  TFolder *dRoot = new TFolder("hist", "Final Results");
-  fOutput->Add(dRoot);
-
-  FillSparse(tInputData, s, iSparseBin, 0);
-  FolderFromSparse(tInputData, s, 0, dRoot, -1);
-
-  // for (Int_t i=0;i<nBinAxis;i++) {
-  //   FolderFromSparse(tInputData,s,0, dRoot,i);
+  // Int_t nAxis = 0; // (+1xResultBin -1xBinMgr)
+  // Int_t nBinAxis = 0;
+  // TString sClassName;
+  // AliRsnOutTask *t = (AliRsnOutTask *)tInputData->GetListOfTasks()->At(0);
+  // while (t) {
+  //   sClassName = t->ClassName();
+  //   if (sClassName.CompareTo("AliRsnOutTaskBin"))
+  //     nBinAxis++;
+  //   Printf("%s %s", t->GetName(), t->ClassName());
+  //   t = (AliRsnOutTask *)t->GetListOfTasks()->At(0);
+  //   nAxis++;
   // }
 
-  return;
+  // Int_t bins[nAxis];
+  // Double_t mins[nAxis];
+  // Double_t maxs[nAxis];
+
+  // Int_t iAxis = 0;
+  // t = (AliRsnOutTask *)tInputData->GetListOfTasks()->At(0);
+  // while (t) {
+  //   bins[iAxis] = t->GetListOfTasks()->GetEntries();
+  //   mins[iAxis] = 0;
+  //   maxs[iAxis] = t->GetListOfTasks()->GetEntries();
+
+  //   Printf("%s %s", t->GetName(), t->ClassName());
+  //   t = (AliRsnOutTask *)t->GetListOfTasks()->At(0);
+  //   iAxis++;
+  // }
+
+  // bins[iAxis] = nResultsBins;
+  // mins[iAxis] = 0;
+  // maxs[iAxis] = nResultsBins;
+
+  // Long64_t nEvents = tInputData->GetNEvents();
+  // Printf("nAxis = %d", nAxis);
+
+  // THnSparseD *s =
+  //     new THnSparseD("sparse", "Results Sparse", nAxis, bins, mins, maxs);
+  // s->Print();
+
+  // iAxis = 0;
+  // t = (AliRsnOutTask *)tInputData;
+  // while (t) {
+  //   Printf("Variable Bins %s %s", t->GetName(), t->ClassName());
+  //   if (t) {
+  //     const Int_t nVariableBins = t->GetListOfTasks()->GetEntries();
+  //     Double_t varBins[nVariableBins + 1];
+
+  //     Int_t iBin;
+  //     for (iBin = 0; iBin < t->GetListOfTasks()->GetEntries(); ++iBin) {
+  //       tBin = dynamic_cast<AliRsnOutTaskBin
+  //       *>(t->GetListOfTasks()->At(iBin));
+  //       if (!tBin)
+  //         break;
+  //       v = (AliRsnOutValue *)tBin->GetValue();
+  //       varBins[iBin] = v->GetMin();
+  //       Printf("varBins[%d]=%f", iBin, varBins[iBin]);
+  //       if (iBin == t->GetListOfTasks()->GetEntries() - 1) {
+  //         varBins[iBin + 1] = v->GetMax();
+  //         Printf("varBins[%d+1]=%f", iBin, varBins[iBin + 1]);
+  //       }
+  //     }
+  //     if (tBin) {
+  //       s->GetAxis(iAxis)->Set(nVariableBins, varBins);
+  //       s->GetAxis(iAxis)->SetName(TString::Format("bin%d", iAxis).Data());
+  //       iAxis++;
+  //     }
+  //     t = (AliRsnOutTask *)t->GetListOfTasks()->At(0);
+  //     t = dynamic_cast<AliRsnOutTaskBin *>(t);
+
+  //   } else {
+  //     break;
+  //   }
+  // }
+  // s->GetAxis(iAxis++)->SetName("norm");
+  // s->GetAxis(iAxis++)->SetName("fit");
+  // s->GetAxis(iAxis++)->SetName("value");
+
+  // fOutput->Add(s);
+  // s->Print();
+
+  // Int_t iSparseBin[nAxis];
+
+  // TFolder *dRoot = new TFolder("hist", "Final Results");
+  // fOutput->Add(dRoot);
+
+  // FillSparse(tInputData, s, iSparseBin, 0);
+  // FolderFromSparse(tInputData, s, 0, dRoot, -1);
+
+  // // for (Int_t i=0;i<nBinAxis;i++) {
+  // //   FolderFromSparse(tInputData,s,0, dRoot,i);
+  // // }
+
+  // return;
 
   // // Int_t iSparseBin[nAxis];
   // Double_t x, y, ey;

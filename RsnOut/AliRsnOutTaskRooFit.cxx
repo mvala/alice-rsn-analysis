@@ -27,10 +27,9 @@
 
 using namespace RooFit;
 
-ClassImp(AliRsnOutTaskRooFit)
+ClassImp(AliRsnOutTaskRooFit);
 
-    AliRsnOutTaskRooFit::AliRsnOutTaskRooFit(const char *name,
-                                             const char *title)
+AliRsnOutTaskRooFit::AliRsnOutTaskRooFit(const char *name, const char *title)
     : AliRsnOutTask(name, title), fInput(0), fFitResults(0) {
   RooMsgService::instance().getStream(0).active = kFALSE;
   RooMsgService::instance().getStream(1).active = kFALSE;

@@ -2,9 +2,9 @@
 #include <AliRsnOutValue.h>
 #include <TH1.h>
 
-ClassImp(AliRsnOutTaskNorm)
+ClassImp(AliRsnOutTaskNorm);
 
-    AliRsnOutTaskNorm::AliRsnOutTaskNorm(const char *name, const char *title)
+AliRsnOutTaskNorm::AliRsnOutTaskNorm(const char *name, const char *title)
     : AliRsnOutTask(name, title), fRanges(0) {}
 
 AliRsnOutTaskNorm::~AliRsnOutTaskNorm() {}
