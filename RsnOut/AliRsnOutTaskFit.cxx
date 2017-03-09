@@ -16,7 +16,7 @@ ClassImp(AliRsnOutTaskFit);
 
 AliRsnOutTaskFit::AliRsnOutTaskFit(const char *name, const char *title)
     : AliRsnOutTask(name, title), fInput(0), fFitProbTestMin(1e-4),
-      fFitProbTestMax(0.6), fFitResult(0), fResult(0) {}
+      fFitProbTestMax(0.6), fFitResult(0), fNUmberOfFits(3), fResult(0) {}
 
 AliRsnOutTaskFit::~AliRsnOutTaskFit() {}
 
@@ -112,11 +112,11 @@ void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
                           "p3");
     sigBgFnc->FixParameter(3, phi_sigma);
 
-    fFitResult = fResult->Fit(sigBgFnc, "QN MFC S", "", fitMin, fitMax);
-    fFitResult = fResult->Fit(sigBgFnc, "QN MFC S", "", fitMin, fitMax);
-    fFitResult = fResult->Fit(sigBgFnc, "QN MFC S", "", fitMin, fitMax);
+    for (Int_t i = 0; i < fNUmberOfFits; i++) {
+      fFitResult = fResult->Fit(sigBgFnc, "QN MFC S", "", fitMin, fitMax);
+    }
     fFitResult = fResult->Fit(sigBgFnc, "Q0 MF S", "", fitMin, fitMax);
-    fFitResult->Write();
+    // fFitResult->Write();
 
     Double_t par[6];
     sigBgFnc->GetParameters(par);
