@@ -1,8 +1,8 @@
 #ifndef AliRsnOutValue_cxx
 #define AliRsnOutValue_cxx
 
-#include <TObject.h>
 #include <TArrayD.h>
+#include <TObject.h>
 
 class AliRsnOutValue : public TObject {
 
@@ -15,7 +15,7 @@ public:
   void SetId(Int_t id) { fId = id; }
   void SetMin(Double_t min) { fMin = min; }
   void SetMax(Double_t max) { fMax = max; }
-  void SetArray(TArrayD *arr) { fArray = arr; }  
+  void SetArray(TArrayD *arr) { fArray = arr; }
 
   Int_t GetId() const { return fId; }
   Double_t GetMin() const { return fMin; }

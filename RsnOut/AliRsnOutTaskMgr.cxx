@@ -5,8 +5,8 @@
 
 ClassImp(AliRsnOutTaskMgr)
 
-  AliRsnOutTaskMgr::AliRsnOutTaskMgr(const char *name, const char *title)
-  : AliRsnOutTask(name, title), fAddDirectoryStatus(kTRUE) {}
+    AliRsnOutTaskMgr::AliRsnOutTaskMgr(const char *name, const char *title)
+    : AliRsnOutTask(name, title), fAddDirectoryStatus(kTRUE) {}
 
 AliRsnOutTaskMgr::~AliRsnOutTaskMgr() {}
 

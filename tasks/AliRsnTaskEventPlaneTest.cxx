@@ -51,12 +51,9 @@
 
 ClassImp(AliRsnTaskEventPlaneTest)
 
-  //________________________________________________________________________
-  AliRsnTaskEventPlaneTest::AliRsnTaskEventPlaneTest()
-  : AliAnalysisTaskSE(),
-    fOutput(0),
-    fHistEpAngle(0),
-    fFlowQnVectorMgr(0)
+    //________________________________________________________________________
+    AliRsnTaskEventPlaneTest::AliRsnTaskEventPlaneTest()
+    : AliAnalysisTaskSE(), fOutput(0), fHistEpAngle(0), fFlowQnVectorMgr(0)
 
 {
   // Dummy constructor ALWAYS needed for I/O.
@@ -64,10 +61,7 @@ ClassImp(AliRsnTaskEventPlaneTest)
 
 //________________________________________________________________________
 AliRsnTaskEventPlaneTest::AliRsnTaskEventPlaneTest(const char *name)
-  : AliAnalysisTaskSE(name),
-    fOutput(0),
-    fHistEpAngle(0),
-    fFlowQnVectorMgr(0)
+    : AliAnalysisTaskSE(name), fOutput(0), fHistEpAngle(0), fFlowQnVectorMgr(0)
 
 {
   // Constructor
@@ -100,11 +94,14 @@ void AliRsnTaskEventPlaneTest::UserCreateOutputObjects() {
   fHistEpAngle = new TH1D("fHistEpAngle", "EP angle", 360, -180, 180);
   fOutput->Add(fHistEpAngle);
 
-  AliAnalysisTaskFlowVectorCorrections *flowQnVectorTask = dynamic_cast<AliAnalysisTaskFlowVectorCorrections *>(AliAnalysisManager::GetAnalysisManager()->GetTask("FlowQnVectorCorrections"));
+  AliAnalysisTaskFlowVectorCorrections *flowQnVectorTask =
+      dynamic_cast<AliAnalysisTaskFlowVectorCorrections *>(
+          AliAnalysisManager::GetAnalysisManager()->GetTask(
+              "FlowQnVectorCorrections"));
   if (flowQnVectorTask) {
     AliInfo("Using Flow Qn vector corrections framework task ...");
     fFlowQnVectorMgr = flowQnVectorTask->GetAliQnCorrectionsManager();
-  } 
+  }
 
   // NEW HISTO added to fOutput here
   PostData(1, fOutput); // Post data for ALL output slots >0 here, to get at
@@ -161,8 +158,8 @@ void AliRsnTaskEventPlaneTest::Terminate(Option_t *) {
 }
 
 const AliQnCorrectionsQnVector *AliRsnTaskEventPlaneTest::GetQnVectorFromList(
-  const TList *list, const char *subdetector, const char *expectedstep,
-  const char *altstep) const {
+    const TList *list, const char *subdetector, const char *expectedstep,
+    const char *altstep) const {
 
   AliQnCorrectionsQnVector *theQnVector = NULL;
 
@@ -173,7 +170,7 @@ const AliQnCorrectionsQnVector *AliRsnTaskEventPlaneTest::GetQnVectorFromList(
       theQnVector = (AliQnCorrectionsQnVector *)pQvecList->First();
     else
       theQnVector =
-        (AliQnCorrectionsQnVector *)pQvecList->FindObject(expectedstep);
+          (AliQnCorrectionsQnVector *)pQvecList->FindObject(expectedstep);
 
     if (theQnVector == NULL) {
       /* the Qn vector for the expected step was not there */
@@ -181,7 +178,7 @@ const AliQnCorrectionsQnVector *AliRsnTaskEventPlaneTest::GetQnVectorFromList(
         theQnVector = (AliQnCorrectionsQnVector *)pQvecList->First();
       else
         theQnVector =
-          (AliQnCorrectionsQnVector *)pQvecList->FindObject(altstep);
+            (AliQnCorrectionsQnVector *)pQvecList->FindObject(altstep);
     }
   }
   if (theQnVector != NULL) {

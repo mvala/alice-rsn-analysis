@@ -20,8 +20,10 @@ public:
   void ProcessBinMgrElement(AliRsnOutTaskBin *bme);
 
   void CreateSparse(AliRsnOutTaskBin *bme);
-  void FillSparse(AliRsnOutTask *task,THnSparse *s, Int_t *sparseBin, Int_t index);
-  void FolderFromSparse(AliRsnOutTask *task,THnSparse *s, Int_t index, TFolder *folder, Int_t indexBinFixed);
+  void FillSparse(AliRsnOutTask *task, THnSparse *s, Int_t *sparseBin,
+                  Int_t index);
+  void FolderFromSparse(AliRsnOutTask *task, THnSparse *s, Int_t index,
+                        TFolder *folder, Int_t indexBinFixed);
 
 private:
   AliRsnOutTask *fData;

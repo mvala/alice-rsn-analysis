@@ -14,40 +14,31 @@
 
 ClassImp(AliRsnOutTaskInput)
 
-  AliRsnOutTaskInput::AliRsnOutTaskInput(const char *name, const char *title)
-  : AliRsnOutTask(name, title),
-    fFileName(),
-    fListName(),
-    fSigBgName(),
-    fBgName(),
-    fMCRecName(),
-    fMCGenName(),
-    fMCEff(0),
-    fEventStat(0),
-    fEffOnly(0),
-    fFile(0),
-    fList(0),
-    fSigBg(0),
-    fBg(0),
-    fMCRec(0),
-    fMCGen(0) {}
+    AliRsnOutTaskInput::AliRsnOutTaskInput(const char *name, const char *title)
+    : AliRsnOutTask(name, title), fFileName(), fListName(), fSigBgName(),
+      fBgName(), fMCRecName(), fMCGenName(), fMCEff(0), fEventStat(0),
+      fEffOnly(0), fFile(0), fList(0), fSigBg(0), fBg(0), fMCRec(0), fMCGen(0) {
+}
 
 AliRsnOutTaskInput::~AliRsnOutTaskInput() { Clear(); }
 
 void AliRsnOutTaskInput::Exec(Option_t * /*option*/) {
 
-  Printf("%s",GetName());
+  Printf("%s", GetName());
   if (!fFile) {
-    Printf("Opening file %s ...",fFileName.Data());
+    Printf("Opening file %s ...", fFileName.Data());
     fFile = TFile::Open(fFileName.Data());
-    if (!fFile) return;
+    if (!fFile)
+      return;
     fList = (TList *)fFile->Get(fListName.Data());
-    if (!fList) return;
+    if (!fList)
+      return;
 
-    TList *extra =
-      (TList *)fFile->Get(TString::Format("%s_extra", fListName.Data()).Data());
+    TList *extra = (TList *)fFile->Get(
+        TString::Format("%s_extra", fListName.Data()).Data());
     TH1 *hEvents = (TH1 *)extra->FindObject("hEventStat");
-    if (hEvents) fEventStat = (TH1 *)hEvents->Clone();
+    if (hEvents)
+      fEventStat = (TH1 *)hEvents->Clone();
 
     if (!fEffOnly) {
       fSigBg = (THnSparse *)fList->FindObject(fSigBgName.Data());
@@ -65,15 +56,18 @@ void AliRsnOutTaskInput::ExecPost(Option_t * /*option*/) {
     fOutput->SetOwner();
   }
 
-  if (fEventStat) fOutput->Add(fEventStat);
+  if (fEventStat)
+    fOutput->Add(fEventStat);
 
   CalculateEfficiency();
   Clear();
 }
 
 void AliRsnOutTaskInput::Clear(Option_t * /*opt*/) {
-  if (fList) SafeDelete(fList);
-  if (fFile) SafeDelete(fFile);
+  if (fList)
+    SafeDelete(fList);
+  if (fFile)
+    SafeDelete(fFile);
   fSigBg = 0;
   fBg = 0;
   fMCRec = 0;
@@ -92,7 +86,8 @@ void AliRsnOutTaskInput::CalculateEfficiency() {
     tBin = (AliRsnOutTaskBin *)fTasks->At(iBin);
     v = (AliRsnOutValue *)tBin->GetValue();
     varBins[iBin] = v->GetMin();
-    if (iBin == fTasks->GetEntries() - 1) varBins[iBin + 1] = v->GetMax();
+    if (iBin == fTasks->GetEntries() - 1)
+      varBins[iBin + 1] = v->GetMax();
   }
 
   TH1D *hMCRec = 0;
@@ -145,6 +140,7 @@ void AliRsnOutTaskInput::CalculateEfficiency() {
 }
 
 Long64_t AliRsnOutTaskInput::GetNEvents(Int_t bin) const {
-  if (!fEventStat) return 0;
+  if (!fEventStat)
+    return 0;
   return fEventStat->GetBinContent(bin);
 }
