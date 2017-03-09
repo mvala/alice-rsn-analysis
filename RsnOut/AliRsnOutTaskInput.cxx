@@ -119,6 +119,7 @@ void AliRsnOutTaskInput::CalculateEfficiency() {
       }
 
       tmp = mcGen->Integral();
+      // check if this is correct (iBin + 1, iBin + 1)
       hMCGen->SetBinContent(iBin + 1, iBin + 1, tmp);
       hMCGen->SetBinError(iBin + 1, TMath::Sqrt(tmp));
 

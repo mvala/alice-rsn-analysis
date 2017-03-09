@@ -22,6 +22,7 @@ public:
   AliRsnOutTask *GetParent() const { return fParent; }
 
   TList *GetOutput() const { return fOutput; }
+  void DeleteOutput();
 
   virtual void Browse(TBrowser *b);
 

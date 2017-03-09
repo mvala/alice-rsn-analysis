@@ -125,3 +125,15 @@ void AliRsnOutTask::Export(TDirectory *parent) {
 
   parent->cd();
 }
+
+void AliRsnOutTask::DeleteOutput() {
+  
+  delete fOutput;
+  fOutput = new TList();
+  fOutput->SetName("out");
+  fOutput->SetOwner();
+
+  TIter next(fTasks);
+  AliRsnOutTask *t;
+  while ((t = (AliRsnOutTask *)next())) { t->DeleteOutput(); }
+}

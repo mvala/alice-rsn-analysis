@@ -15,11 +15,17 @@
 void RunRsnOut(Bool_t generateConfig = kTRUE, TString config = "RsnOutConfig.root", TString outPostfix="Results", Bool_t useLocalCache=kTRUE) {
 
   TString outFileName = config;
-  outFileName.ReplaceAll("Config","");
-  outFileName.ReplaceAll(".root",TString::Format("%s.root", outPostfix.Data()).Data());
-
-  // Recreate config if generateConfig is kTRUE (default)
-  if (generateConfig) RunRsnOutGenerate(config);
+  if (!config.IsNull()) {
+    outFileName.ReplaceAll("Config","");
+    outFileName.ReplaceAll(".root",TString::Format("%s.root", outPostfix.Data()).Data());
+    
+    // Recreate config if generateConfig is kTRUE (default)
+    if (generateConfig) RunRsnOutGenerate(config);
+  } else {
+    config = outPostfix;
+    outFileName = outPostfix;
+    outFileName.ReplaceAll(".root","_X.root");
+  }
 
   TFile *f = TFile::Open(config,"READ");
   if (!f) return;
@@ -34,7 +40,16 @@ void RunRsnOut(Bool_t generateConfig = kTRUE, TString config = "RsnOutConfig.roo
     if (useLocalCache)
       TFile::SetCacheFileDir(gSystem->HomeDirectory(), 1, 1);
     
-    tMgr->ExecuteTask("");
+    if (!config.CompareTo(outPostfix)) {
+      TList *tasks = tMgr->GetListOfTasks();
+      AliRsnOutTask *tResultsAll = (AliRsnOutTask *) tasks->At(tasks->GetSize()-1);
+      tResultsAll->DeleteOutput();
+      tResultsAll->ExecuteTask("");
+    } else {
+      tMgr->ExecuteTask("");
+    }
+
+
     TFile *fOut = TFile::Open(outFileName.Data(), "RECREATE");
     if (tMgr) {
       fOut->cd();
