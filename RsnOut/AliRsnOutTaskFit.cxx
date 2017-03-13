@@ -116,7 +116,6 @@ void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
       fFitResult = fResult->Fit(sigBgFnc, "QN MFC S", "", fitMin, fitMax);
     }
     fFitResult = fResult->Fit(sigBgFnc, "Q0 MF S", "", fitMin, fitMax);
-    // fFitResult->Write();
 
     Double_t par[6];
     sigBgFnc->GetParameters(par);
@@ -169,6 +168,9 @@ void AliRsnOutTaskFit::GetYieldBinCounting(Double_t &val, Double_t &err) {
 }
 
 void AliRsnOutTaskFit::GetYieldFitFunction(Double_t &val, Double_t &err) {
+  if (!fResult)
+    fResult = (TH1 *)fOutput->FindObject("hSignal");
+
   Double_t min = fResult->FindBin(fInput->GetMin());
   Double_t max = fResult->FindBin(fInput->GetMax());
 
@@ -193,7 +195,7 @@ void AliRsnOutTaskFit::GetYieldFitFunction(Double_t &val, Double_t &err) {
                            fFitResult->GetCovarianceMatrix().GetMatrixArray()) /
       histWidth;
 
-  //	Printf("val=%f err=%f bg=%f bgErr=%f",val,err,bg,bgErr);
+  // Printf("val=%f err=%f bg=%f bgErr=%f", val, err, bg, bgErr);
 
   val -= bg;
   err = TMath::Sqrt(TMath::Power(err, 2) + TMath::Power(bgErr, 2));
