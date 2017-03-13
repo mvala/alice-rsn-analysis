@@ -13,5 +13,9 @@
   "C_Cpp.clang_format_sortIncludes": true,
 
   // Enable clang-format on save.
-  "C_Cpp.clang_format_formatOnSave": true
+"C_Cpp.clang_format_formatOnSave": true,
+"files.associations": {
+    "chrono": "cpp",
+    "limits": "cpp"
+}
 }

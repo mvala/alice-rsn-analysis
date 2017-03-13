@@ -6,7 +6,7 @@
 #include <TSystem.h>
 #endif
 
-void RsnRename(const char *inputFile = "AnalysisResults.root",
+void RsnRename(TString inputFile = "AnalysisResults.root",
                TString outputFile = "/tmp/AnalysisResults.root",
                const char *listname = "RsnOut_tpc3s",
                const char *prefix = "phippData_100_phi_",
@@ -19,7 +19,14 @@ void RsnRename(const char *inputFile = "AnalysisResults.root",
     return;
   }
 
-  TFile *fIn = TFile::Open(inputFile);
+  if (inputFile.Contains("alien://")) {
+    TGrid::Connect("alien://");
+    if (!gGrid) {
+      return;  
+    }
+  }
+
+  TFile *fIn = TFile::Open(inputFile.Data());
   if (!fIn)
     return;
   TList *l = (TList *)fIn->Get(listname);
