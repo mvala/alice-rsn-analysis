@@ -19,10 +19,10 @@ void RsnRename(TString inputFile = "AnalysisResults.root",
     return;
   }
 
-  if (inputFile.Contains("alien://")) {
+  if (inputFile.BeginsWith("alien://")) {
     TGrid::Connect("alien://");
     if (!gGrid) {
-      return;  
+      return;
     }
   }
 

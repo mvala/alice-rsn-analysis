@@ -46,7 +46,8 @@ private:
   TFitResultPtr fFitResult;
   Int_t fNUmberOfFits;
 
-  TH1 *fResult; //!
+  TH1 *fResult;    //!
+  TH1 *fResultPar; //!
 
   ClassDef(AliRsnOutTaskFit, 1)
 };

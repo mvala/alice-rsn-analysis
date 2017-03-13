@@ -16,7 +16,8 @@ ClassImp(AliRsnOutTaskFit);
 
 AliRsnOutTaskFit::AliRsnOutTaskFit(const char *name, const char *title)
     : AliRsnOutTask(name, title), fInput(0), fFitProbTestMin(1e-4),
-      fFitProbTestMax(0.6), fFitResult(0), fNUmberOfFits(3), fResult(0) {}
+      fFitProbTestMax(0.6), fFitResult(0), fNUmberOfFits(3), fResult(0),
+      fResultPar(0) {}
 
 AliRsnOutTaskFit::~AliRsnOutTaskFit() {}
 
@@ -63,14 +64,22 @@ void AliRsnOutTaskFit::SetFit(AliRsnOutValue *fit) {
 
 void AliRsnOutTaskFit::Exec(Option_t * /*option*/) {
 
+  Printf(GetName());
+  if (!fParent->GetOutput())
+    return;
+
+  if (fResult) {
+    SafeDelete(fResult);
+  }
+
+  if (fResultPar) {
+    SafeDelete(fResultPar);
+  }
+
   Fit(fInput->GetId(), fInput->GetMin(), fInput->GetMax());
 }
 
 void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
-
-  Printf(GetName());
-  if (!fParent->GetOutput())
-    return;
 
   fResult = (TH1 *)fParent->GetOutput()->FindObject("hSignal");
   if (fResult) {
@@ -119,6 +128,7 @@ void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
 
     Double_t par[6];
     sigBgFnc->GetParameters(par);
+    const Double_t *parErr = sigBgFnc->GetParErrors();
     bgFnc->SetParameters(&par[4]);
 
     if ((fFitResult->Prob() < fFitProbTestMin) ||
@@ -130,6 +140,52 @@ void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
     fResult->GetListOfFunctions()->Add(sigBgFnc);
     fResult->GetListOfFunctions()->Add(bgFnc);
     fOutput->Add(fResult);
+
+    Double_t val, err;
+    const Int_t nBins = 6 + sigBgFnc->GetNpar();
+    fResultPar = new TH1D("fResultPar", "Result parameters", nBins, 0, nBins);
+    Int_t iBin = 1;
+    GetYieldBinCounting(val, err);
+    fResultPar->SetBinContent(iBin, val);
+    fResultPar->SetBinError(iBin, err);
+    fResultPar->GetXaxis()->SetBinLabel(iBin, "IntBC");
+    iBin++;
+
+    GetYieldFitFunction(val, err);
+    fResultPar->SetBinContent(iBin, val);
+    fResultPar->SetBinError(iBin, err);
+    fResultPar->GetXaxis()->SetBinLabel(iBin, "IntFF");
+    iBin++;
+
+    fResultPar->SetBinContent(iBin, GetChi2());
+    fResultPar->SetBinError(iBin, 0);
+    fResultPar->GetXaxis()->SetBinLabel(iBin, "Chi2");
+    iBin++;
+
+    fResultPar->SetBinContent(iBin, GetNdf());
+    fResultPar->SetBinError(iBin, 0);
+    fResultPar->GetXaxis()->SetBinLabel(iBin, "Ndf");
+    iBin++;
+
+    fResultPar->SetBinContent(iBin, GetReducedChi2());
+    fResultPar->SetBinError(iBin, 0);
+    fResultPar->GetXaxis()->SetBinLabel(iBin, "ReducedChi2");
+    iBin++;
+
+    fResultPar->SetBinContent(iBin, GetProb());
+    fResultPar->SetBinError(iBin, 0);
+    fResultPar->GetXaxis()->SetBinLabel(iBin, "Prob");
+    iBin++;
+
+    for (Int_t i = 0; i < sigBgFnc->GetNpar(); i++) {
+      GetYieldFitFunction(val, err);
+      fResultPar->SetBinContent(iBin, par[i]);
+      fResultPar->SetBinError(iBin, parErr[i]);
+      fResultPar->GetXaxis()->SetBinLabel(iBin, sigBgFnc->GetParName(i));
+      iBin++;
+    }
+
+    fOutput->Add(fResultPar);
   }
 }
 
@@ -141,7 +197,9 @@ void AliRsnOutTaskFit::SetProbTest(Double_t min, Double_t max) {
 void AliRsnOutTaskFit::GetYieldBinCounting(Double_t &val, Double_t &err) {
 
   if (!fResult)
-    fResult = (TH1 *)fOutput->FindObject("hSignal");
+    return;
+  // if (!fResult)
+  // fResult = (TH1 *)fOutput->FindObject("hSignal");
 
   Double_t min = fResult->FindBin(fInput->GetMin());
   Double_t max = fResult->FindBin(fInput->GetMax());
@@ -168,8 +226,11 @@ void AliRsnOutTaskFit::GetYieldBinCounting(Double_t &val, Double_t &err) {
 }
 
 void AliRsnOutTaskFit::GetYieldFitFunction(Double_t &val, Double_t &err) {
+
   if (!fResult)
-    fResult = (TH1 *)fOutput->FindObject("hSignal");
+    return;
+  // if (!fResult)
+  // fResult = (TH1 *)fOutput->FindObject("hSignal");
 
   Double_t min = fResult->FindBin(fInput->GetMin());
   Double_t max = fResult->FindBin(fInput->GetMax());

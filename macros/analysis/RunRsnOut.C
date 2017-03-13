@@ -97,17 +97,21 @@ void RunRsnOutGenerate(TString config) {
   tInputData->SetBgName("Mixing");
   tMgr->Add(tInputData);
 
+  Int_t c = 0;
   TList *listVariations = new TList();
   TArrayD *arrPt = new TArrayD(3);
-  arrPt->SetAt(6, 0);
-  arrPt->SetAt(11, 1);
-  arrPt->SetAt(16, 2);
+  arrPt->SetAt(6, c++);
+  arrPt->SetAt(11, c++);
+  arrPt->SetAt(16, c++);
   listVariations->Add(new AliRsnOutValue(1, arrPt));
 
-  TArrayD *arrMult = new TArrayD(3);
-  arrMult->SetAt(21, 0);
-  arrMult->SetAt(31, 1);
-  arrMult->SetAt(51, 2);
+  c = 0;
+  TArrayD *arrMult = new TArrayD(5);
+  arrMult->SetAt(1, c++);
+  arrMult->SetAt(21, c++);
+  arrMult->SetAt(31, c++);
+  arrMult->SetAt(51, c++);
+  arrMult->SetAt(71, c++);
   listVariations->Add(new AliRsnOutValue(2, arrMult));
 
   TList *norms = new TList();
