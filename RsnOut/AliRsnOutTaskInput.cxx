@@ -24,7 +24,7 @@ AliRsnOutTaskInput::~AliRsnOutTaskInput() { Clear(); }
 
 void AliRsnOutTaskInput::Exec(Option_t * /*option*/) {
 
-  Printf("%s", GetName());
+  // Printf("%s", GetName());
   if (!fFile) {
     Printf("Opening file %s ...", fFileName.Data());
     fFile = TFile::Open(fFileName.Data());

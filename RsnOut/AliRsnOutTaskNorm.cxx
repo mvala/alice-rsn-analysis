@@ -11,7 +11,7 @@ AliRsnOutTaskNorm::~AliRsnOutTaskNorm() {}
 
 void AliRsnOutTaskNorm::Exec(Option_t * /*option*/) {
 
-  Printf(GetName());
+  // Printf(GetName());
   if (!fParent->GetOutput())
     return;
 

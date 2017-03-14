@@ -21,14 +21,9 @@ void AliRsnOutTaskBin::Exec(Option_t * /*option*/) {
     AliRsnOutTask *parent = GetParent();
     fInputTask = dynamic_cast<AliRsnOutTaskInput *>(parent);
     while (!fInputTask && parent) {
-      if (parent) {
-        Printf("AliRsnOutTaskBin::while %s input=%p", parent->GetName(),
-               fInputTask);
-      }
       parent = parent->GetParent();
       fInputTask = dynamic_cast<AliRsnOutTaskInput *>(parent);
     }
-    Printf("AliRsnOutTaskBin: %p", fInputTask);
     if (!fInputTask)
       return;
   }
@@ -65,7 +60,7 @@ void AliRsnOutTaskBin::Exec(Option_t * /*option*/) {
     }
   }
 
-  Printf("%s", GetName());
+  // Printf("%s", GetName());
 }
 
 void AliRsnOutTaskBin::ExecPost(Option_t * /*option*/) {

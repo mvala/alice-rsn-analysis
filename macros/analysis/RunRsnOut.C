@@ -99,19 +99,25 @@ void RunRsnOutGenerate(TString config) {
 
   Int_t c = 0;
   TList *listVariations = new TList();
-  TArrayD *arrPt = new TArrayD(3);
-  arrPt->SetAt(6, c++);
-  arrPt->SetAt(11, c++);
-  arrPt->SetAt(16, c++);
+  TString ptStr = "1,6,11,16,21,26,31";
+  TObjArray *ptArr = ptStr.Tokenize(",");
+  TArrayI *arrPt = new TArrayI(ptArr->GetEntries());
+  TIter nextPt(ptArr);
+  TObjString *os;
+  while ((os = (TObjString *)nextPt())) {
+    arrPt->SetAt(os->GetString().Atoi(), c++);
+  }
   listVariations->Add(new AliRsnOutValue(1, arrPt));
 
+  TString multStr = "11,21,31,41,51,61";
+  TObjArray *multArr = multStr.Tokenize(",");
+  TArrayI *arrMult = new TArrayI(multArr->GetEntries());
+  TIter nextMult(multArr);
+  TObjString *os;
   c = 0;
-  TArrayD *arrMult = new TArrayD(5);
-  arrMult->SetAt(1, c++);
-  arrMult->SetAt(21, c++);
-  arrMult->SetAt(31, c++);
-  arrMult->SetAt(51, c++);
-  arrMult->SetAt(71, c++);
+  while ((os = (TObjString *)nextMult())) {
+    arrMult->SetAt(os->GetString().Atoi(), c++);
+  }
   listVariations->Add(new AliRsnOutValue(2, arrMult));
 
   TList *norms = new TList();

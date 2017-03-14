@@ -64,7 +64,7 @@ void AliRsnOutTaskFit::SetFit(AliRsnOutValue *fit) {
 
 void AliRsnOutTaskFit::Exec(Option_t * /*option*/) {
 
-  Printf(GetName());
+  // Printf(GetName());
   if (!fParent->GetOutput())
     return;
 
@@ -120,12 +120,12 @@ void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
     sigBgFnc->SetParNames("yield", "mass", "width", "sigma", "p0", "p1", "p2",
                           "p3");
     sigBgFnc->FixParameter(3, phi_sigma);
-
     for (Int_t i = 0; i < fNUmberOfFits; i++) {
-      fFitResult = fResult->Fit(sigBgFnc, "QN MFC S", "", fitMin, fitMax);
+      fFitResult = fResult->Fit(sigBgFnc, "QN MFC", "", fitMin, fitMax);
     }
-    fFitResult = fResult->Fit(sigBgFnc, "Q0 MF S", "", fitMin, fitMax);
 
+    fFitResult = fResult->Fit(sigBgFnc, "Q0 MF S", "", fitMin, fitMax);
+    Printf("fFitResult->IsValid() = %d", (Int_t)fFitResult->IsValid());
     Double_t par[6];
     sigBgFnc->GetParameters(par);
     const Double_t *parErr = sigBgFnc->GetParErrors();

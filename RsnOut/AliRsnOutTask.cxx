@@ -29,26 +29,17 @@ void AliRsnOutTask::Add(TTask *task) {
 }
 
 void AliRsnOutTask::ExecuteTask(Option_t *option) {
-  if (fgBeginTask) {
-    Error("ExecuteTask", "Cannot execute task:%s, already running task: %s",
-          GetName(), fgBeginTask->GetName());
-    return;
-  }
+
   if (!IsActive())
     return;
 
   fOption = option;
-  fgBeginTask = this;
-  fgBreakPoint = 0;
 
-  if (fBreakin)
-    return;
-  if (gDebug > 1) {
-    TROOT::IndentLevel();
-    std::cout << "Execute task:" << GetName() << " : " << GetTitle()
-              << std::endl;
-    TROOT::IncreaseDirLevel();
-  }
+  // if (gDebug > 1) {
+  TROOT::IndentLevel();
+  std::cout << "Execute task:" << GetName() << " : " << GetTitle() << std::endl;
+  TROOT::IncreaseDirLevel();
+  // }
 
   Exec(option);
 
@@ -56,15 +47,8 @@ void AliRsnOutTask::ExecuteTask(Option_t *option) {
   ExecuteTasks(option);
   ExecPost(option);
 
-  if (gDebug > 1)
-    TROOT::DecreaseDirLevel();
-  if (fBreakout)
-    return;
-
-  if (!fgBreakPoint) {
-    fgBeginTask->CleanTasks();
-    fgBeginTask = 0;
-  }
+  // if (gDebug > 1)
+  TROOT::DecreaseDirLevel();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -74,39 +58,25 @@ void AliRsnOutTask::ExecuteTasks(Option_t *option) {
   TIter next(fTasks);
   AliRsnOutTask *task;
   while ((task = (AliRsnOutTask *)next())) {
-    if (fgBreakPoint)
-      return;
     if (!task->IsActive())
       continue;
     if (task->fHasExecuted) {
       task->ExecuteTasks(option);
       continue;
     }
-    if (task->fBreakin == 1) {
-      printf("Break at entry of task: %s\n", task->GetName());
-      fgBreakPoint = this;
-      task->fBreakin++;
-      return;
-    }
 
-    if (gDebug > 1) {
-      TROOT::IndentLevel();
-      std::cout << "Execute task:" << task->GetName() << " : "
-                << task->GetTitle() << std::endl;
-      TROOT::IncreaseDirLevel();
-    }
+    // if (gDebug > 1) {
+    TROOT::IndentLevel();
+    std::cout << "Execute task:" << task->GetName() << " : " << task->GetTitle()
+              << std::endl;
+    TROOT::IncreaseDirLevel();
+    // }
     task->Exec(option);
     task->fHasExecuted = kTRUE;
     task->ExecuteTasks(option);
     task->ExecPost(option);
-    if (gDebug > 1)
-      TROOT::DecreaseDirLevel();
-    if (task->fBreakout == 1) {
-      printf("Break at exit of task: %s\n", task->GetName());
-      fgBreakPoint = this;
-      task->fBreakout++;
-      return;
-    }
+    // if (gDebug > 1)
+    TROOT::DecreaseDirLevel();
   }
 }
 

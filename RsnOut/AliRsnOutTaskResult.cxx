@@ -1,6 +1,6 @@
 #include <TFolder.h>
 #include <TGraphAsymmErrors.h>
-#include <TH1.h>
+#include <TH2.h>
 #include <THnSparse.h>
 
 #include "AliRsnOutTaskBin.h"
@@ -21,7 +21,7 @@ AliRsnOutTaskResult::~AliRsnOutTaskResult() {}
 
 void AliRsnOutTaskResult::Exec(Option_t * /*option*/) {
 
-  Printf("%s", GetName());
+  // Printf("%s", GetName());
 
   AliRsnOutTaskInput *tInputData = dynamic_cast<AliRsnOutTaskInput *>(fData);
   if (!tInputData)
@@ -323,30 +323,20 @@ void AliRsnOutTaskResult::ProcessBinMgrElement(AliRsnOutTaskBin *bme) {
   // return;
 
   TString name(bme->GetName());
-  name.ReplaceAll("_vs_"," ");
+  name.ReplaceAll("_vs_", " ");
   TObjArray *arr = name.Tokenize(" ");
 
   Int_t nVs = arr->GetEntries() - 1;
-  
+
   folder = folder->AddFolder("spectra", "Spectra");
-  Int_t nBins = 0;
+  // Int_t nBins = 0;
   if (!nVs) {
     FolderFromSparse(bme, s, 0, folder, -1, -1, -1);
   } else {
     Printf("Doing 2D case !!!!");
-    // Doing 2D and 2 projections
-    // s->GetAxis(0)->SetRange(0, 0);
-    // s->GetAxis(1)->SetRange(0, 0);
-    // s->GetAxis(2)->SetRange(0, 0);
-    // s->GetAxis(3)->SetRange(0, 0);
-    // s->GetAxis(4)->SetRange(0, 0);
     FolderFromSparse(bme, s, 0, folder, 0, 0, 1);
-    // s->GetAxis(0)->SetRange(0, 0);
-    // s->GetAxis(1)->SetRange(0, 0);
-    // s->GetAxis(2)->SetRange(0, 0);
-    // s->GetAxis(3)->SetRange(0, 0);
-    // s->GetAxis(4)->SetRange(0, 0);
     FolderFromSparse(bme, s, 0, folder, 0, 1, 0);
+    FolderFromSparse(bme, s, 0, folder, -2, 1, 0);
   }
 
   // // for (Int_t i=0;i<nBinAxis;i++) {
@@ -575,25 +565,31 @@ void AliRsnOutTaskResult::FolderFromSparse(AliRsnOutTask *task, THnSparse *s,
 
       // projectionID CAN be >0 when 2D parameters
 
-
-      if ((projX>=0) &&(projLevel == projX)) {
-        Printf("FolderFromSparse:  %s folder=%s level=%d range[%d,%d] projLevel=%d projX=%d projY=%d",
-               t->GetName(), f->GetName(), level, iTask + 1, iTask + 1,projLevel, projX,
-             projY);
+      if ((projX >= 0) && (projLevel == projX)) {
+        Printf("FolderFromSparse:  %s folder=%s level=%d range[%d,%d] "
+               "projLevel=%d projX=%d projY=%d",
+               t->GetName(), f->GetName(), level, iTask + 1, iTask + 1,
+               projLevel, projX, projY);
         f = folder->AddFolder(t->GetName(), t->GetTitle());
         s->GetAxis(level)->SetRange(iTask + 1, iTask + 1);
       } else {
-      Printf("FolderFromSparse:  %s folder=%s level=%d range=%d,%d projLevel=%d projX=%d projY=%d",
-             t->GetName(), f->GetName(), level, 0,0, projLevel, projX,
-             projY);
+        Printf("FolderFromSparse:  %s folder=%s level=%d range=%d,%d "
+               "projLevel=%d projX=%d projY=%d",
+               t->GetName(), f->GetName(), level, 0, 0, projLevel, projX,
+               projY);
         s->GetAxis(level)->SetRange(0, 0);
       }
+      Int_t projLevelX = projLevel;
+      if (projLevelX >= 0)
+        projLevelX = projLevel + 1;
 
-      FolderFromSparse(t, s, level + 1, f, projLevel + 1, projX, projY);
-      if ((projX>=0) &&(projLevel == projX)) {
+      FolderFromSparse(t, s, level + 1, f, projLevelX, projX, projY);
+      if ((projX >= 0) && (projLevel == projX)) {
         Printf("FolderFromSparse:  %s folder=%s level=%d reset", t->GetName(),
                f->GetName(), level);
       }
+      Printf("FolderFromSparse:  %s folder=%s level=%d reset", t->GetName(),
+             f->GetName(), level);
       s->GetAxis(level)->SetRange(0, 0);
 
     } else if (tNorm) {
@@ -622,42 +618,83 @@ void AliRsnOutTaskResult::FolderFromSparse(AliRsnOutTask *task, THnSparse *s,
   // We Fill sparse values
   if (!task->GetListOfTasks()->GetSize()) {
     TH1 *h;
-    // TH2 *h2;
-    Printf("We are filling sparse (level=%d) projLevel=%d projX=%d projY=%d", level, projLevel, projX, projY);
-    Int_t proj = projY;
-    if (projY<0) proj = 0;
-    // if (projLevel > 1) proj-=2;
-    s->GetAxis(level)->SetRange(1, 1);
-    h = s->Projection(proj);
-    h->SetName("hRawBC");
-    h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
-    f->Add(h);
-    s->GetAxis(level)->SetRange(2, 2);
-    h = s->Projection(proj);
-    h->SetName("hRawFF");
-    h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
-    f->Add(h);
-    s->GetAxis(level)->SetRange(6, 6);
-    h = s->Projection(proj);
-    h->SetName("hChi2");
-    h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
-    f->Add(h);
-    s->GetAxis(level)->SetRange(7, 7);
-    h = s->Projection(proj);
-    h->SetName("hNdf");
-    h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
-    f->Add(h);
-    s->GetAxis(level)->SetRange(8, 8);
-    h = s->Projection(proj);
-    h->SetName("hReducedChi2");
-    h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
-    f->Add(h);
-    s->GetAxis(level)->SetRange(9, 9);
-    h = s->Projection(proj);
-    h->SetName("hProb");
-    h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
-    f->Add(h);
-    return;
+    TH2 *h2;
+    Printf("We are filling sparse (level=%d) projLevel=%d projX=%d projY=%d",
+           level, projLevel, projX, projY);
+    if (projLevel == -2) {
+      s->GetAxis(level)->SetRange(1, 1);
+      h2 = s->Projection(projY, projX);
+      h2->SetName("hRawBC");
+      h2->SetStats(0);
+      f->Add(h2);
+      s->GetAxis(level)->SetRange(2, 2);
+      h2 = s->Projection(projY, projX);
+      h2->SetName("hRawFF");
+
+      h2->SetStats(0);
+      f->Add(h2);
+      s->GetAxis(level)->SetRange(6, 6);
+      h2 = s->Projection(projY, projX);
+      h2->SetName("hChi2");
+      h2->SetStats(0);
+      f->Add(h2);
+      s->GetAxis(level)->SetRange(7, 7);
+      h2 = s->Projection(projY, projX);
+      h2->SetName("hNdf");
+      h2->SetStats(0);
+      f->Add(h2);
+      s->GetAxis(level)->SetRange(8, 8);
+      h2 = s->Projection(projY, projX);
+      h2->SetName("hReducedChi2");
+      h2->SetStats(0);
+      f->Add(h2);
+      s->GetAxis(level)->SetRange(9, 9);
+      h2 = s->Projection(projY, projX);
+      h2->SetName("hProb");
+      h2->SetStats(0);
+      f->Add(h2);
+    } else {
+      Int_t proj = projY;
+      if (projY < 0)
+        proj = 0;
+      // if (projLevel > 1) proj-=2;
+      s->GetAxis(level)->SetRange(1, 1);
+      h = s->Projection(proj);
+      h->SetName("hRawBC");
+      h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
+      h->SetStats(0);
+      f->Add(h);
+      s->GetAxis(level)->SetRange(2, 2);
+      h = s->Projection(proj);
+      h->SetName("hRawFF");
+      h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
+      h->SetStats(0);
+      f->Add(h);
+      s->GetAxis(level)->SetRange(6, 6);
+      h = s->Projection(proj);
+      h->SetName("hChi2");
+      h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
+      h->SetStats(0);
+      f->Add(h);
+      s->GetAxis(level)->SetRange(7, 7);
+      h = s->Projection(proj);
+      h->SetName("hNdf");
+      h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
+      h->SetStats(0);
+      f->Add(h);
+      s->GetAxis(level)->SetRange(8, 8);
+      h = s->Projection(proj);
+      h->SetName("hReducedChi2");
+      h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
+      h->SetStats(0);
+      f->Add(h);
+      s->GetAxis(level)->SetRange(9, 9);
+      h = s->Projection(proj);
+      h->SetName("hProb");
+      h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
+      h->SetStats(0);
+      f->Add(h);
+    }
   }
 }
 
