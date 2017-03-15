@@ -21,6 +21,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 add_custom_target(par-all ALL)
 
 add_subdirectory(RsnOut)
+add_subdirectory(src)
 
 set(CPACK_SOURCE_GENERATOR "TGZ")
 set(CPACK_SOURCE_PACKAGE_FILE_NAME
