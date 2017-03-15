@@ -13,7 +13,7 @@
 *.dylib
 *.dll
 *.d
-
+*.rootmap
 # Fortran module files
 *.mod
 
