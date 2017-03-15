@@ -1,16 +1,147 @@
-#include <TH1D.h>
-#include <stdio.h>
+#include <Riostream.h>
+#include <TArrayI.h>
+#include <TFile.h>
+#include <TObjArray.h>
+#include <TObjString.h>
+#include <TSystem.h>
+#include <fstream>
 
-int main(int argc, char *argv[]) {
-  printf("Hello ROOT tutorial !!!\n");
+#include <AliRsnOutTaskBinMgr.h>
+#include <AliRsnOutTaskInput.h>
+#include <AliRsnOutTaskMgr.h>
+#include <AliRsnOutTaskResult.h>
+#include <AliRsnOutValue.h>
 
-  for (int i = 0; i < argc; i++) {
-    printf("argv[%d]=%s\n", i, argv[i]);
+#include <json/json.h>
+
+void help(char **argv) {
+  std::cout << argv[0] << " <config-file> " << std::endl;
+  std::cout << "Example: " << std::endl;
+  std::cout << "\t" << argv[0] << " rsn-config.json " << std::endl;
+  exit(1);
+}
+
+int main(int argc, char **argv) {
+
+  if (argc < 2)
+    help(argv);
+
+  Json::Value root;
+  std::cout << "Loading << " << argv[1] << std::endl;
+
+  std::ifstream config_file(argv[1], std::ifstream::binary);
+  config_file >> root;
+
+  AliRsnOutTaskMgr *tMgr;
+  AliRsnOutTaskInput *tInputData, *tInputMC;
+  TString inputFileName = argv[1];
+  inputFileName.ReplaceAll(".json", ".root");
+  TString outFileName = inputFileName;
+  outFileName.ReplaceAll(".root", "-results.root");
+  TFile *fileInput = TFile::Open(inputFileName.Data(), "RECREATE");
+
+  Json::Value data = root["data"];
+  Json::Value mc = root["mc"];
+
+  TString mgr_name = data["name"].asString();
+  mgr_name += "_";
+  mgr_name += mc["name"].asString();
+  tMgr = new AliRsnOutTaskMgr(mgr_name.Data());
+  tMgr->Print();
+
+  tInputData = new AliRsnOutTaskInput(data["name"].asString().data());
+  tInputData->SetFileName(data["file"].asString());
+  tInputData->SetListName(data["list"].asString());
+  tInputData->SetSigBgName(data["sigbg"].asString());
+  tInputData->SetBgName(data["bg"].asString());
+  tMgr->Add(tInputData);
+
+  tInputMC = new AliRsnOutTaskInput(mc["name"].asString().data());
+  tInputMC->SetFileName(mc["file"].asString());
+  tInputMC->SetListName(mc["list"].asString());
+  tInputMC->SetSigBgName(mc["sigbg"].asString());
+  tInputMC->SetBgName(mc["bg"].asString());
+  tInputMC->SetMCRecName(mc["rec"].asString());
+  tInputMC->SetMCGenName(mc["gen"].asString());
+  if (mc["effonly"].asBool())
+    tInputMC->SetEfficiencyOnly();
+  tMgr->Add(tInputMC);
+
+  TList *listBins = new TList();
+  const Json::Value bins = root["bin"];
+  for (uint i = 0; i < bins.size(); ++i) {
+    std::cout << bins[i] << std::endl;
+    TString str = bins[i]["varbins"].asString();
+    TObjArray *objArr = str.Tokenize(",");
+    TArrayI *arr = new TArrayI(objArr->GetEntries());
+    TIter next(objArr);
+    TObjString *os;
+    int c = 0;
+    while ((os = (TObjString *)next())) {
+      arr->SetAt(os->GetString().Atoi(), c++);
+    }
+    listBins->Add(new AliRsnOutValue(bins[i]["id"].asInt(), arr));
   }
 
-  TH1D *h = new TH1D("h", "My Hist", 100, -10, 10);
-  h->FillRandom("gaus", 1000);
-  h->Print();
+  TList *norms = new TList();
+  const Json::Value norm = root["norm"];
+  for (uint i = 0; i < norm.size(); ++i) {
+    norms->Add(new AliRsnOutValue(norm[i]["id"].asInt(),
+                                  norm[i]["min"].asDouble(),
+                                  norm[i]["max"].asDouble()));
+  }
+
+  TList *fits = new TList();
+  const Json::Value fit = root["fit"];
+  for (uint i = 0; i < fit.size(); ++i) {
+    fits->Add(new AliRsnOutValue(fit[i]["id"].asInt(), fit[i]["min"].asDouble(),
+                                 fit[i]["max"].asDouble()));
+  }
+
+  AliRsnOutTaskBinMgr *binMgr = new AliRsnOutTaskBinMgr("binMgr");
+  binMgr->GenerateBinTemplate(norms, fits);
+  binMgr->SetListOfVartiations(listBins);
+  binMgr->Init();
+
+  tInputMC->Add((AliRsnOutTaskBinMgr *)binMgr->Clone());
+  tInputData->Add((AliRsnOutTaskBinMgr *)binMgr->Clone());
+
+  AliRsnOutTask *tResultsAll = new AliRsnOutTask("results", "Results");
+
+  AliRsnOutTaskResult *tResult = new AliRsnOutTaskResult();
+  tResult->SetData(tInputData);
+  tResult->SetMC(tInputMC);
+
+  tResultsAll->Add(tResult);
+  tMgr->Add(tResultsAll);
+
+  if (tMgr)
+    tMgr->Write();
+  fileInput->Close();
+
+  fileInput = TFile::Open(inputFileName.Data(), "READ");
+  if (!fileInput)
+    return 10;
+
+  tMgr = (AliRsnOutTaskMgr *)fileInput->Get(mgr_name.Data());
+  if (!tMgr) {
+    Printf("Error getting AliRsnOutTaskMgr from '%s' !!!",
+           inputFileName.Data());
+    return 11;
+  }
+
+  Bool_t useLocalCache = kTRUE;
+  if (useLocalCache)
+    TFile::SetCacheFileDir(gSystem->HomeDirectory(), 1, 1);
+
+  tMgr->ExecuteTask("");
+
+  TFile *fOut = TFile::Open(outFileName.Data(), "RECREATE");
+  if (tMgr) {
+    fOut->cd();
+    tMgr->Write();
+  }
+  fOut->Close();
 
   return 0;
 }
