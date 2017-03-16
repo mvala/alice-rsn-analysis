@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
   config_file >> root;
 
   AliRsnOutTaskMgr *tMgr;
-  AliRsnOutTaskInput *tInputData, *tInputMC;
+  AliRsnOutTaskInput *tInputData = 0, *tInputMC = 0;
   TString inputFileName = argv[1];
   inputFileName.ReplaceAll(".json", ".root");
   TString outFileName = inputFileName;
@@ -43,34 +43,36 @@ int main(int argc, char **argv) {
   Json::Value data = root["data"];
   Json::Value mc = root["mc"];
 
-  TString mgr_name = data["name"].asString();
-  mgr_name += "_";
-  mgr_name += mc["name"].asString();
-  tMgr = new AliRsnOutTaskMgr(mgr_name.Data());
+  // TString mgr_name = data["name"].asString();
+  // mgr_name += "_";
+  // mgr_name += mc["name"].asString();
+  tMgr = new AliRsnOutTaskMgr("mgr");
   tMgr->Print();
 
-  tInputData = new AliRsnOutTaskInput(data["name"].asString().data());
-  tInputData->SetFileName(data["file"].asString());
-  tInputData->SetListName(data["list"].asString());
-  tInputData->SetSigBgName(data["sigbg"].asString());
-  tInputData->SetBgName(data["bg"].asString());
-  tMgr->Add(tInputData);
-
-  tInputMC = new AliRsnOutTaskInput(mc["name"].asString().data());
-  tInputMC->SetFileName(mc["file"].asString());
-  tInputMC->SetListName(mc["list"].asString());
-  tInputMC->SetSigBgName(mc["sigbg"].asString());
-  tInputMC->SetBgName(mc["bg"].asString());
-  tInputMC->SetMCRecName(mc["rec"].asString());
-  tInputMC->SetMCGenName(mc["gen"].asString());
-  if (mc["effonly"].asBool())
-    tInputMC->SetEfficiencyOnly();
-  tMgr->Add(tInputMC);
-
+  if (!data.empty()) {
+    tInputData = new AliRsnOutTaskInput(data["name"].asString().data());
+    tInputData->SetFileName(data["file"].asString());
+    tInputData->SetListName(data["list"].asString());
+    tInputData->SetSigBgName(data["sigbg"].asString());
+    tInputData->SetBgName(data["bg"].asString());
+    tMgr->Add(tInputData);
+  }
+  if (!mc.empty()) {
+    tInputMC = new AliRsnOutTaskInput(mc["name"].asString().data());
+    tInputMC->SetFileName(mc["file"].asString());
+    tInputMC->SetListName(mc["list"].asString());
+    tInputMC->SetSigBgName(mc["sigbg"].asString());
+    tInputMC->SetBgName(mc["bg"].asString());
+    tInputMC->SetMCRecName(mc["rec"].asString());
+    tInputMC->SetMCGenName(mc["gen"].asString());
+    if (mc["effonly"].asBool())
+      tInputMC->SetEfficiencyOnly();
+    tMgr->Add(tInputMC);
+  }
   TList *listBins = new TList();
   const Json::Value bins = root["bin"];
   for (uint i = 0; i < bins.size(); ++i) {
-    std::cout << bins[i] << std::endl;
+    // std::cout << bins[i] << std::endl;
     TString str = bins[i]["varbins"].asString();
     TObjArray *objArr = str.Tokenize(",");
     TArrayI *arr = new TArrayI(objArr->GetEntries());
@@ -103,14 +105,19 @@ int main(int argc, char **argv) {
   binMgr->SetListOfVartiations(listBins);
   binMgr->Init();
 
-  tInputMC->Add((AliRsnOutTaskBinMgr *)binMgr->Clone());
-  tInputData->Add((AliRsnOutTaskBinMgr *)binMgr->Clone());
+  if (tInputData)
+    tInputData->Add((AliRsnOutTaskBinMgr *)binMgr->Clone());
+
+  if (tInputMC)
+    tInputMC->Add((AliRsnOutTaskBinMgr *)binMgr->Clone());
 
   AliRsnOutTask *tResultsAll = new AliRsnOutTask("results", "Results");
 
   AliRsnOutTaskResult *tResult = new AliRsnOutTaskResult();
-  tResult->SetData(tInputData);
-  tResult->SetMC(tInputMC);
+  if (tInputData)
+    tResult->SetData(tInputData);
+  if (tInputMC)
+    tResult->SetMC(tInputMC);
 
   tResultsAll->Add(tResult);
   tMgr->Add(tResultsAll);
@@ -119,11 +126,14 @@ int main(int argc, char **argv) {
     tMgr->Write();
   fileInput->Close();
 
+  // return 0;
+
   fileInput = TFile::Open(inputFileName.Data(), "READ");
   if (!fileInput)
     return 10;
 
-  tMgr = (AliRsnOutTaskMgr *)fileInput->Get(mgr_name.Data());
+  tMgr = (AliRsnOutTaskMgr *)fileInput->Get("mgr");
+  // tMgr = (AliRsnOutTaskMgr *)fileInput->Get(mgr_name.Data());
   if (!tMgr) {
     Printf("Error getting AliRsnOutTaskMgr from '%s' !!!",
            inputFileName.Data());
@@ -133,7 +143,7 @@ int main(int argc, char **argv) {
   Bool_t useLocalCache = kTRUE;
   if (useLocalCache)
     TFile::SetCacheFileDir(gSystem->HomeDirectory(), 1, 1);
-
+  tMgr->ls();
   tMgr->ExecuteTask("");
 
   TFile *fOut = TFile::Open(outFileName.Data(), "RECREATE");

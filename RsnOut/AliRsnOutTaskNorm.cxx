@@ -1,6 +1,8 @@
+#include <TH1.h>
+#include <TMath.h>
+
 #include "AliRsnOutTaskNorm.h"
 #include <AliRsnOutValue.h>
-#include <TH1.h>
 
 ClassImp(AliRsnOutTaskNorm);
 
@@ -56,9 +58,18 @@ void AliRsnOutTaskNorm::Exec(Option_t * /*option*/) {
     hSig->SetName("hSignal");
     hSig->Add(hBgNorm, -1);
 
-    fOutput->Add(hSigBgNorm);
-    fOutput->Add(hBgNorm);
-    fOutput->Add(hSig);
+    if ((TMath::IsNaN(hSigBgNorm->GetSumOfWeights())) ||
+        (TMath::IsNaN(hBgNorm->GetSumOfWeights())) ||
+        (TMath::IsNaN(hSig->GetSumOfWeights()))) {
+      SafeDelete(hSigBgNorm);
+      SafeDelete(hBgNorm);
+      SafeDelete(hSig);
+    } else {
+
+      fOutput->Add(hSigBgNorm);
+      fOutput->Add(hBgNorm);
+      fOutput->Add(hSig);
+    }
   }
 
   //	TH1 *hSigMCGen = (TH1*)

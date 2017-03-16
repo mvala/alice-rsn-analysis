@@ -702,20 +702,20 @@ void AliRsnOutTaskResult::SetData(AliRsnOutTask *data) {
   if (!data)
     return;
   fData = data;
-  fName = TString::Format("%s_%s", fData ? fData->GetName() : "no_data",
-                          fMC ? fMC->GetName() : "no_eff");
-  fTitle = TString::Format("%s (%s)", fData ? fData->GetTitle() : "no_data",
-                           fMC ? fMC->GetTitle() : "No Eff");
+  fName = TString::Format("%s-%s", fData ? fData->GetName() : "no_data",
+                          fMC ? fMC->GetName() : "no_mc");
+  fTitle = TString::Format("%s (%s)", fData ? fData->GetTitle() : "No Data",
+                           fMC ? fMC->GetTitle() : "No MC");
 }
 
 void AliRsnOutTaskResult::SetMC(AliRsnOutTask *mc) {
   if (!mc)
     return;
   fMC = mc;
-  fName = TString::Format("%s_%s", fData ? fData->GetName() : "no_data",
-                          fMC ? fMC->GetName() : "no_eff");
-  fTitle = TString::Format("%s (%s)", fData ? fData->GetTitle() : "no_data",
-                           fMC ? fMC->GetTitle() : "No Eff");
+  fName = TString::Format("%s-%s", fData ? fData->GetName() : "no_data",
+                          fMC ? fMC->GetName() : "no_mc");
+  fTitle = TString::Format("%s (%s)", fData ? fData->GetTitle() : "No Data",
+                           fMC ? fMC->GetTitle() : "No MC");
 }
 
 void AliRsnOutTaskResult::GetBinsFromTask(AliRsnOutTask *t, Double_t *varBins) {

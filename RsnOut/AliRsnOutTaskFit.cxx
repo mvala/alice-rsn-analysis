@@ -84,7 +84,7 @@ void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
   fResult = (TH1 *)fParent->GetOutput()->FindObject("hSignal");
   if (fResult) {
 
-    Printf("NumOfBins %d", fResult->GetNbinsX());
+    // Printf("NumOfBins %d", fResult->GetNbinsX());
 
     fResult = (TH1 *)fResult->Clone();
 
@@ -128,7 +128,7 @@ void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
     }
 
     fFitResult = fResult->Fit(sigBgFnc, "Q0 MF S", "", fitMin, fitMax);
-    Printf("fFitResult->IsValid() = %d", (Int_t)fFitResult->IsValid());
+    // Printf("fFitResult->IsValid() = %d", (Int_t)fFitResult->IsValid());
     Double_t par[6];
     sigBgFnc->GetParameters(par);
     const Double_t *parErr = sigBgFnc->GetParErrors();
@@ -147,48 +147,47 @@ void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
     Double_t val, err;
     const Int_t nBins = 6 + sigBgFnc->GetNpar();
     fResultPar = new TH1D("fResultPar", "Result parameters", nBins, 0, nBins);
-    /*
- Int_t iBin = 1;
- GetYieldBinCounting(val, err);
- fResultPar->SetBinContent(iBin, val);
- fResultPar->SetBinError(iBin, err);
- fResultPar->GetXaxis()->SetBinLabel(iBin, "IntBC");
- iBin++;
 
- GetYieldFitFunction(val, err);
- fResultPar->SetBinContent(iBin, val);
- fResultPar->SetBinError(iBin, err);
- fResultPar->GetXaxis()->SetBinLabel(iBin, "IntFF");
- iBin++;
+    Int_t iBin = 1;
+    GetYieldBinCounting(val, err);
+    fResultPar->SetBinContent(iBin, val);
+    fResultPar->SetBinError(iBin, err);
+    fResultPar->GetXaxis()->SetBinLabel(iBin, "IntBC");
+    iBin++;
 
- fResultPar->SetBinContent(iBin, GetChi2());
- fResultPar->SetBinError(iBin, 0);
- fResultPar->GetXaxis()->SetBinLabel(iBin, "Chi2");
- iBin++;
+    GetYieldFitFunction(val, err);
+    fResultPar->SetBinContent(iBin, val);
+    fResultPar->SetBinError(iBin, err);
+    fResultPar->GetXaxis()->SetBinLabel(iBin, "IntFF");
+    iBin++;
 
- fResultPar->SetBinContent(iBin, GetNdf());
- fResultPar->SetBinError(iBin, 0);
- fResultPar->GetXaxis()->SetBinLabel(iBin, "Ndf");
- iBin++;
+    fResultPar->SetBinContent(iBin, GetChi2());
+    fResultPar->SetBinError(iBin, 0);
+    fResultPar->GetXaxis()->SetBinLabel(iBin, "Chi2");
+    iBin++;
 
- fResultPar->SetBinContent(iBin, GetReducedChi2());
- fResultPar->SetBinError(iBin, 0);
- fResultPar->GetXaxis()->SetBinLabel(iBin, "ReducedChi2");
- iBin++;
+    fResultPar->SetBinContent(iBin, GetNdf());
+    fResultPar->SetBinError(iBin, 0);
+    fResultPar->GetXaxis()->SetBinLabel(iBin, "Ndf");
+    iBin++;
 
- fResultPar->SetBinContent(iBin, GetProb());
- fResultPar->SetBinError(iBin, 0);
- fResultPar->GetXaxis()->SetBinLabel(iBin, "Prob");
- iBin++;
+    fResultPar->SetBinContent(iBin, GetReducedChi2());
+    fResultPar->SetBinError(iBin, 0);
+    fResultPar->GetXaxis()->SetBinLabel(iBin, "ReducedChi2");
+    iBin++;
 
- for (Int_t i = 0; i < sigBgFnc->GetNpar(); i++) {
-   GetYieldFitFunction(val, err);
-   fResultPar->SetBinContent(iBin, par[i]);
-   fResultPar->SetBinError(iBin, parErr[i]);
-   fResultPar->GetXaxis()->SetBinLabel(iBin, sigBgFnc->GetParName(i));
-   iBin++;
- }
- */
+    fResultPar->SetBinContent(iBin, GetProb());
+    fResultPar->SetBinError(iBin, 0);
+    fResultPar->GetXaxis()->SetBinLabel(iBin, "Prob");
+    iBin++;
+
+    for (Int_t i = 0; i < sigBgFnc->GetNpar(); i++) {
+      GetYieldFitFunction(val, err);
+      fResultPar->SetBinContent(iBin, par[i]);
+      fResultPar->SetBinError(iBin, parErr[i]);
+      fResultPar->GetXaxis()->SetBinLabel(iBin, sigBgFnc->GetParName(i));
+      iBin++;
+    }
 
     fOutput->Add(fResultPar);
   }

@@ -34,12 +34,15 @@ void AliRsnOutTask::ExecuteTask(Option_t *option) {
     return;
 
   fOption = option;
+  fgBeginTask = this;
+  fgBreakPoint = 0;
 
-  // if (gDebug > 1) {
+  if (fBreakin)
+    return;
+
   TROOT::IndentLevel();
   std::cout << "Execute task:" << GetName() << " : " << GetTitle() << std::endl;
   TROOT::IncreaseDirLevel();
-  // }
 
   Exec(option);
 
@@ -47,8 +50,15 @@ void AliRsnOutTask::ExecuteTask(Option_t *option) {
   ExecuteTasks(option);
   ExecPost(option);
 
-  // if (gDebug > 1)
   TROOT::DecreaseDirLevel();
+
+  if (fBreakout)
+    return;
+
+  if (!fgBreakPoint) {
+    fgBeginTask->CleanTasks();
+    fgBeginTask = 0;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,19 +74,30 @@ void AliRsnOutTask::ExecuteTasks(Option_t *option) {
       task->ExecuteTasks(option);
       continue;
     }
+    if (task->fBreakin == 1) {
+      printf("Break at entry of task: %s\n", task->GetName());
+      fgBreakPoint = this;
+      task->fBreakin++;
+      return;
+    }
 
-    // if (gDebug > 1) {
     TROOT::IndentLevel();
     std::cout << "Execute task:" << task->GetName() << " : " << task->GetTitle()
               << std::endl;
     TROOT::IncreaseDirLevel();
-    // }
+
     task->Exec(option);
     task->fHasExecuted = kTRUE;
     task->ExecuteTasks(option);
     task->ExecPost(option);
-    // if (gDebug > 1)
+
     TROOT::DecreaseDirLevel();
+    if (task->fBreakout == 1) {
+      printf("Break at exit of task: %s\n", task->GetName());
+      fgBreakPoint = this;
+      task->fBreakout++;
+      return;
+    }
   }
 }
 
