@@ -45,6 +45,7 @@ private:
   Double_t fFitProbTestMax;
   TFitResultPtr fFitResult;
   Int_t fNUmberOfFits;
+  Double_t fIntegralEps;
 
   TH1 *fResult;    //!
   TH1 *fResultPar; //!

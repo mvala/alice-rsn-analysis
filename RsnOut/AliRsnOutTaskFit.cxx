@@ -16,8 +16,8 @@ ClassImp(AliRsnOutTaskFit);
 
 AliRsnOutTaskFit::AliRsnOutTaskFit(const char *name, const char *title)
     : AliRsnOutTask(name, title), fInput(0), fFitProbTestMin(1e-4),
-      fFitProbTestMax(0.6), fFitResult(0), fNUmberOfFits(3), fResult(0),
-      fResultPar(0) {}
+      fFitProbTestMax(0.6), fFitResult(0), fNUmberOfFits(3),
+      fIntegralEps(1.e-4), fResult(0), fResultPar(0) {}
 
 AliRsnOutTaskFit::~AliRsnOutTaskFit() {}
 
@@ -84,14 +84,13 @@ void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
   fResult = (TH1 *)fParent->GetOutput()->FindObject("hSignal");
   if (fResult) {
 
-    // Printf("NumOfBins %d", fResult->GetNbinsX());
-
     fResult = (TH1 *)fResult->Clone();
 
     const Double_t phi_mass = 1.019445;
     const Double_t phi_width = 0.00426;
     const Double_t phi_sigma = 0.001;
-
+    // const Double_t hist_min = fResult->GetXaxis()->GetXmin();
+    // const Double_t hist_max = fResult->GetXaxis()->GetXmax();
     TF1 *sigBgFnc = 0;
     TF1 *bgFnc = 0;
     switch (fitId) {
@@ -182,7 +181,6 @@ void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
     iBin++;
 
     for (Int_t i = 0; i < sigBgFnc->GetNpar(); i++) {
-      GetYieldFitFunction(val, err);
       fResultPar->SetBinContent(iBin, par[i]);
       fResultPar->SetBinError(iBin, parErr[i]);
       fResultPar->GetXaxis()->SetBinLabel(iBin, sigBgFnc->GetParName(i));
@@ -211,22 +209,34 @@ void AliRsnOutTaskFit::GetYieldBinCounting(Double_t &val, Double_t &err) {
   Double_t histWidth = fResult->GetXaxis()->GetBinWidth(1);
 
   val = fResult->IntegralAndError(min, max, err);
+  Printf("min=%.2f max=%.2f histWidth=%f val=%f err=%f", min, max, histWidth,
+         val, err);
 
   //	TF1 *sigBgFnc = (TF1*) fResult->GetListOfFunctions()->At(0);
   TF1 *bgFnc = (TF1 *)fResult->GetListOfFunctions()->At(1);
 
-  Double_t bg = bgFnc->Integral(fInput->GetMin(), fInput->GetMax()) / histWidth;
-  // TODO Verify it
-  Double_t bgErr =
-      bgFnc->IntegralError(fInput->GetMin(), fInput->GetMax(),
-                           fFitResult->GetParams(),
-                           fFitResult->GetCovarianceMatrix().GetMatrixArray()) /
-      histWidth;
+  Double_t bg =
+      bgFnc->Integral(fInput->GetMin(), fInput->GetMax(), fIntegralEps);
 
-  //	Printf("val=%f err=%f bg=%f bgErr=%f",val,err,bg,bgErr);
+  // TODO Verify it
+  Double_t bgErr = bgFnc->IntegralError(
+      fInput->GetMin(), fInput->GetMax(), fFitResult->GetParams(),
+      fFitResult->GetCovarianceMatrix().GetMatrixArray(), fIntegralEps);
+
+  Printf("BC min=%.2f max=%.2f histWidth=%f bg=%f bgErr=%f", min, max,
+         histWidth, bg, bgErr);
+
+  bg /= histWidth;
+  bgErr /= histWidth;
+
+  Printf("BC min=%.2f max=%.2f histWidth=%f bg=%f bgErr=%f after", min, max,
+         histWidth, bg, bgErr);
+  // //	Printf("val=%f err=%f bg=%f bgErr=%f",val,err,bg,bgErr);
 
   val -= bg;
   err = TMath::Sqrt(TMath::Power(err, 2) + TMath::Power(bgErr, 2));
+  Printf("BC min=%.2f max=%.2f histWidth=%f val=%f err=%f final", min, max,
+         histWidth, val, err);
 }
 
 void AliRsnOutTaskFit::GetYieldFitFunction(Double_t &val, Double_t &err) {
@@ -246,24 +256,33 @@ void AliRsnOutTaskFit::GetYieldFitFunction(Double_t &val, Double_t &err) {
   TF1 *sigBgFnc = (TF1 *)fResult->GetListOfFunctions()->At(0);
   TF1 *bgFnc = (TF1 *)fResult->GetListOfFunctions()->At(1);
 
-  val = sigBgFnc->Integral(fInput->GetMin(), fInput->GetMax()) / histWidth;
+  val = sigBgFnc->Integral(fInput->GetMin(), fInput->GetMax(), fIntegralEps) /
+        histWidth;
   err = sigBgFnc->IntegralError(
             fInput->GetMin(), fInput->GetMax(), fFitResult->GetParams(),
-            fFitResult->GetCovarianceMatrix().GetMatrixArray()) /
+            fFitResult->GetCovarianceMatrix().GetMatrixArray(), fIntegralEps) /
         histWidth;
 
-  Double_t bg = bgFnc->Integral(fInput->GetMin(), fInput->GetMax()) / histWidth;
-  // TODO Verify it
-  Double_t bgErr =
-      bgFnc->IntegralError(fInput->GetMin(), fInput->GetMax(),
-                           fFitResult->GetParams(),
-                           fFitResult->GetCovarianceMatrix().GetMatrixArray()) /
-      histWidth;
+  Printf("FF min=%.2f max=%.2f histWidth=%f val=%f err=%f", min, max, histWidth,
+         val, err);
 
+  Double_t bg =
+      bgFnc->Integral(fInput->GetMin(), fInput->GetMax(), fIntegralEps);
+  // TODO Verify it
+  Double_t bgErr = bgFnc->IntegralError(
+      fInput->GetMin(), fInput->GetMax(), fFitResult->GetParams(),
+      fFitResult->GetCovarianceMatrix().GetMatrixArray(), fIntegralEps);
+
+  Printf("FF min=%.2f max=%.2f histWidth=%f bg=%f bgErr=%f", min, max,
+         histWidth, bg, bgErr);
+  bg /= histWidth;
+  bgErr /= histWidth;
   // Printf("val=%f err=%f bg=%f bgErr=%f", val, err, bg, bgErr);
 
   val -= bg;
   err = TMath::Sqrt(TMath::Power(err, 2) + TMath::Power(bgErr, 2));
+  Printf("FF min=%.2f max=%.2f histWidth=%f val=%f err=%f final", min, max,
+         histWidth, val, err);
 }
 Double_t AliRsnOutTaskFit::GetChi2() { return fFitResult->Chi2(); }
 
