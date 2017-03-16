@@ -89,9 +89,12 @@ void AliRsnOutTask::ExecuteTasks(Option_t *option) {
     task->Exec(option);
     task->fHasExecuted = kTRUE;
     task->ExecuteTasks(option);
-    task->ExecPost(option);
 
+    std::cout << "Post Execute task:" << task->GetName() << " : "
+              << task->GetTitle() << std::endl;
+    task->ExecPost(option);
     TROOT::DecreaseDirLevel();
+
     if (task->fBreakout == 1) {
       printf("Break at exit of task: %s\n", task->GetName());
       fgBreakPoint = this;
