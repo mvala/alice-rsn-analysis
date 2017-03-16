@@ -90,6 +90,7 @@ void AliRsnOutTask::ExecuteTasks(Option_t *option) {
     task->fHasExecuted = kTRUE;
     task->ExecuteTasks(option);
 
+    TROOT::IndentLevel();
     std::cout << "Post Execute task:" << task->GetName() << " : "
               << task->GetTitle() << std::endl;
     task->ExecPost(option);
