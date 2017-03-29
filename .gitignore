@@ -47,6 +47,9 @@ macros/train/AliRsnTaskTest*
 
 macros/analysis/*.json
 build
+bin
+lin
+lib64
 
 # VS
 .vscode/*
