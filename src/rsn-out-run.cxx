@@ -26,6 +26,10 @@ int main(int argc, char **argv) {
   if (argc < 2)
     help(argv);
 
+  Bool_t useLocalCache = kTRUE;
+  if (useLocalCache)
+    TFile::SetCacheFileDir(gSystem->HomeDirectory(), 1, 1);
+
   Json::Value root;
   std::cout << "Loading << " << argv[1] << std::endl;
 
@@ -129,7 +133,7 @@ int main(int argc, char **argv) {
   fileInput->Close();
 
   // return 0;
-
+  inputFileName.Prepend("file://");
   fileInput = TFile::Open(inputFileName.Data(), "READ");
   if (!fileInput)
     return 10;
@@ -144,9 +148,6 @@ int main(int argc, char **argv) {
     return 11;
   }
 
-  Bool_t useLocalCache = kTRUE;
-  if (useLocalCache)
-    TFile::SetCacheFileDir(gSystem->HomeDirectory(), 1, 1);
   tMgr->ls();
   tMgr->ExecuteTask("");
 

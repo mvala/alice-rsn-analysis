@@ -92,21 +92,26 @@ void AliRsnOutTaskBin::ExecPost(Option_t * /*option*/) {
     if (tBin) {
       nDim++;
       nVarBinsArr.Set(1);
-      nVarBinsArr.SetAt(tBin->GetListOfTasks()->GetSize(), 0);
+      nVarBinsArr.SetAt(fTasks->GetSize(), 0);
       tBin2 = dynamic_cast<AliRsnOutTaskBin *>(tBin->GetListOfTasks()->At(0));
       if (tBin2) {
         nDim++;
         nVarBinsArr.Set(2);
-        nVarBinsArr.SetAt(tBin2->GetListOfTasks()->GetSize(), 1);
+        nVarBinsArr.SetAt(tBin->GetListOfTasks()->GetSize(), 1);
       }
     }
 
-    Int_t nVarBins[nVarBinsArr.GetSize()];
+    if (nDim > 1)
+      Printf("AAA hEffGen0 %d %d", (Int_t)nVarBinsArr.GetAt(0),
+             (Int_t)nVarBinsArr.GetAt(1));
+    else
+      Printf("AAA hEffGen0 %d ndim=%d", (Int_t)nVarBinsArr.GetAt(0), nDim);
+    Int_t nVarBins[nDim];
     nVarBins[0] = -1;
     nVarBins[1] = -1;
-    if (nVarBinsArr.GetSize() > 0)
+    if (nDim > 0)
       nVarBins[0] = (Int_t)nVarBinsArr.GetAt(0);
-    if (nVarBinsArr.GetSize() > 1)
+    if (nDim > 1)
       nVarBins[1] = (Int_t)nVarBinsArr.GetAt(1);
 
     Int_t maxBins = TMath::Max(nVarBins[0], nVarBins[1]);
@@ -124,13 +129,13 @@ void AliRsnOutTaskBin::ExecPost(Option_t * /*option*/) {
           continue;
 
         varBins[0][iBin] = v->GetMin();
-        printf("x=%.2f ", varBins[0][iBin]);
+        Printf("[0] x=%.2f ", varBins[0][iBin]);
         if (iBin == fTasks->GetEntries() - 1) {
           varBins[0][iBin + 1] = v->GetMax();
-          Printf("x=%.2f", varBins[0][iBin + 1]);
+          Printf("[0] x=%.2f", varBins[0][iBin + 1]);
         }
 
-        if (!iBin) {
+        if (nDim == 2) {
           TList *l = tBin->GetListOfTasks();
           // 2D case
           for (jBin = 0; jBin < l->GetEntries(); jBin++) {
@@ -142,10 +147,10 @@ void AliRsnOutTaskBin::ExecPost(Option_t * /*option*/) {
               continue;
 
             varBins[1][jBin] = v2->GetMin();
-            printf("x=%.2f ", varBins[1][jBin]);
+            Printf("[1] x=%.2f ", varBins[1][jBin]);
             if (jBin == l->GetEntries() - 1) {
               varBins[1][jBin + 1] = v2->GetMax();
-              Printf("x=%.2f", varBins[1][jBin + 1]);
+              Printf("[1] x=%.2f", varBins[1][jBin + 1]);
             }
           }
         }
@@ -162,6 +167,28 @@ void AliRsnOutTaskBin::ExecPost(Option_t * /*option*/) {
         TList *l = tBin->GetListOfTasks();
         tBin2 = dynamic_cast<AliRsnOutTaskBin *>(l->At(0));
         if (tBin2) {
+
+          TH1 *hEffRec2D = (TH1 *)fOutput->FindObject("hEffRec2D");
+          TH1 *hEffGen2D = (TH1 *)fOutput->FindObject("hEffGen2D");
+          if (!hEffRec2D) {
+            hEffRec2D = new TH2D("hEffRec0", "REC", 1, 0, 1, 1, 0, 1);
+            hEffRec2D->GetXaxis()->Set(nVarBins[0], varBins[0]);
+            hEffRec2D->GetYaxis()->Set(nVarBins[1], varBins[1]);
+            fOutput->Add(hEffRec2D);
+          }
+          if (!hEffGen2D) {
+            hEffGen2D = new TH2D("hEffGen0", "GEN", 1, 0, 1, 1, 0, 1);
+            Printf("hEffGen0 %f %f", varBins[0][0], varBins[0][1]);
+            Printf("hEffGen0 %f %f %f", varBins[1][0], varBins[1][1],
+                   varBins[1][2]);
+
+            hEffGen2D->GetXaxis()->Set(nVarBins[0], varBins[0]);
+            Printf("hEffGen0 %d %d", nVarBins[0], nVarBins[1]);
+            hEffGen2D->GetYaxis()->Set(nVarBins[1], varBins[1]);
+            // hEffGen2D->Print("all");
+            fOutput->Add(hEffGen2D);
+          }
+
           // 2D case
           for (jBin = 0; jBin < l->GetEntries(); jBin++) {
             tBin2 = (AliRsnOutTaskBin *)l->At(jBin);
@@ -170,23 +197,8 @@ void AliRsnOutTaskBin::ExecPost(Option_t * /*option*/) {
             v2 = (AliRsnOutValue *)tBin2->GetValue();
             if (!v2)
               continue;
-          }
-          // varBins[0][iBin] = v->GetMin();
-          // printf("x=%.2f ", varBins[0][iBin]);
-          // if (iBin == listOfTasks->GetEntries() - 1) {
-          //   varBins[0][iBin + 1] = v->GetMax();
-          //   Printf("x=%.2f", varBins[0][iBin + 1]);
-          // }
-          TH1 *hEffRec2D = (TH1 *)fOutput->FindObject("hEffRec2D");
-          TH1 *hEffGen2D = (TH1 *)fOutput->FindObject("hEffGen2D");
-          if (!hEffRec2D) {
-            hEffRec2D = new TH2D("hEffRec0", "REC", nVarBins[0], varBins[0],
-                                 nVarBins[1], varBins[1]);
-          }
-          if (!hEffGen2D) {
-            hEffGen2D = new TH2D("hEffGen0", "GEN", nVarBins[0], varBins[0],
-                                 nVarBins[1], varBins[1]);
-            hEffGen2D->Print("all");
+            // Fill
+            Printf("Filling eff Hist %d %d", iBin, jBin);
           }
 
         } else {
@@ -195,11 +207,13 @@ void AliRsnOutTaskBin::ExecPost(Option_t * /*option*/) {
           TH1 *hEffGen = (TH1 *)fOutput->FindObject("hEffGen");
           if (!hEffRec) {
             hEffRec = new TH1D("hEffRec", "REC", nVarBins[0], varBins[0]);
+            fOutput->Add(hEffRec);
           }
           if (!hEffGen) {
             hEffGen = new TH1D("hEffGen", "GEN", nVarBins[0], varBins[0]);
-            hEffGen->Print("all");
+            fOutput->Add(hEffGen);
           }
+          Printf("Filling eff Hist %d", iBin);
         }
       }
     }
