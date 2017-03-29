@@ -3,6 +3,8 @@
 
 #include <AliRsnOutTask.h>
 #include <AliRsnOutValue.h>
+
+class TEfficiency;
 class AliRsnOutTaskInput;
 class AliRsnOutTaskBin : public AliRsnOutTask {
 
@@ -13,18 +15,25 @@ public:
 
   virtual void Exec(Option_t *option);
   virtual void ExecPost(Option_t *option);
+  virtual void UpdateTask();
 
   AliRsnOutValue *GetValue() { return &fValue; }
   TList *GetListOfCuts() const { return fCuts; }
   void AddCut(AliRsnOutValue *cut);
 
-  void ApplyCuts(THnSparse *sigBg, THnSparse *bg);
+  void ApplyCuts(THnSparse *sigBg, THnSparse *bg, Bool_t updateOnly = kFALSE);
+
+  void SetCutsOnly(Bool_t isCutsOnly = kTRUE) { fCutsOnly = isCutsOnly; }
+
+  void SetEfficiency(TEfficiency *eff) { fEfficiency = eff; }
+  TEfficiency *GetEfficiency() const { return fEfficiency; }
 
 private:
   AliRsnOutValue fValue;
   TList *fCuts;
   Bool_t fCutsOnly;
   AliRsnOutTaskInput *fInputTask;
+  TEfficiency *fEfficiency; //!
 
   ClassDef(AliRsnOutTaskBin, 1)
 };

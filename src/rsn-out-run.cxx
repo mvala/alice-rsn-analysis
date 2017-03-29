@@ -122,6 +122,8 @@ int main(int argc, char **argv) {
   tResultsAll->Add(tResult);
   tMgr->Add(tResultsAll);
 
+  tMgr->UpdateTasks();
+  fileInput->cd();
   if (tMgr)
     tMgr->Write();
   fileInput->Close();
@@ -131,6 +133,8 @@ int main(int argc, char **argv) {
   fileInput = TFile::Open(inputFileName.Data(), "READ");
   if (!fileInput)
     return 10;
+
+  fileInput->cd();
 
   tMgr = (AliRsnOutTaskMgr *)fileInput->Get("mgr");
   // tMgr = (AliRsnOutTaskMgr *)fileInput->Get(mgr_name.Data());

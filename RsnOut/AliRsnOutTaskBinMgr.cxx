@@ -86,10 +86,11 @@ void AliRsnOutTaskBinMgr::GenerateBinVariations(Int_t index,
 
   AliRsnOutTaskBin *b;
   if (!index) {
-    Printf("Doing no_cut");
-    b = (AliRsnOutTaskBin *)fBinTmpl->Clone();
-    b->SetName("no_cut");
-    task->Add(b);
+    // Printf("Doing no_cut");
+    // b = (AliRsnOutTaskBin *)fBinTmpl->Clone();
+    // b->SetName("no_cut");
+    // b->SetCutsOnly();
+    // task->Add(b);
     return;
   }
 
@@ -103,6 +104,7 @@ void AliRsnOutTaskBinMgr::GenerateBinVariations(Int_t index,
     AliRsnOutValue *v = (AliRsnOutValue *)fListOfVariations->At(i);
     if (v) {
       b = new AliRsnOutTaskBin(TString::Format("bin%d", v->GetId()).Data());
+      b->SetCutsOnly();
       Int_t id = v->GetId();
       TArrayI *arr = v->GetArray();
 
@@ -138,12 +140,14 @@ void AliRsnOutTaskBinMgr::GenerateBinVsBin(AliRsnOutTask *task, Int_t first,
     Printf("Creating %d vs %d", v1->GetId(), v2->GetId());
     b = new AliRsnOutTaskBin(
         TString::Format("bin%d_vs_bin%d", v1->GetId(), v2->GetId()).Data());
+    b->SetCutsOnly();
     TArrayI *arr1 = v1->GetArray();
     TArrayI *arr2 = v2->GetArray();
     for (Int_t i = 0; i < arr1->GetSize() - 1; i++) {
       b2 = new AliRsnOutTaskBin(TString::Format("bin_%d", i).Data());
       b2->AddCut(
           new AliRsnOutValue(v1->GetId(), arr1->At(i), arr1->At(i + 1) - 1));
+      // b2->SetCutsOnly();
       for (Int_t j = 0; j < arr2->GetSize() - 1; j++) {
         Printf("Adding id=%d min=%d max=%d vs id=%d min=%d max=%d", v1->GetId(),
                arr1->At(i), arr1->At(i + 1) - 1, v2->GetId(), arr2->At(j),
@@ -151,6 +155,7 @@ void AliRsnOutTaskBinMgr::GenerateBinVsBin(AliRsnOutTask *task, Int_t first,
         b3 = (AliRsnOutTaskBin *)fBinTmpl->Clone();
         b3->AddCut(
             new AliRsnOutValue(v2->GetId(), arr2->At(j), arr2->At(j + 1) - 1));
+        // b3->SetCutsOnly();
         b2->Add(b3);
       }
       b->Add(b2);

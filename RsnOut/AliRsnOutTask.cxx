@@ -6,10 +6,10 @@
 ClassImp(AliRsnOutTask);
 
 AliRsnOutTask::AliRsnOutTask()
-    : TTask("task", "Task"), fParent(0), fOutput(0) {}
+    : TTask("task", "Task"), fID(0), fParent(0), fOutput(0) {}
 
 AliRsnOutTask::AliRsnOutTask(const char *name, const char *title)
-    : TTask(name, title), fParent(0), fOutput(0) {
+    : TTask(name, title), fID(0), fParent(0), fOutput(0) {
   fOutput = new TList();
   fOutput->SetName("out");
   fOutput->SetOwner();
@@ -21,11 +21,12 @@ void AliRsnOutTask::Add(TTask *task) {
   if (!task)
     return;
 
-  TTask::Add(task);
-
   if (task->InheritsFrom(AliRsnOutTask::Class())) {
     ((AliRsnOutTask *)task)->SetParent(this);
+    ((AliRsnOutTask *)task)->SetID(fTasks->GetEntries());
   }
+
+  TTask::Add(task);
 }
 
 void AliRsnOutTask::ExecuteTask(Option_t *option) {
@@ -103,6 +104,16 @@ void AliRsnOutTask::ExecuteTasks(Option_t *option) {
       task->fBreakout++;
       return;
     }
+  }
+}
+
+void AliRsnOutTask::UpdateTask() {}
+void AliRsnOutTask::UpdateTasks() {
+  TIter next(fTasks);
+  AliRsnOutTask *task;
+  while ((task = (AliRsnOutTask *)next())) {
+    task->UpdateTask();
+    task->UpdateTasks();
   }
 }
 

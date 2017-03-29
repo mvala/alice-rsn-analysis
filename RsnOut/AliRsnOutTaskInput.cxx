@@ -25,6 +25,24 @@ AliRsnOutTaskInput::~AliRsnOutTaskInput() { Clear(); }
 void AliRsnOutTaskInput::Exec(Option_t * /*option*/) {
 
   // Printf("%s", GetName());
+  UpdateTask();
+}
+
+void AliRsnOutTaskInput::ExecPost(Option_t * /*option*/) {
+
+  if (!fOutput) {
+    fOutput = new TList();
+    fOutput->SetOwner();
+  }
+
+  if (fEventStat)
+    fOutput->Add(fEventStat);
+
+  // CalculateEfficiency();
+  Clear();
+}
+void AliRsnOutTaskInput::UpdateTask() {
+
   if (!fFile) {
     Printf("Opening file %s ...", fFileName.Data());
     fFile = TFile::Open(fFileName.Data());
@@ -48,21 +66,6 @@ void AliRsnOutTaskInput::Exec(Option_t * /*option*/) {
     fMCGen = (THnSparse *)fList->FindObject(fMCGenName.Data());
   }
 }
-
-void AliRsnOutTaskInput::ExecPost(Option_t * /*option*/) {
-
-  if (!fOutput) {
-    fOutput = new TList();
-    fOutput->SetOwner();
-  }
-
-  if (fEventStat)
-    fOutput->Add(fEventStat);
-
-  CalculateEfficiency();
-  Clear();
-}
-
 void AliRsnOutTaskInput::Clear(Option_t * /*opt*/) {
   if (fList)
     SafeDelete(fList);

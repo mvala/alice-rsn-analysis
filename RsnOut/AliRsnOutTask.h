@@ -13,6 +13,8 @@ public:
 
   virtual void ExecuteTask(Option_t *option);
   virtual void ExecuteTasks(Option_t *option);
+  virtual void UpdateTask();
+  virtual void UpdateTasks();
 
   // User functions
   virtual void Exec(Option_t *option);
@@ -24,11 +26,15 @@ public:
   TList *GetOutput() const { return fOutput; }
   void DeleteOutput();
 
+  Int_t GetID() const { return fID; }
+  void SetID(Int_t id) { fID = id; }
+
   virtual void Browse(TBrowser *b);
 
   virtual void Export(TDirectory *root);
 
 protected:
+  Int_t fID;
   AliRsnOutTask *fParent; //||
   TList *fOutput;
 

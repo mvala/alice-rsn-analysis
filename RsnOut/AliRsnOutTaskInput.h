@@ -15,7 +15,7 @@ public:
 
   virtual void Exec(Option_t *option);
   virtual void ExecPost(Option_t *option);
-
+  virtual void UpdateTask();
   void SetFileName(TString filename) {
     fFileName = filename;
     fTitle = filename;
