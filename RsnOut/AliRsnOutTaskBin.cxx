@@ -167,15 +167,9 @@ void AliRsnOutTaskBin::ExecPost(Option_t * /*option*/) {
         TList *l = tBin->GetListOfTasks();
         tBin2 = dynamic_cast<AliRsnOutTaskBin *>(l->At(0));
         if (tBin2) {
+          TH2 *hEffGen2D = (TH2 *)fOutput->FindObject("hEffGen2D");
+          TH2 *hEffRec2D = (TH2 *)fOutput->FindObject("hEffRec2D");
 
-          TH1 *hEffRec2D = (TH1 *)fOutput->FindObject("hEffRec2D");
-          TH1 *hEffGen2D = (TH1 *)fOutput->FindObject("hEffGen2D");
-          if (!hEffRec2D) {
-            hEffRec2D = new TH2D("hEffRec0", "REC", 1, 0, 1, 1, 0, 1);
-            hEffRec2D->GetXaxis()->Set(nVarBins[0], varBins[0]);
-            hEffRec2D->GetYaxis()->Set(nVarBins[1], varBins[1]);
-            fOutput->Add(hEffRec2D);
-          }
           if (!hEffGen2D) {
             hEffGen2D = new TH2D("hEffGen0", "GEN", 1, 0, 1, 1, 0, 1);
             Printf("hEffGen0 %f %f", varBins[0][0], varBins[0][1]);
@@ -188,6 +182,12 @@ void AliRsnOutTaskBin::ExecPost(Option_t * /*option*/) {
             // hEffGen2D->Print("all");
             fOutput->Add(hEffGen2D);
           }
+          if (!hEffRec2D) {
+            hEffRec2D = new TH2D("hEffRec0", "REC", 1, 0, 1, 1, 0, 1);
+            hEffRec2D->GetXaxis()->Set(nVarBins[0], varBins[0]);
+            hEffRec2D->GetYaxis()->Set(nVarBins[1], varBins[1]);
+            fOutput->Add(hEffRec2D);
+          }
 
           // 2D case
           for (jBin = 0; jBin < l->GetEntries(); jBin++) {
@@ -199,23 +199,52 @@ void AliRsnOutTaskBin::ExecPost(Option_t * /*option*/) {
               continue;
             // Fill
             Printf("Filling eff Hist %d %d", iBin, jBin);
+            TH1 *fSignalMCGen =
+                (TH1 *)tBin2->GetOutput()->FindObject("hSignalMCGen");
+            TH1 *fSignalMCRec =
+                (TH1 *)tBin2->GetOutput()->FindObject("hSignalMCRec");
+            if (fSignalMCGen && fSignalMCRec) {
+              Double_t integral = fSignalMCGen->Integral();
+              hEffGen2D->SetBinContent(iBin + 1, jBin + 1, integral);
+              hEffGen2D->SetBinError(iBin + 1, jBin + 1, TMath::Sqrt(integral));
+              integral = fSignalMCRec->Integral();
+              hEffRec2D->SetBinContent(iBin + 1, jBin + 1, integral);
+              hEffRec2D->SetBinError(iBin + 1, jBin + 1, TMath::Sqrt(integral));
+            }
           }
 
         } else {
           // 1D case
-          TH1 *hEffRec = (TH1 *)fOutput->FindObject("hEffRec");
           TH1 *hEffGen = (TH1 *)fOutput->FindObject("hEffGen");
-          if (!hEffRec) {
-            hEffRec = new TH1D("hEffRec", "REC", nVarBins[0], varBins[0]);
-            fOutput->Add(hEffRec);
-          }
+          TH1 *hEffRec = (TH1 *)fOutput->FindObject("hEffRec");
           if (!hEffGen) {
             hEffGen = new TH1D("hEffGen", "GEN", nVarBins[0], varBins[0]);
             fOutput->Add(hEffGen);
           }
+          if (!hEffRec) {
+            hEffRec = new TH1D("hEffRec", "REC", nVarBins[0], varBins[0]);
+            fOutput->Add(hEffRec);
+          }
+
           Printf("Filling eff Hist %d", iBin);
+          TH1 *fSignalMCGen =
+              (TH1 *)tBin->GetOutput()->FindObject("hSignalMCGen");
+          TH1 *fSignalMCRec =
+              (TH1 *)tBin->GetOutput()->FindObject("hSignalMCRec");
+          if (fSignalMCGen && fSignalMCRec) {
+            Double_t integral = fSignalMCGen->Integral();
+            hEffGen->SetBinContent(iBin + 1, integral);
+            hEffGen->SetBinError(iBin + 1, TMath::Sqrt(integral));
+            integral = fSignalMCRec->Integral();
+            hEffRec->SetBinContent(iBin + 1, integral);
+            hEffRec->SetBinError(iBin + 1, TMath::Sqrt(integral));
+          }
         }
       }
+    }
+    // Here we finish eff
+    if (nDim == 1) {
+    } else if (nDim == 2) {
     }
   }
 
