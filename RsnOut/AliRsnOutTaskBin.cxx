@@ -171,16 +171,19 @@ void AliRsnOutTaskBin::ExecPost(Option_t * /*option*/) {
           TH2 *hEffRec2D = (TH2 *)fOutput->FindObject("hEffRec2D");
 
           if (!hEffGen2D) {
-            hEffGen2D = new TH2D("hEffGen2D", "GEN", 1, 0, 1, 1, 0, 1);
-            hEffGen2D->GetXaxis()->Set(nVarBins[0], varBins[0]);
-            hEffGen2D->GetYaxis()->Set(nVarBins[1], varBins[1]);
-            // hEffGen2D->Print("all");
+            hEffGen2D = new TH2D("hEffGen2D", "GEN", nVarBins[0], varBins[0],
+                                 nVarBins[1], varBins[1]);
+            // hEffGen2D->GetXaxis()->Set(nVarBins[0], varBins[0]);
+            // hEffGen2D->GetYaxis()->Set(nVarBins[1], varBins[1]);
+            hEffGen2D->Print("all");
             fOutput->Add(hEffGen2D);
           }
           if (!hEffRec2D) {
-            hEffRec2D = new TH2D("hEffRec2D", "REC", 1, 0, 1, 1, 0, 1);
-            hEffRec2D->GetXaxis()->Set(nVarBins[0], varBins[0]);
-            hEffRec2D->GetYaxis()->Set(nVarBins[1], varBins[1]);
+            hEffRec2D = new TH2D("hEffRec2D", "REC", nVarBins[0], varBins[0],
+                                 nVarBins[1], varBins[1]);
+            // hEffRec2D->GetXaxis()->Set(nVarBins[0], varBins[0]);
+            // hEffRec2D->GetYaxis()->Set(nVarBins[1], varBins[1]);
+            hEffGen2D->Print("all");
             fOutput->Add(hEffRec2D);
           }
 
@@ -193,13 +196,17 @@ void AliRsnOutTaskBin::ExecPost(Option_t * /*option*/) {
             if (!v2)
               continue;
             // Fill
-            Printf("Filling eff Hist %d %d", iBin, jBin);
+
             TH1 *fSignalMCGen =
                 (TH1 *)tBin2->GetOutput()->FindObject("hSignalMCGen");
             TH1 *fSignalMCRec =
                 (TH1 *)tBin2->GetOutput()->FindObject("hSignalMCRec");
             if (fSignalMCGen && fSignalMCRec) {
               Double_t integral = fSignalMCGen->Integral();
+              Printf("Filling eff Hist %d %d gen=%f", iBin + 1, jBin + 1,
+                     integral);
+              hEffGen2D->Print("all");
+
               hEffGen2D->SetBinContent(iBin + 1, jBin + 1, integral);
               hEffGen2D->SetBinError(iBin + 1, jBin + 1, TMath::Sqrt(integral));
               integral = fSignalMCRec->Integral();
