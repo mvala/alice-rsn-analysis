@@ -1,6 +1,7 @@
 #include "AliRsnOutTask.h"
 #include <Riostream.h>
 #include <TDirectory.h>
+#include <TFolder.h>
 #include <TROOT.h>
 
 ClassImp(AliRsnOutTask);
@@ -127,11 +128,11 @@ void AliRsnOutTask::Browse(TBrowser *b) {
     fOutput->Browse(b);
 }
 
-void AliRsnOutTask::Export(TDirectory *parent) {
+void AliRsnOutTask::Export(TDirectory *root) {
 
-  if (!parent)
+  if (!root)
     return;
-  TDirectory *out = parent->mkdir(GetName(), GetTitle());
+  TDirectory *out = root->mkdir(GetName(), GetTitle());
   if (!out)
     return;
 
@@ -144,7 +145,27 @@ void AliRsnOutTask::Export(TDirectory *parent) {
   if (fOutput)
     fOutput->Write();
 
-  parent->cd();
+  root->cd();
+}
+
+void AliRsnOutTask::Export(TFolder *root) {
+
+  if (!root)
+    return;
+  TFolder *out = root->AddFolder(GetName(), GetTitle(), fOutput);
+  if (!out)
+    return;
+
+  TIter next(fTasks);
+  AliRsnOutTask *t;
+  while ((t = (AliRsnOutTask *)next())) {
+    t->Export(out);
+  }
+  // out->cd();
+  // if (fOutput)
+  //   fOutput->Write();
+
+  // root->cd();
 }
 
 void AliRsnOutTask::DeleteOutput() {

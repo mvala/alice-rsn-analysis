@@ -1,6 +1,7 @@
 #include <Riostream.h>
 #include <TArrayI.h>
 #include <TFile.h>
+#include <TFolder.h>
 #include <TObjArray.h>
 #include <TObjString.h>
 #include <TSystem.h>
@@ -151,13 +152,13 @@ int main(int argc, char **argv) {
   tMgr->ls();
   tMgr->ExecuteTask("");
   TString outFileNameTDir = outFileName;
-  outFileNameTDir.ReplaceAll(".root", "-tdir.root");
+  outFileNameTDir.ReplaceAll(".root", "-final.root");
   TFile *fOutTDir = TFile::Open(outFileNameTDir.Data(), "RECREATE");
   if (tMgr) {
-    TDirectory *d = fOutTDir->mkdir("test", "test");
-    // fOutTDir->cd();
+
+    TFolder *d = new TFolder("test", "test");
     tMgr->Export(d);
-    fOutTDir->Write();
+    d->Write();
   }
   fOutTDir->Close();
 

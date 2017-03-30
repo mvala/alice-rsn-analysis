@@ -2,6 +2,7 @@
 #define AliRsnOutTask_cxx
 
 #include <TTask.h>
+class TFolder;
 class AliRsnOutTask : public TTask {
 
 public:
@@ -32,6 +33,7 @@ public:
   virtual void Browse(TBrowser *b);
 
   virtual void Export(TDirectory *root);
+  virtual void Export(TFolder *root);
 
 protected:
   Int_t fID;
