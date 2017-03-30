@@ -47,7 +47,7 @@ macros/train/AliRsnTaskTest*
 
 macros/analysis/*.json
 build
-bin
+#bin
 lin
 lib64
 
