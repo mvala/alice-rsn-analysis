@@ -60,12 +60,6 @@ void AliRsnOutTaskBin::Exec(Option_t * /*option*/) {
       TH1 *hMCRec = (TH1 *)mcRec->Projection(fValue.GetId())->Clone();
       hMCRec->SetName("hSignalMCRec");
       fOutput->Add(hMCRec);
-      // TEfficiency *fMCEfficiency = 0;
-      // if (!fMCEfficiency)
-      //   fMCEfficiency = new TEfficiency("eff", "MC Efficiency;x;#epsilon",
-      //                                   nVariableBins, varBins);
-      // fMCEfficiency->SetTotalEvents(iBin + 1, mcGen->Integral());
-      // fMCEfficiency->SetPassedEvents(iBin + 1, mcRec->Integral());
     }
   }
 
@@ -269,105 +263,6 @@ void AliRsnOutTaskBin::ExecPost(Option_t * /*option*/) {
       }
     }
   }
-
-  // TH1 *fSignalMCGen = (TH1 *)fOutput->FindObject("hSignalMCGen");
-  // TH1 *fSignalMCRec = (TH1 *)fOutput->FindObject("hSignalMCRec");
-
-  // if (fSignalMCGen && fSignalMCRec) {
-  //   Print();
-  //   fSignalMCGen->Print();
-  //   fSignalMCRec->Print();
-  //   AliRsnOutTask *parent = GetParent();
-  //   AliRsnOutTaskBin *tBinVariation = this;
-  //   AliRsnOutTask *tBinMgr = dynamic_cast<AliRsnOutTaskBinMgr *>(parent);
-  //   while (!tBinMgr && parent) {
-  //     tBinVariation = (AliRsnOutTaskBin *)parent;
-  //     parent = parent->GetParent();
-  //     tBinMgr = dynamic_cast<AliRsnOutTaskBinMgr *>(parent);
-  //   }
-
-  //   Int_t effdim = 1;
-  //   if (tBinVariation) {
-  //     TEfficiency *eff = tBinVariation->GetEfficiency();
-  //     TList *lOutput = tBinVariation->GetOutput();
-  //     TH1 *hEffRec = (TH1 *)lOutput->FindObject("hEffRec");
-  //     TH1 *hEffGen = (TH1 *)lOutput->FindObject("hEffGen");
-
-  //     Printf("XXXX %s", eff->Class_Name());
-  //     if (!hEffRec) {
-  //       TList *listOfTasks = tBinVariation->GetListOfTasks();
-  //       Int_t nVariableBins[2];
-  //       nVariableBins[0] = listOfTasks->GetEntries();
-
-  //       TString bvName = tBinVariation->GetName();
-  //       if (bvName.Contains("_vs_")) {
-  //         effdim = 2;
-  //         AliRsnOutTaskBin *t = (AliRsnOutTaskBin *)listOfTasks->At(0);
-  //         nVariableBins[1] = t->GetListOfTasks()->GetEntries();
-  //       }
-  //       Int_t maxBins = TMath::Max(nVariableBins[0], nVariableBins[1]);
-  //       Double_t varBins[2][maxBins + 1];
-  //       Int_t iBin;
-  //       AliRsnOutValue *v;
-  //       AliRsnOutTaskBin *tBin;
-  //       Printf("Creating TEfficiency %s %d", tBinVariation->GetName(),
-  //              listOfTasks->GetEntries());
-  //       for (iBin = 0; iBin < listOfTasks->GetEntries(); iBin++) {
-  //         tBin = (AliRsnOutTaskBin *)listOfTasks->At(iBin);
-  //         v = (AliRsnOutValue *)tBin->GetValue();
-  //         varBins[0][iBin] = v->GetMin();
-  //         printf("x=%.2f ", varBins[0][iBin]);
-  //         if (iBin == listOfTasks->GetEntries() - 1) {
-  //           varBins[0][iBin + 1] = v->GetMax();
-  //           Printf("x=%.2f", varBins[0][iBin + 1]);
-  //         }
-  //       }
-  //       listOfTasks = tBin->GetListOfTasks();
-  //       nVariableBins[1] = listOfTasks->GetEntries();
-  //       for (iBin = 0; iBin < listOfTasks->GetEntries(); iBin++) {
-  //         tBin = (AliRsnOutTaskBin *)listOfTasks->At(iBin);
-  //         v = (AliRsnOutValue *)tBin->GetValue();
-  //         varBins[1][iBin] = v->GetMin();
-  //         printf("x=%.2f ", varBins[1][iBin]);
-  //         if (iBin == listOfTasks->GetEntries() - 1) {
-  //           varBins[1][iBin + 1] = v->GetMax();
-  //           Printf("x=%.2f", varBins[1][iBin + 1]);
-  //         }
-  //       }
-
-  //       if (effdim == 1) {
-  //         hEffRec = new TH1D("hEffRec", "REC", nVariableBins[0],
-  //         varBins[0]);
-  //         hEffGen = new TH1D("hEffGen", "GEN", nVariableBins[0],
-  //         varBins[0]);
-  //         tBinVariation->GetOutput()->Add(hEffRec);
-  //         tBinVariation->GetOutput()->Add(hEffGen);
-  //         // eff = new TEfficiency(hEffRec, hEffGen);
-  //         // tBinVariation->SetEfficiency(eff);
-  //       } else if (effdim == 2) {
-  //         eff = new TEfficiency("eff", "MC Efficiency;x;#epsilon",
-  //                               nVariableBins[0], varBins[0],
-  //                               nVariableBins[1], varBins[1]);
-  //         tBinVariation->SetEfficiency(eff);
-  //       }
-  //     }
-
-  //     if (hEffRec && hEffGen) {
-
-  //       if (effdim == 1) {
-  //         Printf("Filling eff bin %d", fID + 1);
-  //         hEffRec->SetBinContent(fID + 1, fSignalMCRec->Integral());
-  //         hEffGen->SetBinContent(fID + 1, fSignalMCGen->Integral());
-  //         // eff->CreateGraph()->Print();
-  //         tBinVariation->Print();
-  //         tBinVariation->GetOutput()->Print();
-  //       } else if (effdim == 2) {
-  //         Printf("TODO 2D Filling eff bin %d", fID + 1);
-  //       }
-  //     }
-  //   }
-  //   return;
-  // }
 
   THnSparse *sigBg = fInputTask->GetSigBg();
   THnSparse *bg = fInputTask->GetBg();
