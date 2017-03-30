@@ -171,19 +171,14 @@ void AliRsnOutTaskBin::ExecPost(Option_t * /*option*/) {
           TH2 *hEffRec2D = (TH2 *)fOutput->FindObject("hEffRec2D");
 
           if (!hEffGen2D) {
-            hEffGen2D = new TH2D("hEffGen0", "GEN", 1, 0, 1, 1, 0, 1);
-            Printf("hEffGen0 %f %f", varBins[0][0], varBins[0][1]);
-            Printf("hEffGen0 %f %f %f", varBins[1][0], varBins[1][1],
-                   varBins[1][2]);
-
+            hEffGen2D = new TH2D("hEffGen2D", "GEN", 1, 0, 1, 1, 0, 1);
             hEffGen2D->GetXaxis()->Set(nVarBins[0], varBins[0]);
-            Printf("hEffGen0 %d %d", nVarBins[0], nVarBins[1]);
             hEffGen2D->GetYaxis()->Set(nVarBins[1], varBins[1]);
             // hEffGen2D->Print("all");
             fOutput->Add(hEffGen2D);
           }
           if (!hEffRec2D) {
-            hEffRec2D = new TH2D("hEffRec0", "REC", 1, 0, 1, 1, 0, 1);
+            hEffRec2D = new TH2D("hEffRec2D", "REC", 1, 0, 1, 1, 0, 1);
             hEffRec2D->GetXaxis()->Set(nVarBins[0], varBins[0]);
             hEffRec2D->GetYaxis()->Set(nVarBins[1], varBins[1]);
             fOutput->Add(hEffRec2D);
@@ -244,7 +239,27 @@ void AliRsnOutTaskBin::ExecPost(Option_t * /*option*/) {
     }
     // Here we finish eff
     if (nDim == 1) {
+      TH1 *hEffGen = (TH1 *)fOutput->FindObject("hEffGen");
+      TH1 *hEffRec = (TH1 *)fOutput->FindObject("hEffRec");
+
+      if (hEffGen && hEffRec &&
+          TEfficiency::CheckConsistency(*hEffRec, *hEffGen)) {
+        hEffGen->Print("all");
+        hEffRec->Print("all");
+        TEfficiency *eff = new TEfficiency(*hEffRec, *hEffGen);
+        fOutput->Add(eff->CreateGraph());
+      }
     } else if (nDim == 2) {
+      TH2 *hEffGen = (TH2 *)fOutput->FindObject("hEffGen2D");
+      TH2 *hEffRec = (TH2 *)fOutput->FindObject("hEffRec2D");
+      hEffGen->Print();
+      if (hEffGen && hEffRec &&
+          TEfficiency::CheckConsistency(*hEffRec, *hEffGen)) {
+        hEffGen->Print("all");
+        hEffRec->Print("all");
+        TEfficiency *eff = new TEfficiency(*hEffRec, *hEffGen);
+        fOutput->Add(eff->CreateHistogram());
+      }
     }
   }
 
