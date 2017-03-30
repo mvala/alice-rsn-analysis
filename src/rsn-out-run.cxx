@@ -150,6 +150,16 @@ int main(int argc, char **argv) {
 
   tMgr->ls();
   tMgr->ExecuteTask("");
+  TString outFileNameTDir = outFileName;
+  outFileNameTDir.ReplaceAll(".root", "-tdir.root");
+  TFile *fOutTDir = TFile::Open(outFileNameTDir.Data(), "RECREATE");
+  if (tMgr) {
+    TDirectory *d = fOutTDir->mkdir("test", "test");
+    // fOutTDir->cd();
+    tMgr->Export(d);
+    fOutTDir->Write();
+  }
+  fOutTDir->Close();
 
   TFile *fOut = TFile::Open(outFileName.Data(), "RECREATE");
   if (tMgr) {
