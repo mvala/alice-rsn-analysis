@@ -17,15 +17,17 @@ public:
   void SetData(AliRsnOutTask *data);
   void SetMC(AliRsnOutTask *mc);
 
-  void ProcessBinMgrElement(AliRsnOutTaskBin *bme);
+  void ProcessBinMgrElement(AliRsnOutTaskBin *bme, AliRsnOutTaskBin *bmeMC = 0);
 
   THnSparse *CreateSparse(AliRsnOutTaskBin *bme, TFolder *folder);
-  void FillSparse(AliRsnOutTask *task, THnSparse *s, Int_t *sparseBin,
-                  Int_t index);
+  void FillSparse(AliRsnOutTask *task, AliRsnOutTask *taskMC, THnSparse *s,
+                  Int_t *sparseBin, Int_t index);
   void FolderFromSparse(AliRsnOutTask *task, THnSparse *s, Int_t index,
                         TFolder *folder, Int_t nBins, Int_t projX, Int_t projY);
 
   void GetBinsFromTask(AliRsnOutTask *t, Double_t *varBins);
+  Double_t GetErrorDivide(Double_t val1, Double_t err1, Double_t val2,
+                          Double_t err2);
 
 private:
   AliRsnOutTask *fData;

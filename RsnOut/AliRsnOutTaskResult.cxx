@@ -27,22 +27,40 @@ void AliRsnOutTaskResult::Exec(Option_t * /*option*/) {
   if (!tInputData)
     return;
 
-  AliRsnOutTaskBinMgr *tBinMgr;
-  AliRsnOutTaskBin *tBinMgrElement;
+  AliRsnOutTaskInput *tInputMC = dynamic_cast<AliRsnOutTaskInput *>(fMC);
+
+  AliRsnOutTaskBinMgr *tBinMgr, *tBinMgrMC;
+  AliRsnOutTaskBin *tBinMgrElement, *tBinMgrElementMC;
   TIter nextBinMgr(tInputData->GetListOfTasks());
+  TList *lBinMgrMC = 0, *lBinMgrElementMC = 0;
+  if (tInputMC)
+    lBinMgrMC = tInputMC->GetListOfTasks();
   // Loop over all Bin Managers
+  Int_t i = 0, j = 0;
   while ((tBinMgr = (AliRsnOutTaskBinMgr *)nextBinMgr())) {
     tBinMgr->Print();
+    if (lBinMgrMC) {
+      tBinMgrMC = (AliRsnOutTaskBinMgr *)lBinMgrMC->At(i++);
+      lBinMgrElementMC = tBinMgrMC->GetListOfTasks();
+    }
+
     TIter nextBin(tBinMgr->GetListOfTasks());
     // Loop over all bin combinations in bin manager
+    j = 0;
     while ((tBinMgrElement = (AliRsnOutTaskBin *)nextBin())) {
-      ProcessBinMgrElement(tBinMgrElement);
+      if (lBinMgrElementMC)
+        tBinMgrElementMC = (AliRsnOutTaskBin *)lBinMgrElementMC->At(j++);
+
+      ProcessBinMgrElement(tBinMgrElement, tBinMgrElementMC);
     }
   }
 }
 
-void AliRsnOutTaskResult::ProcessBinMgrElement(AliRsnOutTaskBin *bme) {
+void AliRsnOutTaskResult::ProcessBinMgrElement(AliRsnOutTaskBin *bme,
+                                               AliRsnOutTaskBin *bmeMC) {
   bme->Print();
+  if (bmeMC)
+    bmeMC->Print();
 
   TFolder *folder = new TFolder(bme->GetName(), "");
   fOutput->Add(folder);
@@ -52,7 +70,7 @@ void AliRsnOutTaskResult::ProcessBinMgrElement(AliRsnOutTaskBin *bme) {
 
   // Fill Sparse object
   Int_t iSparseBin[s->GetNdimensions()];
-  FillSparse(bme, s, iSparseBin, 0);
+  FillSparse(bme, bmeMC, s, iSparseBin, 0);
 
   // return;
 
@@ -99,7 +117,7 @@ THnSparse *AliRsnOutTaskResult::CreateSparse(AliRsnOutTaskBin *bme,
     t = (AliRsnOutTask *)t->GetListOfTasks()->At(0);
   }
 
-  Printf("nAxis=%d nBinAxis=%d", nAxis, nBinAxis);
+  // Printf("nAxis=%d nBinAxis=%d", nAxis, nBinAxis);
   TString names[nAxis];
   Int_t bins[nAxis];
   Double_t mins[nAxis];
@@ -109,7 +127,7 @@ THnSparse *AliRsnOutTaskResult::CreateSparse(AliRsnOutTaskBin *bme,
   t = (AliRsnOutTask *)bme->GetListOfTasks()->At(0);
   while (t) {
     sClassName = t->ClassName();
-    Printf("sClassName=%s", sClassName.Data());
+    // Printf("sClassName=%s", sClassName.Data());
     if (!sClassName.CompareTo("AliRsnOutTaskBin")) {
       names[iAxis] = t->GetName();
       names[iAxis] = names[iAxis](0, names[iAxis].First("["));
@@ -141,7 +159,7 @@ THnSparse *AliRsnOutTaskResult::CreateSparse(AliRsnOutTaskBin *bme,
 
   t = (AliRsnOutTask *)bme;
   for (iAxis = 0; iAxis < nAxis; iAxis++) {
-    Printf("names[%d]=%s bins=%d", iAxis, names[iAxis].Data(), bins[iAxis]);
+    // Printf("names[%d]=%s bins=%d", iAxis, names[iAxis].Data(), bins[iAxis]);
     s->GetAxis(iAxis)->SetName(names[iAxis].Data());
 
     if (iAxis < nBinAxis) {
@@ -154,36 +172,14 @@ THnSparse *AliRsnOutTaskResult::CreateSparse(AliRsnOutTaskBin *bme,
     t = (AliRsnOutTask *)t->GetListOfTasks()->At(0);
   }
 
-  // const Int_t nVariableBins = t->GetListOfTasks()->GetEntries();
-  //     Double_t varBins[nVariableBins + 1];
-
-  //     Int_t iBin;
-  //     for (iBin = 0; iBin < t->GetListOfTasks()->GetEntries(); ++iBin) {
-  //       tBin = dynamic_cast<AliRsnOutTaskBin
-  //       *>(t->GetListOfTasks()->At(iBin));
-  //       if (!tBin)
-  //         break;
-  //       v = (AliRsnOutValue *)tBin->GetValue();
-  //       varBins[iBin] = v->GetMin();
-  //       Printf("varBins[%d]=%f", iBin, varBins[iBin]);
-  //       if (iBin == t->GetListOfTasks()->GetEntries() - 1) {
-  //         varBins[iBin + 1] = v->GetMax();
-  //         Printf("varBins[%d+1]=%f", iBin, varBins[iBin + 1]);
-  //       }
-  //     }
-  //     if (tBin) {
-  //       s->GetAxis(iAxis)->Set(nVariableBins, varBins);
-  //       s->GetAxis(iAxis)->SetName(TString::Format("bin%d", iAxis).Data());
-  //       iAxis++;
-  //     }
-
   folder->Add(s);
   s->Print();
   return s;
 }
 
-void AliRsnOutTaskResult::FillSparse(AliRsnOutTask *task, THnSparse *s,
-                                     Int_t *sparseBin, Int_t level) {
+void AliRsnOutTaskResult::FillSparse(AliRsnOutTask *task, AliRsnOutTask *taskMC,
+                                     THnSparse *s, Int_t *sparseBin,
+                                     Int_t level) {
   AliRsnOutValue *v;
 
   AliRsnOutTask *t;
@@ -204,17 +200,17 @@ void AliRsnOutTaskResult::FillSparse(AliRsnOutTask *task, THnSparse *s,
       sparseBin[level] = s->GetAxis(level)->FindBin(x);
       // Printf("FillSparse:: %s sparseBin[%d]=%d x=%f", t->GetName(), level,
       //  sparseBin[level], x);
-      FillSparse(t, s, sparseBin, level + 1);
+      FillSparse(t, taskMC, s, sparseBin, level + 1);
     } else if (tNorm) {
       // Printf("Norm %s", t->GetName());
       sparseBin[level] = iTask + 1;
       // Printf("%s sparseBin[%d]=%d", t->GetName(), level, sparseBin[level]);
-      FillSparse(t, s, sparseBin, level + 1);
+      FillSparse(t, taskMC, s, sparseBin, level + 1);
     } else if (tFit) {
       // Printf("Fit %s", t->GetName());
       sparseBin[level] = iTask + 1;
       // Printf("%s sparseBin[%d]=%d", t->GetName(), level, sparseBin[level]);
-      FillSparse(t, s, sparseBin, level + 1);
+      FillSparse(t, taskMC, s, sparseBin, level + 1);
     } else {
       Printf("??? %s", t->GetName());
     }
@@ -226,6 +222,9 @@ void AliRsnOutTaskResult::FillSparse(AliRsnOutTask *task, THnSparse *s,
       TH1 *hResultPar = (TH1 *)tFit->GetOutput()->FindObject("fResultPar");
       if (!hResultPar)
         return;
+
+      TGraphAsymmErrors *eff_graph = 0;
+      TH2 *eff_histo = 0;
 
       Int_t iBin = 1;
       // Raw Bin Counting
@@ -242,9 +241,64 @@ void AliRsnOutTaskResult::FillSparse(AliRsnOutTask *task, THnSparse *s,
       s->SetBinError(sparseBin, hResultPar->GetBinError(iBin));
       iBin++;
 
+      if (taskMC) {
+        eff_graph =
+            (TGraphAsymmErrors *)taskMC->GetOutput()->FindObject("eff_graph");
+        eff_histo = (TH2 *)taskMC->GetOutput()->FindObject("eff_histo");
+      }
+      Double_t valX, effVal, effErr;
+      if (eff_graph || eff_histo) {
+        // Eff Function
+        sparseBin[level + 1] = iBin;
+        // tFit->GetYieldBinCounting(y, ey);
+
+        if (eff_graph) {
+          eff_graph->Print("all");
+          Int_t indexGr = sparseBin[level - 2] - 1;
+          eff_graph->GetPoint(indexGr, valX, effVal);
+          effErr = eff_graph->GetErrorYhigh(indexGr);
+          s->SetBinContent(sparseBin, effVal);
+          s->SetBinError(sparseBin, effErr);
+        } else if (eff_histo) {
+
+          Int_t iX = sparseBin[level - 3];
+          Int_t iY = sparseBin[level - 2];
+          eff_histo->Print("all");
+
+          effVal = eff_histo->GetBinContent(iX, iY);
+          effErr = eff_histo->GetBinError(iX, iY);
+          Printf("bc=%f err=%f", eff_histo->GetBinContent(iX, iY),
+                 eff_histo->GetBinError(iX, iY));
+          s->SetBinContent(sparseBin, effVal);
+          s->SetBinError(sparseBin, effErr);
+        }
+      }
+      iBin++;
+      if (eff_graph || eff_histo) {
+        // Corr Bin Counting
+        sparseBin[level + 1] = iBin;
+        s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin) / effVal);
+        Double_t e =
+            GetErrorDivide(hResultPar->GetBinContent(iBin),
+                           hResultPar->GetBinError(iBin), effVal, effErr);
+        s->SetBinError(sparseBin, e);
+      }
+      iBin++;
+      if (eff_graph || eff_histo) {
+        // Corr Fit Function
+        sparseBin[level + 1] = iBin;
+        s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin) / effVal);
+
+        Double_t e =
+            GetErrorDivide(hResultPar->GetBinContent(iBin),
+                           hResultPar->GetBinError(iBin), effVal, effErr);
+        s->SetBinError(sparseBin, e);
+      }
+      iBin++;
+
       // Chi2
       // sparseBin[level + 1] = 6;
-      sparseBin[level + 1] = iBin + 3;
+      sparseBin[level + 1] = iBin;
       s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin));
       s->SetBinError(sparseBin, hResultPar->GetBinError(iBin));
       iBin++;
@@ -267,14 +321,14 @@ void AliRsnOutTaskResult::FillSparse(AliRsnOutTask *task, THnSparse *s,
       s->SetBinError(sparseBin, hResultPar->GetBinError(iBin));
       iBin++;
 
-      // Printf("FillSparse:: Values ->>>>>");
-      // for (Int_t jj = 0; jj < s->GetNdimensions() - 1; jj++)
-      //   printf("%d ", sparseBin[jj]);
-      // for (Int_t ii = 1; ii < 10; ii++) {
-      //   sparseBin[level + 1] = ii;
-      //   printf("bc=%f ", s->GetBinContent(sparseBin));
-      // }
-      // Printf("");
+      Printf("FillSparse:: Values ->>>>>");
+      for (Int_t jj = 0; jj < s->GetNdimensions() - 1; jj++)
+        printf("%d ", sparseBin[jj]);
+      for (Int_t ii = 1; ii < 10; ii++) {
+        sparseBin[level + 1] = ii;
+        printf("bc=%f ", s->GetBinContent(sparseBin));
+      }
+      printf("\n");
     }
   }
 }
@@ -300,17 +354,17 @@ void AliRsnOutTaskResult::FolderFromSparse(AliRsnOutTask *task, THnSparse *s,
       // projectionID CAN be >0 when 2D parameters
 
       if ((projX >= 0) && (projLevel == projX)) {
-        Printf("FolderFromSparse:  %s folder=%s level=%d range[%d,%d] "
-               "projLevel=%d projX=%d projY=%d",
-               t->GetName(), f->GetName(), level, iTask + 1, iTask + 1,
-               projLevel, projX, projY);
+        // Printf("FolderFromSparse:  %s folder=%s level=%d range[%d,%d] "
+        //        "projLevel=%d projX=%d projY=%d",
+        //        t->GetName(), f->GetName(), level, iTask + 1, iTask + 1,
+        //        projLevel, projX, projY);
         f = folder->AddFolder(t->GetName(), t->GetTitle());
         s->GetAxis(level)->SetRange(iTask + 1, iTask + 1);
       } else {
-        Printf("FolderFromSparse:  %s folder=%s level=%d range=%d,%d "
-               "projLevel=%d projX=%d projY=%d",
-               t->GetName(), f->GetName(), level, 0, 0, projLevel, projX,
-               projY);
+        // Printf("FolderFromSparse:  %s folder=%s level=%d range=%d,%d "
+        //        "projLevel=%d projX=%d projY=%d",
+        //        t->GetName(), f->GetName(), level, 0, 0, projLevel, projX,
+        //        projY);
         s->GetAxis(level)->SetRange(0, 0);
       }
       Int_t projLevelX = projLevel;
@@ -318,31 +372,32 @@ void AliRsnOutTaskResult::FolderFromSparse(AliRsnOutTask *task, THnSparse *s,
         projLevelX = projLevel + 1;
 
       FolderFromSparse(t, s, level + 1, f, projLevelX, projX, projY);
-      if ((projX >= 0) && (projLevel == projX)) {
-        Printf("FolderFromSparse:  %s folder=%s level=%d reset", t->GetName(),
-               f->GetName(), level);
-      }
-      Printf("FolderFromSparse:  %s folder=%s level=%d reset", t->GetName(),
-             f->GetName(), level);
+      // if ((projX >= 0) && (projLevel == projX)) {
+      //   Printf("FolderFromSparse:  %s folder=%s level=%d reset",
+      //   t->GetName(),
+      //          f->GetName(), level);
+      // }
+      // Printf("FolderFromSparse:  %s folder=%s level=%d reset", t->GetName(),
+      //        f->GetName(), level);
       s->GetAxis(level)->SetRange(0, 0);
 
     } else if (tNorm) {
       s->GetAxis(level)->SetRange(iTask + 1, iTask + 1);
       f = folder->AddFolder(t->GetName(), t->GetTitle());
-      Printf("FolderFromSparse:  %s folder=%s level=%d range[%d,%d]",
-             t->GetName(), f->GetName(), level, iTask + 1, iTask + 1);
+      // Printf("FolderFromSparse:  %s folder=%s level=%d range[%d,%d]",
+      //        t->GetName(), f->GetName(), level, iTask + 1, iTask + 1);
       FolderFromSparse(t, s, level + 1, f, projLevel, projX, projY);
-      Printf("FolderFromSparse:  %s folder=%s level=%d reset", t->GetName(),
-             f->GetName(), level);
+      // Printf("FolderFromSparse:  %s folder=%s level=%d reset", t->GetName(),
+      //        f->GetName(), level);
       s->GetAxis(level)->SetRange(0, 0);
     } else if (tFit) {
       s->GetAxis(level)->SetRange(iTask + 1, iTask + 1);
       f = folder->AddFolder(t->GetName(), t->GetTitle());
-      Printf("FolderFromSparse:  %s folder=%s level=%d range[%d,%d]",
-             t->GetName(), f->GetName(), level, iTask + 1, iTask + 1);
+      // Printf("FolderFromSparse:  %s folder=%s level=%d range[%d,%d]",
+      //        t->GetName(), f->GetName(), level, iTask + 1, iTask + 1);
       FolderFromSparse(t, s, level + 1, f, projLevel, projX, projY);
-      Printf("FolderFromSparse:  %s folder=%s level=%d reset", t->GetName(),
-             f->GetName(), level);
+      // Printf("FolderFromSparse:  %s folder=%s level=%d reset", t->GetName(),
+      //        f->GetName(), level);
       s->GetAxis(level)->SetRange(0, 0);
     } else {
       Printf("??? %s", t->GetName());
@@ -353,8 +408,8 @@ void AliRsnOutTaskResult::FolderFromSparse(AliRsnOutTask *task, THnSparse *s,
   if (!task->GetListOfTasks()->GetSize()) {
     TH1 *h;
     TH2 *h2;
-    Printf("We are filling sparse (level=%d) projLevel=%d projX=%d projY=%d",
-           level, projLevel, projX, projY);
+    // Printf("We are filling sparse (level=%d) projLevel=%d projX=%d projY=%d",
+    //        level, projLevel, projX, projY);
     if (projLevel == -2) {
       s->GetAxis(level)->SetRange(1, 1);
       h2 = s->Projection(projY, projX);
@@ -364,6 +419,21 @@ void AliRsnOutTaskResult::FolderFromSparse(AliRsnOutTask *task, THnSparse *s,
       s->GetAxis(level)->SetRange(2, 2);
       h2 = s->Projection(projY, projX);
       h2->SetName("hRawFF");
+      h2->SetStats(0);
+      f->Add(h2);
+      s->GetAxis(level)->SetRange(3, 3);
+      h2 = s->Projection(projY, projX);
+      h2->SetName("hEff");
+      h2->SetStats(0);
+      f->Add(h2);
+      s->GetAxis(level)->SetRange(4, 4);
+      h2 = s->Projection(projY, projX);
+      h2->SetName("hCorBC");
+      h2->SetStats(0);
+      f->Add(h2);
+      s->GetAxis(level)->SetRange(5, 5);
+      h2 = s->Projection(projY, projX);
+      h2->SetName("hCorrFF");
       h2->SetStats(0);
       f->Add(h2);
       s->GetAxis(level)->SetRange(6, 6);
@@ -400,6 +470,24 @@ void AliRsnOutTaskResult::FolderFromSparse(AliRsnOutTask *task, THnSparse *s,
       s->GetAxis(level)->SetRange(2, 2);
       h = s->Projection(proj);
       h->SetName("hRawFF");
+      h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
+      h->SetStats(0);
+      f->Add(h);
+      s->GetAxis(level)->SetRange(3, 3);
+      h = s->Projection(proj);
+      h->SetName("hEff");
+      h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
+      h->SetStats(0);
+      f->Add(h);
+      s->GetAxis(level)->SetRange(4, 4);
+      h = s->Projection(proj);
+      h->SetName("hCorBC");
+      h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
+      h->SetStats(0);
+      f->Add(h);
+      s->GetAxis(level)->SetRange(5, 5);
+      h = s->Projection(proj);
+      h->SetName("hCorFF");
       h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
       h->SetStats(0);
       f->Add(h);
@@ -468,4 +556,10 @@ void AliRsnOutTaskResult::GetBinsFromTask(AliRsnOutTask *t, Double_t *varBins) {
     }
     iBin++;
   }
+}
+
+Double_t AliRsnOutTaskResult::GetErrorDivide(Double_t val1, Double_t err1,
+                                             Double_t val2, Double_t err2) {
+  return val1 / val2 * TMath::Sqrt(TMath::Power(err1 / val1, 2) +
+                                   TMath::Power(err2 / val2, 2));
 }
