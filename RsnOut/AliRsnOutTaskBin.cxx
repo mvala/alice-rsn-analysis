@@ -14,7 +14,7 @@ ClassImp(AliRsnOutTaskBin);
 AliRsnOutTaskBin::AliRsnOutTaskBin(const char *name, const char *title,
                                    Bool_t isCutsOnly)
     : AliRsnOutTask(name, title), fValue(), fCuts(0), fCutsOnly(isCutsOnly),
-      fInputTask(0), fEfficiency(0) {}
+      fInputTask(0) {}
 
 AliRsnOutTaskBin::~AliRsnOutTaskBin() { SafeDelete(fCuts); }
 
@@ -289,20 +289,6 @@ void AliRsnOutTaskBin::ExecPost(Option_t * /*option*/) {
     }
   }
 }
-
-// if (fEfficiency) {
-//   Int_t dim = fEfficiency->GetDimension();
-//   if (dim == 1) {
-//     TGraphAsymmErrors *graph = fEfficiency->CreateGraph();
-//     if (graph)
-//       fOutput->Add(graph);
-//   } else if (dim == 2) {
-//     TH2 *hist2d = fEfficiency->CreateHistogram();
-//     if (hist2d)
-//       fOutput->Add(hist2d);
-//   }
-// }
-// }
 
 void AliRsnOutTaskBin::AddCut(AliRsnOutValue *cut) {
   if (!cut)

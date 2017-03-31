@@ -25,15 +25,11 @@ public:
 
   void SetCutsOnly(Bool_t isCutsOnly = kTRUE) { fCutsOnly = isCutsOnly; }
 
-  void SetEfficiency(TEfficiency *eff) { fEfficiency = eff; }
-  TEfficiency *GetEfficiency() const { return fEfficiency; }
-
 private:
   AliRsnOutValue fValue;
   TList *fCuts;
   Bool_t fCutsOnly;
   AliRsnOutTaskInput *fInputTask;
-  TEfficiency *fEfficiency; //!
 
   ClassDef(AliRsnOutTaskBin, 1)
 };
