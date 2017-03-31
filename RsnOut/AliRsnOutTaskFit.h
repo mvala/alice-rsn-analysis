@@ -44,8 +44,11 @@ private:
   Double_t fFitProbTestMin;
   Double_t fFitProbTestMax;
   TFitResultPtr fFitResult;
+  Int_t fNUmberOfFits;
+  Double_t fIntegralEps;
 
-  TH1 *fResult; //!
+  TH1 *fResult;    //!
+  TH1 *fResultPar; //!
 
   ClassDef(AliRsnOutTaskFit, 1)
 };

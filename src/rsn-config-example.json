@@ -1,0 +1,55 @@
+{
+    "data": {
+        "name": "LHC15f",
+        "file": "root://alieos.saske.sk///eos/alike.saske.sk/alice/alike/PWGLF/LF_pp/389_20160307-1141/merge_runlist_4/AnalysisResults.root",
+        "list": "RsnOut_tpc3s",
+        "sigbg": "Unlike",
+        "bg": "Mixing"
+    },
+    "mc": {
+        "name": "LHC15g3a3",
+        "file": "root://alieos.saske.sk///eos/alike.saske.sk/alice/alike/PWGLF/LF_pp_MC/376_20160308-1500/merge_runlist_X/AnalysisResults.root",
+        "list": "RsnOut_tpc3s",
+        "sigbg": "Unlike",
+        "bg": "Mixing",
+        "rec": "Trues",
+        "gen": "Mother",
+        "effonly": true
+    },
+    "bin": [
+        {
+            "id": 1,
+            "name": "pt",
+            "varbins": "1,6,11,16,21,26,31"
+        },
+        {
+            "id": 2,
+            "name": "mult",
+            "varbins": "11,21,31,41,51,61"
+        }
+    ],
+    "norm": [
+        {
+            "id": 0,
+            "min": 1.10,
+            "max": 1.15
+        }
+    ],
+    "fit": [
+        {
+            "id": 0,
+            "min": 0.997,
+            "max": 1.050
+        },
+        {
+            "id": 1,
+            "min": 0.997,
+            "max": 1.050
+        },
+        {
+            "id": 2,
+            "min": 0.997,
+            "max": 1.050
+        }
+    ]
+}

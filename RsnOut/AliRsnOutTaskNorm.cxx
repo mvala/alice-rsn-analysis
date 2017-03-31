@@ -1,18 +1,21 @@
+#include <TH1.h>
+#include <TMath.h>
+
 #include "AliRsnOutTaskNorm.h"
 #include <AliRsnOutValue.h>
-#include <TH1.h>
 
-ClassImp(AliRsnOutTaskNorm)
+ClassImp(AliRsnOutTaskNorm);
 
-  AliRsnOutTaskNorm::AliRsnOutTaskNorm(const char *name, const char *title)
-  : AliRsnOutTask(name, title), fRanges(0) {}
+AliRsnOutTaskNorm::AliRsnOutTaskNorm(const char *name, const char *title)
+    : AliRsnOutTask(name, title), fRanges(0) {}
 
 AliRsnOutTaskNorm::~AliRsnOutTaskNorm() {}
 
 void AliRsnOutTaskNorm::Exec(Option_t * /*option*/) {
 
-  Printf(GetName());
-  if (!fParent->GetOutput()) return;
+  // Printf(GetName());
+  if (!fParent->GetOutput())
+    return;
 
   TH1 *hSigBgNorm = (TH1 *)fParent->GetOutput()->FindObject("hSignalBg");
   TH1 *hBgNorm = (TH1 *)fParent->GetOutput()->FindObject("hBg");
@@ -55,9 +58,18 @@ void AliRsnOutTaskNorm::Exec(Option_t * /*option*/) {
     hSig->SetName("hSignal");
     hSig->Add(hBgNorm, -1);
 
-    fOutput->Add(hSigBgNorm);
-    fOutput->Add(hBgNorm);
-    fOutput->Add(hSig);
+    if ((TMath::IsNaN(hSigBgNorm->GetSumOfWeights())) ||
+        (TMath::IsNaN(hBgNorm->GetSumOfWeights())) ||
+        (TMath::IsNaN(hSig->GetSumOfWeights()))) {
+      SafeDelete(hSigBgNorm);
+      SafeDelete(hBgNorm);
+      SafeDelete(hSig);
+    } else {
+
+      fOutput->Add(hSigBgNorm);
+      fOutput->Add(hBgNorm);
+      fOutput->Add(hSig);
+    }
   }
 
   //	TH1 *hSigMCGen = (TH1*)
@@ -71,7 +83,8 @@ void AliRsnOutTaskNorm::Exec(Option_t * /*option*/) {
 }
 
 void AliRsnOutTaskNorm::AddRange(AliRsnOutValue *range) {
-  if (!range) return;
+  if (!range)
+    return;
   if (!fRanges) {
     fRanges = new TList();
     fName = "norm";

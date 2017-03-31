@@ -27,10 +27,10 @@
 
 using namespace RooFit;
 
-ClassImp(AliRsnOutTaskRooFit)
+ClassImp(AliRsnOutTaskRooFit);
 
-  AliRsnOutTaskRooFit::AliRsnOutTaskRooFit(const char *name, const char *title)
-  : AliRsnOutTask(name, title), fInput(0), fFitResults(0) {
+AliRsnOutTaskRooFit::AliRsnOutTaskRooFit(const char *name, const char *title)
+    : AliRsnOutTask(name, title), fInput(0), fFitResults(0) {
   RooMsgService::instance().getStream(0).active = kFALSE;
   RooMsgService::instance().getStream(1).active = kFALSE;
 }
@@ -39,7 +39,8 @@ AliRsnOutTaskRooFit::~AliRsnOutTaskRooFit() {}
 
 void AliRsnOutTaskRooFit::Exec(Option_t * /*option*/) {
 
-  if (!fInput) return;
+  if (!fInput)
+    return;
 
   fName = TString::Format("fit_%d[%.3f,%.3f]", fInput->GetId(),
                           fInput->GetMin(), fInput->GetMax());
@@ -51,13 +52,16 @@ void AliRsnOutTaskRooFit::Exec(Option_t * /*option*/) {
 
 void AliRsnOutTaskRooFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
 
-  if (!fParent->GetOutput()) return;
+  if (!fParent->GetOutput())
+    return;
 
   TH1 *hSig = (TH1 *)fParent->GetOutput()->FindObject("hSignal")->Clone();
 
-  if (!hSig) return;
+  if (!hSig)
+    return;
 
-  if (fitId < 0) return;
+  if (fitId < 0)
+    return;
 
   Double_t min = hSig->GetXaxis()->GetXmin();
   Double_t max = hSig->GetXaxis()->GetXmax();
@@ -104,7 +108,8 @@ void AliRsnOutTaskRooFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
   //	fitResult = model.fitTo(data, Save(),SumW2Error(kTRUE), Range(minFit,
   // maxFit),PrintLevel(-1));
   fitResult->Print();
-  if (!fitResult) return;
+  if (!fitResult)
+    return;
 
   gROOT->SetBatch();
   TCanvas *c = new TCanvas("canvas", fTitle.Data());
@@ -129,7 +134,8 @@ void AliRsnOutTaskRooFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
   //	out << json;
   //	out.close();
 
-  if (!fFitResults) fFitResults = new TList();
+  if (!fFitResults)
+    fFitResults = new TList();
   fFitResults->Add(fitResult);
 
   Printf("chi2=%f", frame->chiSquare("model", "data", 5));

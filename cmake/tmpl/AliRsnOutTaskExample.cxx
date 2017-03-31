@@ -1,10 +1,9 @@
 #include "AliRsnOutTaskExample.h"
 
-ClassImp(AliRsnOutTaskExample)
+ClassImp(AliRsnOutTaskExample);
 
-  AliRsnOutTaskExample::AliRsnOutTaskExample(const char *name,
-                                             const char *title)
-  : AliRsnOutTask(name, title) {}
+AliRsnOutTaskExample::AliRsnOutTaskExample(const char *name, const char *title)
+    : AliRsnOutTask(name, title) {}
 
 AliRsnOutTaskExample::~AliRsnOutTaskExample() {}
 

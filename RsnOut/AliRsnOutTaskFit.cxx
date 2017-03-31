@@ -12,15 +12,12 @@
 
 #include "AliRsnOutTaskFit.h"
 
-ClassImp(AliRsnOutTaskFit)
+ClassImp(AliRsnOutTaskFit);
 
-  AliRsnOutTaskFit::AliRsnOutTaskFit(const char *name, const char *title)
-  : AliRsnOutTask(name, title),
-    fInput(0),
-    fFitProbTestMin(1e-4),
-    fFitProbTestMax(0.6),
-    fFitResult(0),
-    fResult(0) {}
+AliRsnOutTaskFit::AliRsnOutTaskFit(const char *name, const char *title)
+    : AliRsnOutTask(name, title), fInput(0), fFitProbTestMin(1e-4),
+      fFitProbTestMax(0.6), fFitResult(0), fNUmberOfFits(3),
+      fIntegralEps(1.e-4), fResult(0), fResultPar(0) {}
 
 AliRsnOutTaskFit::~AliRsnOutTaskFit() {}
 
@@ -67,60 +64,73 @@ void AliRsnOutTaskFit::SetFit(AliRsnOutValue *fit) {
 
 void AliRsnOutTaskFit::Exec(Option_t * /*option*/) {
 
+  // Printf(GetName());
+  if (!fParent->GetOutput())
+    return;
+
+  if (fResult) {
+    SafeDelete(fResult);
+  }
+
+  if (fResultPar) {
+    SafeDelete(fResultPar);
+  }
+
   Fit(fInput->GetId(), fInput->GetMin(), fInput->GetMax());
 }
 
 void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
 
-  Printf(GetName());
-  if (!fParent->GetOutput()) return;
-
   fResult = (TH1 *)fParent->GetOutput()->FindObject("hSignal");
   if (fResult) {
+
     fResult = (TH1 *)fResult->Clone();
 
     const Double_t phi_mass = 1.019445;
     const Double_t phi_width = 0.00426;
     const Double_t phi_sigma = 0.001;
-
+    // const Double_t hist_min = fResult->GetXaxis()->GetXmin();
+    // const Double_t hist_max = fResult->GetXaxis()->GetXmax();
     TF1 *sigBgFnc = 0;
     TF1 *bgFnc = 0;
     switch (fitId) {
     case kVoightPol1:
       sigBgFnc =
-        new TF1("VoightPol1", AliRsnOutTaskFit::VoigtPol1, fitMin, fitMax, 6);
+          new TF1("VoightPol1", AliRsnOutTaskFit::VoigtPol1, fitMin, fitMax, 6);
       bgFnc = new TF1("Pol1", Pol1, fitMin, fitMax, 2);
       break;
     case kVoightPol2:
       sigBgFnc =
-        new TF1("VoightPol2", AliRsnOutTaskFit::VoigtPol2, fitMin, fitMax, 7);
+          new TF1("VoightPol2", AliRsnOutTaskFit::VoigtPol2, fitMin, fitMax, 7);
       bgFnc = new TF1("Pol2", Pol2, fitMin, fitMax, 3);
       break;
     case kVoightPol3:
       sigBgFnc =
-        new TF1("VoightPol3", AliRsnOutTaskFit::VoigtPol3, fitMin, fitMax, 8);
+          new TF1("VoightPol3", AliRsnOutTaskFit::VoigtPol3, fitMin, fitMax, 8);
       bgFnc = new TF1("Pol3", Pol3, fitMin, fitMax, 4);
       break;
     }
-    if (!sigBgFnc || !bgFnc) return;
+    if (!sigBgFnc || !bgFnc)
+      return;
 
     Double_t p0p =
-      fResult->Integral(fResult->FindBin(fitMin), fResult->FindBin(fitMax)) *
-      fResult->GetBinWidth(fResult->FindBin(fitMin));
+        fResult->Integral(fResult->FindBin(fitMin), fResult->FindBin(fitMax)) *
+        fResult->GetBinWidth(fResult->FindBin(fitMin));
     sigBgFnc->SetParameters(p0p, phi_mass, phi_width, phi_sigma, 0.0, 0.0, 0.0,
                             0.0);
 
     sigBgFnc->SetParNames("yield", "mass", "width", "sigma", "p0", "p1", "p2",
                           "p3");
     sigBgFnc->FixParameter(3, phi_sigma);
+    for (Int_t i = 0; i < fNUmberOfFits; i++) {
+      fFitResult = fResult->Fit(sigBgFnc, "QN MFC", "", fitMin, fitMax);
+    }
 
-    fFitResult = fResult->Fit(sigBgFnc, "QN MFC S", "", fitMin, fitMax);
-    fFitResult = fResult->Fit(sigBgFnc, "QN MFC S", "", fitMin, fitMax);
-    fFitResult = fResult->Fit(sigBgFnc, "QN MFC S", "", fitMin, fitMax);
     fFitResult = fResult->Fit(sigBgFnc, "QN MF S", "", fitMin, fitMax);
-    //	fFitResult->Print();
+    // Printf("fFitResult->IsValid() = %d", (Int_t)fFitResult->IsValid());
     Double_t par[6];
     sigBgFnc->GetParameters(par);
+    const Double_t *parErr = sigBgFnc->GetParErrors();
     bgFnc->SetParameters(&par[4]);
 
     if ((fFitResult->Prob() < fFitProbTestMin) ||
@@ -132,6 +142,52 @@ void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
     fResult->GetListOfFunctions()->Add(sigBgFnc);
     fResult->GetListOfFunctions()->Add(bgFnc);
     fOutput->Add(fResult);
+
+    Double_t val, err;
+    const Int_t nBins = 6 + sigBgFnc->GetNpar();
+    fResultPar = new TH1D("fResultPar", "Result parameters", nBins, 0, nBins);
+
+    Int_t iBin = 1;
+    GetYieldBinCounting(val, err);
+    fResultPar->SetBinContent(iBin, val);
+    fResultPar->SetBinError(iBin, err);
+    fResultPar->GetXaxis()->SetBinLabel(iBin, "IntBC");
+    iBin++;
+
+    GetYieldFitFunction(val, err);
+    fResultPar->SetBinContent(iBin, val);
+    fResultPar->SetBinError(iBin, err);
+    fResultPar->GetXaxis()->SetBinLabel(iBin, "IntFF");
+    iBin++;
+
+    fResultPar->SetBinContent(iBin, GetChi2());
+    fResultPar->SetBinError(iBin, 0);
+    fResultPar->GetXaxis()->SetBinLabel(iBin, "Chi2");
+    iBin++;
+
+    fResultPar->SetBinContent(iBin, GetNdf());
+    fResultPar->SetBinError(iBin, 0);
+    fResultPar->GetXaxis()->SetBinLabel(iBin, "Ndf");
+    iBin++;
+
+    fResultPar->SetBinContent(iBin, GetReducedChi2());
+    fResultPar->SetBinError(iBin, 0);
+    fResultPar->GetXaxis()->SetBinLabel(iBin, "ReducedChi2");
+    iBin++;
+
+    fResultPar->SetBinContent(iBin, GetProb());
+    fResultPar->SetBinError(iBin, 0);
+    fResultPar->GetXaxis()->SetBinLabel(iBin, "Prob");
+    iBin++;
+
+    for (Int_t i = 0; i < sigBgFnc->GetNpar(); i++) {
+      fResultPar->SetBinContent(iBin, par[i]);
+      fResultPar->SetBinError(iBin, parErr[i]);
+      fResultPar->GetXaxis()->SetBinLabel(iBin, sigBgFnc->GetParName(i));
+      iBin++;
+    }
+
+    fOutput->Add(fResultPar);
   }
 }
 
@@ -142,56 +198,64 @@ void AliRsnOutTaskFit::SetProbTest(Double_t min, Double_t max) {
 
 void AliRsnOutTaskFit::GetYieldBinCounting(Double_t &val, Double_t &err) {
 
-  Double_t min = fResult->FindBin(fInput->GetMin());
-  Double_t max = fResult->FindBin(fInput->GetMax());
+  if (!fResult)
+    fResult = (TH1 *)fOutput->FindObject("hSignal");
+
+  Double_t bin_min = fResult->FindBin(fInput->GetMin());
+  Double_t bin_max = fResult->FindBin(fInput->GetMax());
+  Double_t min = fInput->GetMin();
+  Double_t max = fInput->GetMax();
 
   Double_t histWidth = fResult->GetXaxis()->GetBinWidth(1);
 
-  val = fResult->IntegralAndError(min, max, err);
+  val = fResult->IntegralAndError(bin_min, bin_max, err);
 
-  //	TF1 *sigBgFnc = (TF1*) fResult->GetListOfFunctions()->At(0);
   TF1 *bgFnc = (TF1 *)fResult->GetListOfFunctions()->At(1);
 
-  Double_t bg = bgFnc->Integral(fInput->GetMin(), fInput->GetMax()) / histWidth;
-  // TODO Verify it
-  Double_t bgErr =
-    bgFnc->IntegralError(fInput->GetMin(), fInput->GetMax(),
-                         fFitResult->GetParams(),
-                         fFitResult->GetCovarianceMatrix().GetMatrixArray()) /
-    histWidth;
+  Double_t bg = bgFnc->Integral(min, max, fIntegralEps);
 
-  //	Printf("val=%f err=%f bg=%f bgErr=%f",val,err,bg,bgErr);
+  // TODO Verify it
+  Double_t bgErr = bgFnc->IntegralError(
+      min, max, fFitResult->GetParams(),
+      fFitResult->GetCovarianceMatrix().GetMatrixArray(), fIntegralEps);
+
+  bg /= histWidth;
+  bgErr /= histWidth;
 
   val -= bg;
   err = TMath::Sqrt(TMath::Power(err, 2) + TMath::Power(bgErr, 2));
 }
 
 void AliRsnOutTaskFit::GetYieldFitFunction(Double_t &val, Double_t &err) {
-  Double_t min = fResult->FindBin(fInput->GetMin());
-  Double_t max = fResult->FindBin(fInput->GetMax());
+
+  if (!fResult)
+    fResult = (TH1 *)fOutput->FindObject("hSignal");
+
+  Double_t min = fInput->GetMin();
+  Double_t max = fInput->GetMax();
 
   Double_t histWidth = fResult->GetXaxis()->GetBinWidth(1);
-
-  val = fResult->IntegralAndError(min, max, err);
 
   TF1 *sigBgFnc = (TF1 *)fResult->GetListOfFunctions()->At(0);
   TF1 *bgFnc = (TF1 *)fResult->GetListOfFunctions()->At(1);
 
-  val = sigBgFnc->Integral(fInput->GetMin(), fInput->GetMax()) / histWidth;
+  val = sigBgFnc->Integral(min, max, fIntegralEps);
   err = sigBgFnc->IntegralError(
-          fInput->GetMin(), fInput->GetMax(), fFitResult->GetParams(),
-          fFitResult->GetCovarianceMatrix().GetMatrixArray()) /
-        histWidth;
+      min, max, fFitResult->GetParams(),
+      fFitResult->GetCovarianceMatrix().GetMatrixArray(), fIntegralEps);
 
-  Double_t bg = bgFnc->Integral(fInput->GetMin(), fInput->GetMax()) / histWidth;
+  val /= histWidth;
+  err /= histWidth;
+
+  Double_t bg = bgFnc->Integral(min, max, fIntegralEps);
+
   // TODO Verify it
-  Double_t bgErr =
-    bgFnc->IntegralError(fInput->GetMin(), fInput->GetMax(),
-                         fFitResult->GetParams(),
-                         fFitResult->GetCovarianceMatrix().GetMatrixArray()) /
-    histWidth;
+  Double_t bgErr = bgFnc->IntegralError(
+      min, max, fFitResult->GetParams(),
+      fFitResult->GetCovarianceMatrix().GetMatrixArray(), fIntegralEps);
 
-  //	Printf("val=%f err=%f bg=%f bgErr=%f",val,err,bg,bgErr);
+  bg /= histWidth;
+  bgErr /= histWidth;
 
   val -= bg;
   err = TMath::Sqrt(TMath::Power(err, 2) + TMath::Power(bgErr, 2));

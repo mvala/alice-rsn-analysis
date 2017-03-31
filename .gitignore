@@ -13,6 +13,8 @@
 *.dylib
 *.dll
 *.d
+*.rootmap
+*.pcm
 
 # Fortran module files
 *.mod
@@ -45,10 +47,13 @@ macros/train/AliRsnTaskTest*
 
 macros/analysis/*.json
 build
+bin
+lin
+lib64
 
 # VS
 .vscode/*
-#!.vscode/*.json
+!.vscode/*.json
 
 tmp
 
