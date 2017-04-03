@@ -304,19 +304,19 @@ void AliRsnOutTaskResult::FillSparse(AliRsnOutTask *task, AliRsnOutTask *taskMC,
       iBin++;
 
       // Ndf
-      sparseBin[level + 1] = iBin + 3;
+      sparseBin[level + 1] = iBin;
       s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin));
       s->SetBinError(sparseBin, hResultPar->GetBinError(iBin));
       iBin++;
 
       // Reduced Chi2 = Chi2/Ndf
-      sparseBin[level + 1] = iBin + 3;
+      sparseBin[level + 1] = iBin;
       s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin));
       s->SetBinError(sparseBin, hResultPar->GetBinError(iBin));
       iBin++;
 
       // Prob
-      sparseBin[level + 1] = iBin + 3;
+      sparseBin[level + 1] = iBin;
       s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin));
       s->SetBinError(sparseBin, hResultPar->GetBinError(iBin));
       iBin++;
