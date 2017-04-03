@@ -309,6 +309,7 @@ void AliRsnOutTaskBin::ApplyCuts(THnSparse *one, THnSparse *two,
     TIter next(fCuts);
     AliRsnOutValue *v;
     fName = "";
+    fTitle = "";
     Double_t minVal, maxVal;
     while ((v = (AliRsnOutValue *)next())) {
       if (!updateOnly) {
@@ -322,6 +323,9 @@ void AliRsnOutTaskBin::ApplyCuts(THnSparse *one, THnSparse *two,
       maxVal = one->GetAxis(v->GetId())->GetBinUpEdge((Int_t)v->GetMax());
       fName += TString::Format(
           "%s[%.2f,%.2f]", one->GetAxis(v->GetId())->GetName(), minVal, maxVal);
+      fTitle +=
+          TString::Format("%s[%d,%d]", one->GetAxis(v->GetId())->GetName(),
+                          (Int_t)v->GetMin(), (Int_t)v->GetMax());
       fValue.SetMin(minVal);
       fValue.SetMax(maxVal);
     }

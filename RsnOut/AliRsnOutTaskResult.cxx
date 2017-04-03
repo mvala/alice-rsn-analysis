@@ -274,6 +274,7 @@ void AliRsnOutTaskResult::FillSparse(AliRsnOutTask *task, AliRsnOutTask *taskMC,
         }
       }
       iBin++;
+      Printf("Number of events : %lld ", fData->GetNEvents());
       if (eff_graph || eff_histo) {
         // Corr Bin Counting
         sparseBin[level + 1] = iBin;
@@ -282,7 +283,6 @@ void AliRsnOutTaskResult::FillSparse(AliRsnOutTask *task, AliRsnOutTask *taskMC,
             GetErrorDivide(hResultPar->GetBinContent(iBin),
                            hResultPar->GetBinError(iBin), effVal, effErr);
 
-        Printf("Number of events : %lld ", fData->GetNEvents());
         s->SetBinError(sparseBin, e);
       }
       iBin++;
