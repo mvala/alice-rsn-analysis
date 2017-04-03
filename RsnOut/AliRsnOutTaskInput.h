@@ -31,7 +31,7 @@ public:
   THnSparse *GetBg() const { return fBg; }
   THnSparse *GetMCRec() const { return fMCRec; }
   THnSparse *GetMCGen() const { return fMCGen; }
-  Long64_t GetNEvents(Int_t bin = 4) const;
+  Long64_t GetNEvents(Int_t binMin = -1, Int_t binMax = -1) const;
   Bool_t IsEfficiencyOnly() const { return fEffOnly; }
 
   TGraphAsymmErrors *GetMCEfficiency() const { return fMCEff; }

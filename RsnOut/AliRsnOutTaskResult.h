@@ -14,8 +14,8 @@ public:
 
   virtual void Exec(Option_t *option);
 
-  void SetData(AliRsnOutTask *data);
-  void SetMC(AliRsnOutTask *mc);
+  void SetData(AliRsnOutTaskInput *data);
+  void SetMC(AliRsnOutTaskInput *mc);
 
   void ProcessBinMgrElement(AliRsnOutTaskBin *bme, AliRsnOutTaskBin *bmeMC = 0);
 
@@ -30,8 +30,8 @@ public:
                           Double_t err2);
 
 private:
-  AliRsnOutTask *fData;
-  AliRsnOutTask *fMC;
+  AliRsnOutTaskInput *fData;
+  AliRsnOutTaskInput *fMC;
   ClassDef(AliRsnOutTaskResult, 1)
 };
 

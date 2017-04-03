@@ -23,11 +23,11 @@ void AliRsnOutTaskResult::Exec(Option_t * /*option*/) {
 
   // Printf("%s", GetName());
 
-  AliRsnOutTaskInput *tInputData = dynamic_cast<AliRsnOutTaskInput *>(fData);
+  AliRsnOutTaskInput *tInputData = fData;
   if (!tInputData)
     return;
 
-  AliRsnOutTaskInput *tInputMC = dynamic_cast<AliRsnOutTaskInput *>(fMC);
+  AliRsnOutTaskInput *tInputMC = fMC;
 
   AliRsnOutTaskBinMgr *tBinMgr, *tBinMgrMC;
   AliRsnOutTaskBin *tBinMgrElement, *tBinMgrElementMC;
@@ -281,6 +281,8 @@ void AliRsnOutTaskResult::FillSparse(AliRsnOutTask *task, AliRsnOutTask *taskMC,
         Double_t e =
             GetErrorDivide(hResultPar->GetBinContent(iBin),
                            hResultPar->GetBinError(iBin), effVal, effErr);
+
+        Printf("Number of events : %lld ", fData->GetNEvents());
         s->SetBinError(sparseBin, e);
       }
       iBin++;
@@ -519,7 +521,7 @@ void AliRsnOutTaskResult::FolderFromSparse(AliRsnOutTask *task, THnSparse *s,
   }
 }
 
-void AliRsnOutTaskResult::SetData(AliRsnOutTask *data) {
+void AliRsnOutTaskResult::SetData(AliRsnOutTaskInput *data) {
   if (!data)
     return;
   fData = data;
@@ -529,7 +531,7 @@ void AliRsnOutTaskResult::SetData(AliRsnOutTask *data) {
                            fMC ? fMC->GetTitle() : "No MC");
 }
 
-void AliRsnOutTaskResult::SetMC(AliRsnOutTask *mc) {
+void AliRsnOutTaskResult::SetMC(AliRsnOutTaskInput *mc) {
   if (!mc)
     return;
   fMC = mc;

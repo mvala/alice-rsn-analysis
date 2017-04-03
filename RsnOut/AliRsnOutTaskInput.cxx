@@ -54,7 +54,7 @@ void AliRsnOutTaskInput::UpdateTask() {
 
     TList *extra = (TList *)fFile->Get(
         TString::Format("%s_extra", fListName.Data()).Data());
-    TH1 *hEvents = (TH1 *)extra->FindObject("hEventStat");
+    TH1 *hEvents = (TH1 *)extra->FindObject("hAEventVsMulti");
     if (hEvents)
       fEventStat = (TH1 *)hEvents->Clone();
 
@@ -142,8 +142,11 @@ void AliRsnOutTaskInput::CalculateEfficiency() {
   }
 }
 
-Long64_t AliRsnOutTaskInput::GetNEvents(Int_t bin) const {
+Long64_t AliRsnOutTaskInput::GetNEvents(Int_t binMin, Int_t binMax) const {
   if (!fEventStat)
     return 0;
-  return fEventStat->GetBinContent(bin);
+  if (binMin == binMax)
+    return fEventStat->Integral();
+
+  return fEventStat->Integral(binMin, binMax);
 }
