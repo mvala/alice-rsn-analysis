@@ -54,7 +54,7 @@ void AliRsnOutTaskInput::UpdateTask() {
 
     TList *extra = (TList *)fFile->Get(
         TString::Format("%s_extra", fListName.Data()).Data());
-    TH1 *hEvents = (TH1 *)extra->FindObject("hAEventVsMulti");
+    TH1 *hEvents = (TH1 *)extra->FindObject("hAEventsVsMulti");
     if (hEvents)
       fEventStat = (TH1 *)hEvents->Clone();
 
