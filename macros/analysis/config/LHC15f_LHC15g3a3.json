@@ -18,25 +18,25 @@
     },
     "bin": [
         {
-	    "active":"false",
+            "active": false,
             "id": 1,
             "name": "pt",
             "varbins": "6,7,8,9,10,11,12,13,14,15,16,17,18,19,20"
         },
         {
-	    "active":"false",
+            "active": false,
             "id": 2,
             "name": "mult",
             "varbins": "1,11,21,31,41,51,61,71,81,91,101"
         },
-	{   
-	    "active":"false",
+        {
+            "active": false,
             "id": 3,
             "name": "ctj",
             "varbins": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20"
         },
         {
-	    "active":"false",
+            "active": false,
             "id": 4,
             "name": "ctt",
             "varbins": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20"
