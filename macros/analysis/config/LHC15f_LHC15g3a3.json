@@ -1,0 +1,69 @@
+{
+    "data": {
+        "name": "LHC15f",
+        "file": "root://alieos.saske.sk//eos/alike.saske.sk//alice/cern.ch/user/a/alitrain/PWGLF/LF_pp/586_20170313-1027/merge_runlist_4/AnalysisResults.root",
+        "list": "RsnOut_tpc3s",
+        "sigbg": "Unlike",
+        "bg": "Mixing"
+    },
+    "mc": {
+        "name": "LHC15g3a3",
+        "file": "root://alieos.saske.sk//eos/alike.saske.sk/alice/cern.ch/user/a/alitrain/PWGLF/LF_pp_MC/619_20170330-1043/merge_runlist_3/AnalysisResults.root",
+        "list": "RsnOut_tpc3s",
+        "sigbg": "Unlike",
+        "bg": "Mixing",
+        "rec": "Trues",
+        "gen": "Mother",
+        "effonly": true
+    },
+    "bin": [
+        {
+	    "active":"false",
+            "id": 1,
+            "name": "pt",
+            "varbins": "6,7,8,9,10,11,12,13,14,15,16,17,18,19,20"
+        },
+        {
+	    "active":"false",
+            "id": 2,
+            "name": "mult",
+            "varbins": "1,11,21,31,41,51,61,71,81,91,101"
+        },
+	{   
+	    "active":"false",
+            "id": 3,
+            "name": "ctj",
+            "varbins": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20"
+        },
+        {
+	    "active":"false",
+            "id": 4,
+            "name": "ctt",
+            "varbins": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20"
+        }
+    ],
+    "norm": [
+        {
+            "id": 0,
+            "min": 1.10,
+            "max": 1.15
+        }
+    ],
+    "fit": [
+        {
+            "id": 0,
+            "min": 0.997,
+            "max": 1.050
+        },
+        {
+            "id": 1,
+            "min": 0.997,
+            "max": 1.050
+        },
+        {
+            "id": 2,
+            "min": 0.997,
+            "max": 1.050
+        }
+    ]
+}
