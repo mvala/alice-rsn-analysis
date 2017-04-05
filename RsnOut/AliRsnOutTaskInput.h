@@ -4,7 +4,7 @@
 #include <TEfficiency.h>
 
 class THnSparse;
-class TH1;
+class TH1F;
 class TFile;
 class TList;
 class AliRsnOutTaskInput : public AliRsnOutTask {
@@ -31,14 +31,10 @@ public:
   THnSparse *GetBg() const { return fBg; }
   THnSparse *GetMCRec() const { return fMCRec; }
   THnSparse *GetMCGen() const { return fMCGen; }
-  Long64_t GetNEvents(Int_t binMin = -1, Int_t binMax = -1) const;
+  Double_t GetNEvents(Double_t min = 1, Double_t max = 0) const;
   Bool_t IsEfficiencyOnly() const { return fEffOnly; }
 
-  TGraphAsymmErrors *GetMCEfficiency() const { return fMCEff; }
-
   virtual void Clear(Option_t *opt = "");
-
-  void CalculateEfficiency();
 
 private:
   TString fFileName;
@@ -47,8 +43,7 @@ private:
   TString fBgName;
   TString fMCRecName;
   TString fMCGenName;
-  TGraphAsymmErrors *fMCEff;
-  TH1 *fEventStat;
+  TH1F *fEventStat;
   Bool_t fEffOnly;
 
   TFile *fFile;      //!

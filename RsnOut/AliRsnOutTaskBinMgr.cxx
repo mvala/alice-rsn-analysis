@@ -57,13 +57,13 @@ void AliRsnOutTaskBinMgr::GenerateBinTemplate(TList *norms, TList *fits) {
     fBinTmpl = 0;
   }
 
-  fBinTmpl = new AliRsnOutTaskBin();
+  fBinTmpl = new AliRsnOutTaskBin("bin");
 
   // Loop over norms
   TIter nextNorm(norms);
   AliRsnOutValue *vNorm;
   while ((vNorm = (AliRsnOutValue *)nextNorm())) {
-    AliRsnOutTaskNorm *tNorm = new AliRsnOutTaskNorm();
+    AliRsnOutTaskNorm *tNorm = new AliRsnOutTaskNorm("norm", "norm");
     tNorm->AddRange(vNorm);
     fBinTmpl->Add(tNorm);
 
@@ -71,7 +71,7 @@ void AliRsnOutTaskBinMgr::GenerateBinTemplate(TList *norms, TList *fits) {
     TIter nextFit(fits);
     AliRsnOutValue *vFit;
     while ((vFit = (AliRsnOutValue *)nextFit())) {
-      AliRsnOutTaskFit *tFit = new AliRsnOutTaskFit();
+      AliRsnOutTaskFit *tFit = new AliRsnOutTaskFit("fit", "fit");
       tFit->SetFit(vFit);
       tNorm->Add(tFit);
     }

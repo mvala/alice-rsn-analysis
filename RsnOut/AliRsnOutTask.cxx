@@ -7,13 +7,16 @@
 ClassImp(AliRsnOutTask);
 
 AliRsnOutTask::AliRsnOutTask()
-    : TTask("task", "Task"), fID(0), fParent(0), fOutput(0) {}
+    : TTask("task", "Task"), fID(0), fParent(0), fOutput(0), fPath(0) {
+  fPath = new TList();
+}
 
 AliRsnOutTask::AliRsnOutTask(const char *name, const char *title)
-    : TTask(name, title), fID(0), fParent(0), fOutput(0) {
+    : TTask(name, title), fID(0), fParent(0), fOutput(0), fPath(0) {
   fOutput = new TList();
   fOutput->SetName("out");
   fOutput->SetOwner();
+  fPath = new TList();
 }
 
 AliRsnOutTask::~AliRsnOutTask() {}
@@ -23,8 +26,9 @@ void AliRsnOutTask::Add(TTask *task) {
     return;
 
   if (task->InheritsFrom(AliRsnOutTask::Class())) {
-    ((AliRsnOutTask *)task)->SetParent(this);
-    ((AliRsnOutTask *)task)->SetID(fTasks->GetEntries());
+    AliRsnOutTask *t = (AliRsnOutTask *)task;
+    t->SetParent(this);
+    t->SetID(fTasks->GetEntries());
   }
 
   TTask::Add(task);
@@ -110,6 +114,17 @@ void AliRsnOutTask::ExecuteTasks(Option_t *option) {
 
 void AliRsnOutTask::UpdateTask() {}
 void AliRsnOutTask::UpdateTasks() {
+
+  fPath->Clear();
+  if (fParent) {
+    TIter next(fParent->GetPath());
+    AliRsnOutTask *tt;
+    while ((tt = (AliRsnOutTask *)next())) {
+      fPath->Add(tt);
+    }
+    fPath->Add(fParent);
+  }
+
   TIter next(fTasks);
   AliRsnOutTask *task;
   while ((task = (AliRsnOutTask *)next())) {
@@ -152,7 +167,8 @@ void AliRsnOutTask::Export(TFolder *root) {
 
   if (!root)
     return;
-  TFolder *out = root->AddFolder(GetName(), GetTitle(), fOutput);
+  TFolder *out = 0;
+  out = root->AddFolder(GetName(), GetTitle(), fOutput);
   if (!out)
     return;
 
@@ -161,11 +177,6 @@ void AliRsnOutTask::Export(TFolder *root) {
   while ((t = (AliRsnOutTask *)next())) {
     t->Export(out);
   }
-  // out->cd();
-  // if (fOutput)
-  //   fOutput->Write();
-
-  // root->cd();
 }
 
 void AliRsnOutTask::DeleteOutput() {

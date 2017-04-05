@@ -16,11 +16,20 @@ ClassImp(AliRsnOutTaskInput);
 
 AliRsnOutTaskInput::AliRsnOutTaskInput(const char *name, const char *title)
     : AliRsnOutTask(name, title), fFileName(), fListName(), fSigBgName(),
-      fBgName(), fMCRecName(), fMCGenName(), fMCEff(0), fEventStat(0),
-      fEffOnly(0), fFile(0), fList(0), fSigBg(0), fBg(0), fMCRec(0), fMCGen(0) {
-}
+      fBgName(), fMCRecName(), fMCGenName(), fEventStat(0), fEffOnly(0),
+      fFile(0), fList(0), fSigBg(0), fBg(0), fMCRec(0), fMCGen(0) {}
 
 AliRsnOutTaskInput::~AliRsnOutTaskInput() { Clear(); }
+
+void AliRsnOutTaskInput::Clear(Option_t * /*opt*/) {
+  SafeDelete(fList);
+  SafeDelete(fFile);
+
+  fSigBg = 0;
+  fBg = 0;
+  fMCRec = 0;
+  fMCGen = 0;
+}
 
 void AliRsnOutTaskInput::Exec(Option_t * /*option*/) {
 
@@ -30,16 +39,10 @@ void AliRsnOutTaskInput::Exec(Option_t * /*option*/) {
 
 void AliRsnOutTaskInput::ExecPost(Option_t * /*option*/) {
 
-  if (!fOutput) {
-    fOutput = new TList();
-    fOutput->SetOwner();
-  }
-
   if (fEventStat)
     fOutput->Add(fEventStat);
 
-  // CalculateEfficiency();
-  Clear();
+  // Clear();
 }
 void AliRsnOutTaskInput::UpdateTask() {
 
@@ -54,9 +57,8 @@ void AliRsnOutTaskInput::UpdateTask() {
 
     TList *extra = (TList *)fFile->Get(
         TString::Format("%s_extra", fListName.Data()).Data());
-    TH1 *hEvents = (TH1 *)extra->FindObject("hAEventsVsMulti");
-    if (hEvents)
-      fEventStat = (TH1 *)hEvents->Clone();
+
+    fEventStat = (TH1F *)extra->FindObject("hAEventsVsMulti");
 
     if (!fEffOnly) {
       fSigBg = (THnSparse *)fList->FindObject(fSigBgName.Data());
@@ -66,87 +68,21 @@ void AliRsnOutTaskInput::UpdateTask() {
     fMCGen = (THnSparse *)fList->FindObject(fMCGenName.Data());
   }
 }
-void AliRsnOutTaskInput::Clear(Option_t * /*opt*/) {
-  if (fList)
-    SafeDelete(fList);
-  if (fFile)
-    SafeDelete(fFile);
-  fSigBg = 0;
-  fBg = 0;
-  fMCRec = 0;
-  fMCGen = 0;
-}
 
-void AliRsnOutTaskInput::CalculateEfficiency() {
-
-  AliRsnOutTaskBin *tBin;
-  AliRsnOutValue *v;
-
-  const Int_t nVariableBins = fTasks->GetEntries();
-  Double_t varBins[nVariableBins + 1];
-  Int_t iBin;
-  for (iBin = 0; iBin < fTasks->GetEntries(); ++iBin) {
-    tBin = (AliRsnOutTaskBin *)fTasks->At(iBin);
-    v = (AliRsnOutValue *)tBin->GetValue();
-    varBins[iBin] = v->GetMin();
-    if (iBin == fTasks->GetEntries() - 1)
-      varBins[iBin + 1] = v->GetMax();
-  }
-
-  TH1D *hMCRec = 0;
-  TH1D *hMCGen = 0;
-
-  TEfficiency *fMCEfficiency = 0;
-  Double_t tmp;
-  for (Int_t iBin = 0; iBin < fTasks->GetEntries(); ++iBin) {
-    tBin = (AliRsnOutTaskBin *)fTasks->At(iBin);
-    v = (AliRsnOutValue *)tBin->GetValue();
-    TH1 *mcGen = (TH1 *)tBin->GetOutput()->FindObject("hSignalMCGen");
-    TH1 *mcRec = (TH1 *)tBin->GetOutput()->FindObject("hSignalMCRec");
-    if (mcGen && mcRec) {
-      if (!fMCEfficiency)
-        fMCEfficiency = new TEfficiency("eff", "MC Efficiency;x;#epsilon",
-                                        nVariableBins, varBins);
-      fMCEfficiency->SetTotalEvents(iBin + 1, mcGen->Integral());
-      fMCEfficiency->SetPassedEvents(iBin + 1, mcRec->Integral());
-      if (!hMCGen) {
-        hMCGen = new TH1D("hMCGen", "MC Gen", nVariableBins, varBins);
-      }
-      if (!hMCRec) {
-        hMCRec = new TH1D("hMCRec", "MC Rec", nVariableBins, varBins);
-      }
-
-      tmp = mcGen->Integral();
-      // check if this is correct (iBin + 1, iBin + 1)
-      hMCGen->SetBinContent(iBin + 1, iBin + 1, tmp);
-      hMCGen->SetBinError(iBin + 1, TMath::Sqrt(tmp));
-
-      tmp = mcRec->Integral();
-      hMCRec->SetBinContent(iBin + 1, tmp);
-      hMCRec->SetBinError(iBin + 1, TMath::Sqrt(tmp));
-    }
-  }
-
-  if (fMCEfficiency) {
-    fMCEff = fMCEfficiency->CreateGraph();
-    fOutput->Add(fMCEff);
-  }
-
-  if (hMCRec) {
-    hMCRec->GetYaxis()->SetRangeUser(0, hMCRec->GetMaximum() * 1.1);
-    fOutput->Add(hMCRec);
-  }
-  if (hMCGen) {
-    hMCGen->GetYaxis()->SetRangeUser(0, hMCGen->GetMaximum() * 1.1);
-    fOutput->Add(hMCGen);
-  }
-}
-
-Long64_t AliRsnOutTaskInput::GetNEvents(Int_t binMin, Int_t binMax) const {
+Double_t AliRsnOutTaskInput::GetNEvents(Double_t min, Double_t max) const {
   if (!fEventStat)
     return 0;
-  if (binMin == binMax)
+
+  if (min > max) {
+    Printf("Number of events : %.0f ", fEventStat->Integral());
     return fEventStat->Integral();
+  }
+
+  Int_t binMin = fEventStat->FindBin(min);
+  Int_t binMax = fEventStat->FindBin(max);
+
+  Printf("Number of events : %.0f [%d,%d]",
+         fEventStat->Integral(binMin, binMax), binMin, binMax);
 
   return fEventStat->Integral(binMin, binMax);
 }

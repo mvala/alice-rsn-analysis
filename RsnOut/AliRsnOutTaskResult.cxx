@@ -267,60 +267,84 @@ void AliRsnOutTaskResult::FillSparse(AliRsnOutTask *task, AliRsnOutTask *taskMC,
 
           effVal = eff_histo->GetBinContent(iX, iY);
           effErr = eff_histo->GetBinError(iX, iY);
-          Printf("bc=%f err=%f", eff_histo->GetBinContent(iX, iY),
+          Printf("EffXXXX bc=%f err=%f", eff_histo->GetBinContent(iX, iY),
                  eff_histo->GetBinError(iX, iY));
           s->SetBinContent(sparseBin, effVal);
           s->SetBinError(sparseBin, effErr);
         }
       }
       iBin++;
-      Printf("Number of events : %lld ", fData->GetNEvents());
+      task->GetPath()->Print();
+      Int_t n = task->GetPath()->GetEntries();
+      Int_t min = 0, max = 0;
+      TString title;
+      AliRsnOutTaskBin *tt = 0;
+      for (Int_t i = 1; i <= 2; i++) {
+        if (!min && !max) {
+          tt = (AliRsnOutTaskBin *)task->GetPath()->At(n - i);
+          if (tt) {
+            title = tt->GetName();
+            if (title.Contains("mult")) {
+              AliRsnOutValue *v = tt->GetValue();
+              min = v->GetMin();
+              max = v->GetMax();
+            }
+          }
+        }
+      }
+      Double_t nEvents = fData->GetNEvents(min, max);
+      Int_t nBinMC = 0;
       if (eff_graph || eff_histo) {
         // Corr Bin Counting
         sparseBin[level + 1] = iBin;
-        s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin) / effVal);
+        s->SetBinContent(sparseBin,
+                         hResultPar->GetBinContent(iBin) / effVal / nEvents);
         Double_t e =
             GetErrorDivide(hResultPar->GetBinContent(iBin),
                            hResultPar->GetBinError(iBin), effVal, effErr);
-
+        e /= nEvents;
         s->SetBinError(sparseBin, e);
       }
       iBin++;
       if (eff_graph || eff_histo) {
         // Corr Fit Function
         sparseBin[level + 1] = iBin;
-        s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin) / effVal);
+        s->SetBinContent(sparseBin,
+                         hResultPar->GetBinContent(iBin) / effVal / nEvents);
 
         Double_t e =
             GetErrorDivide(hResultPar->GetBinContent(iBin),
                            hResultPar->GetBinError(iBin), effVal, effErr);
+        e /= nEvents;
         s->SetBinError(sparseBin, e);
+
+        nBinMC = 3;
       }
       iBin++;
 
       // Chi2
       // sparseBin[level + 1] = 6;
       sparseBin[level + 1] = iBin;
-      s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin));
-      s->SetBinError(sparseBin, hResultPar->GetBinError(iBin));
+      s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin - nBinMC));
+      s->SetBinError(sparseBin, hResultPar->GetBinError(iBin - nBinMC));
       iBin++;
 
       // Ndf
       sparseBin[level + 1] = iBin;
-      s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin));
-      s->SetBinError(sparseBin, hResultPar->GetBinError(iBin));
+      s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin - nBinMC));
+      s->SetBinError(sparseBin, hResultPar->GetBinError(iBin - nBinMC));
       iBin++;
 
       // Reduced Chi2 = Chi2/Ndf
       sparseBin[level + 1] = iBin;
-      s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin));
-      s->SetBinError(sparseBin, hResultPar->GetBinError(iBin));
+      s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin - nBinMC));
+      s->SetBinError(sparseBin, hResultPar->GetBinError(iBin - nBinMC));
       iBin++;
 
       // Prob
       sparseBin[level + 1] = iBin;
-      s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin));
-      s->SetBinError(sparseBin, hResultPar->GetBinError(iBin));
+      s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin - nBinMC));
+      s->SetBinError(sparseBin, hResultPar->GetBinError(iBin - nBinMC));
       iBin++;
 
       Printf("FillSparse:: Values ->>>>>");

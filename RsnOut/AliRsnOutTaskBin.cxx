@@ -245,8 +245,8 @@ void AliRsnOutTaskBin::ExecPost(Option_t * /*option*/) {
 
       if (hEffGen && hEffRec &&
           TEfficiency::CheckConsistency(*hEffRec, *hEffGen)) {
-        hEffGen->Print("all");
-        hEffRec->Print("all");
+        // hEffGen->Print("all");
+        // hEffRec->Print("all");
         TEfficiency *eff = new TEfficiency(*hEffRec, *hEffGen);
         fOutput->Add(eff->CreateGraph());
       }
@@ -259,7 +259,18 @@ void AliRsnOutTaskBin::ExecPost(Option_t * /*option*/) {
         hEffGen->Print("all");
         hEffRec->Print("all");
         TEfficiency *eff = new TEfficiency(*hEffRec, *hEffGen);
-        fOutput->Add(eff->CreateHistogram());
+        TH2 *h2 = (TH2 *)eff->CreateHistogram();
+        Int_t bin;
+        Int_t nbinsx = h2->GetNbinsX();
+        Int_t nbinsy = h2->GetNbinsY();
+        for (Int_t i = 1; i < nbinsx + 1; ++i) {
+          for (Int_t j = 1; j < nbinsy + 1; ++j) {
+            bin = h2->GetBin(i, j);
+            h2->SetBinError(bin, eff->GetEfficiencyErrorUp(bin));
+          }
+        }
+        // h2->Print("all");
+        fOutput->Add(h2);
       }
     }
   }
