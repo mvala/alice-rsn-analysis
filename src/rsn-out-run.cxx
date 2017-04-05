@@ -75,9 +75,15 @@ int main(int argc, char **argv) {
     tMgr->Add(tInputMC);
   }
   TList *listBins = new TList();
+  Int_t nActive = 0;
   const Json::Value bins = root["bin"];
   for (uint i = 0; i < bins.size(); ++i) {
     // std::cout << bins[i] << std::endl;
+    if (!bins[i]["active"].asBool())
+      continue;
+    nActive++;
+    if (nActive > 2)
+      continue;
     TString str = bins[i]["varbins"].asString();
     TObjArray *objArr = str.Tokenize(",");
     TArrayI *arr = new TArrayI(objArr->GetEntries());
