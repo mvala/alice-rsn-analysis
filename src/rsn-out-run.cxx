@@ -155,7 +155,7 @@ int main(int argc, char **argv) {
     return 11;
   }
 
-  tMgr->ls();
+  tMgr->UpdateTasks();
   tMgr->ExecuteTask("");
   TString outFileNameTDir = outFileName;
   outFileNameTDir.ReplaceAll(".root", "-final.root");

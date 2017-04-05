@@ -27,6 +27,8 @@ public:
   TList *GetOutput() const { return fOutput; }
   void DeleteOutput();
 
+  TList *GetPath() const { return fPath; }
+
   Int_t GetID() const { return fID; }
   void SetID(Int_t id) { fID = id; }
 
@@ -39,6 +41,7 @@ protected:
   Int_t fID;
   AliRsnOutTask *fParent; //||
   TList *fOutput;
+  TList *fPath; //!
 
   ClassDef(AliRsnOutTask, 1)
 };
