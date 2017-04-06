@@ -3,10 +3,8 @@ enum ERsnCollisionType { kPP = 0, kPbPb = 1 };
 void SetEventCuts(AliRsnMiniAnalysisTask *task, Double_t vzCut,
                   Bool_t rejectPileUp);
 void SetEventHistograms(AliRsnMiniAnalysisTask *task);
-void SetPairCuts(AliRsnMiniAnalysisTask *task, Double_t minYlab,
-                 Double_t maxYlab);
-void SetRsnMixing(AliRsnMiniAnalysisTask *task, Int_t nmix = 0,
-                  Float_t maxDiffVzMix = 1.0, Float_t maxDiffMultMix = 10.0);
+void SetPairCuts(AliRsnMiniAnalysisTask *task, Double_t minY, Double_t maxY);
+void SetRsnMixing(AliRsnMiniAnalysisTask *task, Int_t n, Float_t vz, Float_t m);
 
 AliRsnMiniAnalysisTask *
 AddTaskRsnPhiSpinPol(TString name = "PhiKK_SP", Bool_t isMC = kFALSE,
@@ -142,34 +140,33 @@ void SetEventHistograms(AliRsnMiniAnalysisTask *task) {
       hmc); // plugs this histogram into the fHAEventMultiCent data member
 }
 
-void SetPairCuts(AliRsnMiniAnalysisTask *task, Double_t minYlab,
-                 Double_t maxYlab) {
+void SetPairCuts(AliRsnMiniAnalysisTask *task, Double_t minY, Double_t maxY) {
 
   // -- PAIR CUTS (common to all resonances)
   // ------------------------------------------------------
 
   AliRsnCutMiniPair *cutY =
       new AliRsnCutMiniPair("cutRapidity", AliRsnCutMiniPair::kRapidityRange);
-  cutY->SetRangeD(minYlab, maxYlab);
+  cutY->SetRangeD(minY, maxY);
   AliRsnCutSet *cutsPair = new AliRsnCutSet("pairCuts", AliRsnTarget::kMother);
   cutsPair->AddCut(cutY);
   cutsPair->SetCutScheme(cutY->GetName());
 }
 
-void SetRsnMixing(AliRsnMiniAnalysisTask *task, Int_t nmix = 0,
-                  Float_t maxDiffVzMix = 1.0, Float_t maxDiffMultMix = 10.0) {
-  if (!nmix)
+void SetRsnMixing(AliRsnMiniAnalysisTask *task, Int_t n, Float_t vz,
+                  Float_t m) {
+  if (!n)
     return;
 
   // set event mixing options
   task->UseContinuousMix();
   // task->UseBinnedMix();
 
-  task->SetNMix(nmix);
-  task->SetMaxDiffVz(maxDiffVzMix);
-  task->SetMaxDiffMult(maxDiffMultMix);
+  task->SetNMix(n);
+  task->SetMaxDiffVz(vz);
+  task->SetMaxDiffMult(m);
   ::Info("AddTaskRsnPhiSpinPol",
          Form("Event mixing configuration: \n events to mix = %i \n max diff. "
               "vtxZ = cm %5.3f \n max diff multi = %5.3f",
-              nmix, maxDiffVzMix, maxDiffMultMix));
+              n, vz, m));
 }
