@@ -2,8 +2,9 @@
 enum ERsnCollisionType { kPP = 0, kPbPb = 1 };
 void SetEventCuts(AliRsnMiniAnalysisTask *task, Double_t vzCut,
                   Bool_t rejectPileUp);
-void SetPairCuts(AliRsnMiniAnalysisTask *task);
-
+void SetEventHistograms(AliRsnMiniAnalysisTask *task);
+void SetPairCuts(AliRsnMiniAnalysisTask *task, Double_t minYlab,
+                 Double_t maxYlab);
 void SetRsnMixing(AliRsnMiniAnalysisTask *task, Int_t nmix = 0,
                   Float_t maxDiffVzMix = 1.0, Float_t maxDiffMultMix = 10.0);
 
@@ -24,6 +25,10 @@ AddTaskRsnPhiSpinPol(TString name = "PhiKK_SP", Bool_t isMC = kFALSE,
 
   if (collisionType == kPP || isMC)
     rejectPileUp = kFALSE;
+
+  // Pair rapidity
+  Double_t minYlab = -0.5;
+  Double_t maxYlab = 0.5;
 
   // ====== END RSN CONFIG =========
 
@@ -48,9 +53,10 @@ AddTaskRsnPhiSpinPol(TString name = "PhiKK_SP", Bool_t isMC = kFALSE,
 
   // Setting event cuts
   SetEventCuts(task, isMC, collisionType, vzCut, rejectPileUp);
+  SetEventHistograms(task);
 
   // Setting pair cuts
-  SetPairCuts(task);
+  SetPairCuts(task, minYlab, maxYlab);
 
   // set rsn mixing
   SetRsnMixing(task, nmix, maxDiffVzMix, maxDiffMultMix);
@@ -108,7 +114,47 @@ void SetEventCuts(AliRsnMiniAnalysisTask *task, Bool_t isMC,
   task->SetEventCuts(eventCuts);
 }
 
-void SetPairCuts(AliRsnMiniAnalysisTask *task) {}
+void SetEventHistograms(AliRsnMiniAnalysisTask *task) {
+  // -- EVENT-ONLY COMPUTATIONS
+  // -------------------------------------------------------------------
+
+  // vertex
+  Int_t vtxID = task->CreateValue(AliRsnMiniValue::kVz, kFALSE);
+  AliRsnMiniOutput *outVtx = task->CreateOutput("eventVtx", "HIST", "EVENT");
+  outVtx->AddAxis(vtxID, 240, -12.0, 12.0);
+
+  // multiplicity or centrality
+  Int_t multID = task->CreateValue(AliRsnMiniValue::kMult, kFALSE);
+  AliRsnMiniOutput *outMult = task->CreateOutput("eventMult", "HIST", "EVENT");
+  if (isPP && !MultBins)
+    outMult->AddAxis(multID, 400, 0.5, 400.5);
+  else
+    outMult->AddAxis(multID, 110, 0., 110.);
+
+  TH2F *hvz = new TH2F("hVzVsCent", "", 110, 0., 110., 240, -12.0, 12.0);
+  task->SetEventQAHist(
+      "vz", hvz); // plugs this histogram into the fHAEventVz data member
+
+  TH2F *hmc = new TH2F("MultiVsCent", "", 110, 0., 110., 400, 0.5, 400.5);
+  hmc->GetYaxis()->SetTitle("QUALITY");
+  task->SetEventQAHist(
+      "multicent",
+      hmc); // plugs this histogram into the fHAEventMultiCent data member
+}
+
+void SetPairCuts(AliRsnMiniAnalysisTask *task, Double_t minYlab,
+                 Double_t maxYlab) {
+
+  // -- PAIR CUTS (common to all resonances)
+  // ------------------------------------------------------
+
+  AliRsnCutMiniPair *cutY =
+      new AliRsnCutMiniPair("cutRapidity", AliRsnCutMiniPair::kRapidityRange);
+  cutY->SetRangeD(minYlab, maxYlab);
+  AliRsnCutSet *cutsPair = new AliRsnCutSet("pairCuts", AliRsnTarget::kMother);
+  cutsPair->AddCut(cutY);
+  cutsPair->SetCutScheme(cutY->GetName());
+}
 
 void SetRsnMixing(AliRsnMiniAnalysisTask *task, Int_t nmix = 0,
                   Float_t maxDiffVzMix = 1.0, Float_t maxDiffMultMix = 10.0) {
