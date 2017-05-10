@@ -9,7 +9,7 @@
     // If set, overrides the include sorting behavior determined by the SortIncludes parameter.
     "C_Cpp.clang_format_sortIncludes": true,
     // Enable clang-format on save.
-    "C_Cpp.clang_format_formatOnSave": true,
+    // "C_Cpp.clang_format_formatOnSave": true,
     "files.associations": {
         "chrono": "cxx",
         "limits": "cxx",
@@ -29,6 +29,7 @@
         "exception": "cpp",
         "new": "cpp",
         "type_traits": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "cmath": "cpp"
     }
 }
