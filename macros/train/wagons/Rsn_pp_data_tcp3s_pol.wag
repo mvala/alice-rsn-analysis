@@ -1,0 +1,3 @@
+Macro=AddTaskRsnPhiSpinPol.C
+Arguments="PhiKK_SP",0,kFALSE,AliVEvent::kMB,AliRsnCutSetDaughterParticle::kQualityStd2010,3.0,"JTE"
+Libs=libEventMixing.so,libPWGPPevcharQn.so,libPWGPPevcharQnInterface.so,libPWGLFresonances.so
