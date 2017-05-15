@@ -190,12 +190,22 @@ void SetRsnOutput(AliRsnMiniAnalysisTask *task, AliRsnCutSet *cutsPair,
   Bool_t isMcTrueOnly = kFALSE;
   Bool_t useMixLS = kFALSE;
 
+qualityCut = AliRsnCutSetDaughterParticle::kFastTPCpidNsigma;
   AliRsnCutSetDaughterParticle *cutSetKaon = 0;
   cutSetKaon = new AliRsnCutSetDaughterParticle(
       TString::Format("cutK%i_%2.1fsigma", qualityCut, nSigmaKaon).Data(),
-      qualityCut, AliPID::kKaon, nSigmaKaon, aodFilterBit, useCrossedRows);
+      qualityCut, AliPID::kKaon, nSigmaKaon, -1.0, aodFilterBit, useCrossedRows);
 
   Int_t iCutK = task->AddTrackCuts(cutSetKaon);
+
+  TString monitorOpt="";
+  Bool_t enableMonitor = kTRUE;
+  if(enableMonitor){
+    Printf("======== Cut monitoring enabled");
+    gROOT->LoadMacro("$ALICE_PHYSICS/PWGLF/RESONANCES/macros/mini/AddMonitorOutput.C");
+    AddMonitorOutput(isMC, cutSetKaon->GetMonitorOutput(), monitorOpt.Data());
+  }  
+
 
   // -- Values ------------------------------------------------------------------------------------
   /* invariant mass   */ Int_t imID   = task->CreateValue(AliRsnMiniValue::kInvMass,kFALSE);
