@@ -203,14 +203,14 @@ void SetRsnOutput(AliRsnMiniAnalysisTask *task, AliRsnCutSet *cutsPair,
 
   AliRsnCutSetDaughterParticle *cutSetKaon = 0;
   cutSetKaon = new AliRsnCutSetDaughterParticle(
-      TString::Format("cutK%i_%2.1fsigma", daughterCutType, nSigmaKaon).Data(),
+      TString::Format("cutK%i_%2.1fsigma", cutSetIDDaughter, nSigmaKaon).Data(),
       cutSetIDDaughter, AliPID::kKaon, nSigmaKaon, -1.0, aodFilterBit,
       useCrossedRows);
   AliRsnCutTrackQuality *qualityCut = cutSetKaon->GetQualityCut();
   if (qualityCutType == ERsnQualityCutType::k2010) 
-    qualityCut->SetDefaults2010(useCrossedRows, kFALSE);
+    qualityCut->SetDefaults2010(useCrossedRows);
   else
-    qualityCut->SetDefaults2011(useCrossedRows, kFALSE);
+    qualityCut->SetDefaults2011(useCrossedRows);
 
   Int_t iCutK = task->AddTrackCuts(cutSetKaon);
 
