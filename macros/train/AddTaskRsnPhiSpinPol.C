@@ -1,5 +1,7 @@
 
 enum ERsnCollisionType { kPP = 0, kPbPb = 1 };
+enum ERsnQualityCutType { k2010 = 0, k2011 = 1 };
+enum ERsnDaughterCutType { kNoCuts = 0, kFastTPCpidNsigma = 1 };
 void SetEventCuts(AliRsnMiniAnalysisTask *task, Double_t vzCut,
                   Bool_t rejectPileUp);
 void SetEventHistograms(AliRsnMiniAnalysisTask *task,ERsnCollisionType collisionType);
@@ -7,15 +9,18 @@ AliRsnCutSet *SetPairCuts(AliRsnMiniAnalysisTask *task, Double_t minY, Double_t 
 void SetRsnMixing(AliRsnMiniAnalysisTask *task, Int_t n, Float_t vz, Float_t m);
 void SetRsnOutput(AliRsnMiniAnalysisTask *task, AliRsnCutSet *cutsPair,
                   ERsnCollisionType collisionType, Bool_t isMC = kFALSE,
-                  AliRsnCutSetDaughterParticle::ERsnDaughterCutSet qualityCut =
-                      AliRsnCutSetDaughterParticle::kQualityStd2010,
+                  ERsnQualityCutType qualityCutType = 1,
+                  ERsnDaughterCutType daughterCutType = 1,
                   Double_t nSigmaKaon = 3.0 ,TString polarizationOpt="");
 AliAnalysisTask *AddTaskRsnPhiSpinPol(
-    TString name = "PhiKK_SP", ERsnCollisionType collisionType = ERsnCollisionType::kPP,
-    Bool_t isMC = kFALSE, UInt_t triggerMask = AliVEvent::kMB,
-    AliRsnCutSetDaughterParticle::ERsnDaughterCutSet qualityCut =
-        AliRsnCutSetDaughterParticle::kQualityStd2010,
-    Double_t nSigmaKaon = 3.0, TString polarizationOpt="", TString outputFileName = "") {
+    TString name = "PhiKK_SP", 
+    ERsnCollisionType collisionType = ERsnCollisionType::kPP,
+    Bool_t isMC = kFALSE, UInt_t triggerMask = AliVEvent::kMB, 
+    ERsnQualityCutType qualityCutType = ERsnQualityCutType::k2011, 
+    ERsnDaughterCutType daughterCutType = ERsnDaughterCutType::kFastTPCpidNsigma,
+    Double_t nSigmaKaon = 3.0, 
+    TString polarizationOpt="", 
+    TString outputFileName = "") {
 
   // ==== START RSN CONFIG =========
   Bool_t rejectPileUp = kTRUE;
@@ -65,7 +70,7 @@ AliAnalysisTask *AddTaskRsnPhiSpinPol(
   SetRsnMixing(task, nmix, maxDiffVzMix, maxDiffMultMix);
 
   // Configuring rsn output
-  SetRsnOutput(task, pairCut, collisionType, isMC, qualityCut, nSigmaKaon, polarizationOpt);
+  SetRsnOutput(task, pairCut, collisionType, isMC, qualityCutType, daughterCutType, nSigmaKaon, polarizationOpt);
 
   // Contecting input container (ESD or AOD) from Analysis Manager
   mgr->ConnectInput(task, 0, mgr->GetCommonInputContainer());
@@ -181,7 +186,8 @@ void SetRsnMixing(AliRsnMiniAnalysisTask *task, Int_t n, Float_t vz,
 }
 void SetRsnOutput(AliRsnMiniAnalysisTask *task, AliRsnCutSet *cutsPair,
                   ERsnCollisionType collisionType, Bool_t isMC,
-                  AliRsnCutSetDaughterParticle::ERsnDaughterCutSet qualityCut,
+                  ERsnQualityCutType qualityCutType,
+                  ERsnDaughterCutType daughterCutType,
                   Double_t nSigmaKaon ,TString polarizationOpt) {
 
   Int_t aodFilterBit = -1; // ESD
@@ -190,22 +196,32 @@ void SetRsnOutput(AliRsnMiniAnalysisTask *task, AliRsnCutSet *cutsPair,
   Bool_t isMcTrueOnly = kFALSE;
   Bool_t useMixLS = kFALSE;
 
-qualityCut = AliRsnCutSetDaughterParticle::kFastTPCpidNsigma;
+  AliRsnCutSetDaughterParticle::ERsnDaughterCutSet cutSetIDDaughter = AliRsnCutSetDaughterParticle::kNoCuts;
+
+  if (daughterCutType == ERsnDaughterCutType::kFastTPCpidNsigma)
+    cutSetIDDaughter = AliRsnCutSetDaughterParticle::kFastTPCpidNsigma;
+
   AliRsnCutSetDaughterParticle *cutSetKaon = 0;
   cutSetKaon = new AliRsnCutSetDaughterParticle(
-      TString::Format("cutK%i_%2.1fsigma", qualityCut, nSigmaKaon).Data(),
-      qualityCut, AliPID::kKaon, nSigmaKaon, -1.0, aodFilterBit, useCrossedRows);
+      TString::Format("cutK%i_%2.1fsigma", daughterCutType, nSigmaKaon).Data(),
+      cutSetIDDaughter, AliPID::kKaon, nSigmaKaon, -1.0, aodFilterBit,
+      useCrossedRows);
+  AliRsnCutTrackQuality *qualityCut = cutSetKaon->GetQualityCut();
+  if (qualityCutType == ERsnQualityCutType::k2010) 
+    qualityCut->SetDefaults2010(useCrossedRows, kFALSE);
+  else
+    qualityCut->SetDefaults2011(useCrossedRows, kFALSE);
 
   Int_t iCutK = task->AddTrackCuts(cutSetKaon);
 
-  TString monitorOpt="";
+  TString monitorOpt = "";
   Bool_t enableMonitor = kTRUE;
-  if(enableMonitor){
+  if (enableMonitor) {
     Printf("======== Cut monitoring enabled");
-    gROOT->LoadMacro("$ALICE_PHYSICS/PWGLF/RESONANCES/macros/mini/AddMonitorOutput.C");
+    gROOT->LoadMacro(
+        "$ALICE_PHYSICS/PWGLF/RESONANCES/macros/mini/AddMonitorOutput.C");
     AddMonitorOutput(isMC, cutSetKaon->GetMonitorOutput(), monitorOpt.Data());
-  }  
-
+  }
 
   // -- Values ------------------------------------------------------------------------------------
   /* invariant mass   */ Int_t imID   = task->CreateValue(AliRsnMiniValue::kInvMass,kFALSE);
@@ -266,7 +282,7 @@ qualityCut = AliRsnCutSetDaughterParticle::kFastTPCpidNsigma;
 
       // axis Z: centrality-multiplicity
       if(collisionType!=kPP) out->AddAxis(centID,100,0.,100.);
-      else out->AddAxis(centID,161,-0.5,160.5);
+      else out->AddAxis(centID,160,0,160);
       // axis W: pseudorapidity
       // out->AddAxis(etaID, 20, -1.0, 1.0);
       // axis J: rapidity
@@ -288,7 +304,7 @@ qualityCut = AliRsnCutSetDaughterParticle::kFastTPCpidNsigma;
       outm->AddAxis(imID,215,0.985,1.2);
       outm->AddAxis(ptID,200,0.,20.);
       if(collisionType!=kPP) outm->AddAxis(centID,100,0.,100.);
-      else outm->AddAxis(centID,161,-0.5,160.5);
+      else outm->AddAxis(centID,160,0,160);
       if (polarizationOpt.Contains("J")) outm->AddAxis(ctjmID,20,-1.,1.);
       if (polarizationOpt.Contains("T")) outm->AddAxis(cttmID,20,-1.,1.);
       if (polarizationOpt.Contains("E")) outm->AddAxis(ctemID,20,-1.,1.);
@@ -302,7 +318,7 @@ qualityCut = AliRsnCutSetDaughterParticle::kFastTPCpidNsigma;
       outmf->AddAxis(imID,215,0.985,1.2);
       outmf->AddAxis(ptID,300,0.,3.);//fine binning for efficiency weighting
       if(collisionType!=kPP) outmf->AddAxis(centID,100,0.,100.);
-      else outmf->AddAxis(centID,161,-0.5,160.5);
+      else outmf->AddAxis(centID,160,0,160);
       if (polarizationOpt.Contains("J")) outmf->AddAxis(ctjmID,20,-1.,1.);
       if (polarizationOpt.Contains("T")) outmf->AddAxis(cttmID,20,-1.,1.);
       if (polarizationOpt.Contains("E")) outmf->AddAxis(ctemID,20,-1.,1.);
