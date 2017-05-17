@@ -193,8 +193,9 @@ void SetRsnOutput(AliRsnMiniAnalysisTask *task, AliRsnCutSet *cutsPair,
   Int_t aodFilterBit = -1; // ESD
   Bool_t useCrossedRows = kTRUE;
 
-  Bool_t isMcTrueOnly = kFALSE;
+  Bool_t trueOnly = kFALSE;
   Bool_t useMixLS = kFALSE;
+  TString suffix = "";
 
   AliRsnCutSetDaughterParticle::ERsnDaughterCutSet cutSetIDDaughter = AliRsnCutSetDaughterParticle::kNoCuts;
 
@@ -225,7 +226,6 @@ void SetRsnOutput(AliRsnMiniAnalysisTask *task, AliRsnCutSet *cutsPair,
 
   // -- Values ------------------------------------------------------------------------------------
   /* invariant mass   */ Int_t imID   = task->CreateValue(AliRsnMiniValue::kInvMass,kFALSE);
-  /* mother mass      */ Int_t mmID   = task->CreateValue(AliRsnMiniValue::kInvMassMother,kFALSE);
   /* IM difference    */ Int_t diffID = task->CreateValue(AliRsnMiniValue::kInvMassDiff,kTRUE);
   /* transv. momentum */ Int_t ptID   = task->CreateValue(AliRsnMiniValue::kPt,kFALSE);
   /* centrality       */ Int_t centID = task->CreateValue(AliRsnMiniValue::kMult,kFALSE);
@@ -249,17 +249,26 @@ void SetRsnOutput(AliRsnMiniAnalysisTask *task, AliRsnCutSet *cutsPair,
   // [2] = like ++
   // [3] = like --
 
-  Bool_t  use    [11]={!isMcTrueOnly,!isMcTrueOnly,!isMcTrueOnly,!isMcTrueOnly, isMC,isMC,isMC,isMC,isMC, useMixLS,useMixLS};
-  Int_t   useIM  [11]={ 1      ,  1     , 1      ,  1     ,  1     ,  1        ,  2      , 2           ,0       , 1        , 1        };
-  TString name   [11]={"Unlike","Mixing","LikePP","LikeMM","Trues" ,"TruesFine","TruesMM","TruesFineMM","Res"   ,"MixingPP","MixingMM"};
-  TString comp   [11]={"PAIR"  , "MIX"  ,"PAIR"  ,"PAIR"  , "TRUE" , "TRUE"    ,"TRUE"   ,"TRUE"       ,"TRUE"  ,"MIX"     ,"MIX"     };
-  TString output [11]={"SPARSE","SPARSE","SPARSE","SPARSE","SPARSE","SPARSE"   ,"SPARSE" ,"SPARSE"     ,"SPARSE","SPARSE"  ,"SPARSE"  };
-  Int_t   pdgCode[11]={333     , 333    ,333     ,333     , 333    , 333       ,333      ,333          ,333     , 333      ,333       };
-  Char_t  charge1[11]={'+'     , '+'    ,'+'     ,'-'     , '+'    , '+'       ,'+'      , '+'         ,'+'     ,'+'       ,'-'       };
-  Char_t  charge2[11]={'-'     , '-'    ,'+'     ,'-'     , '-'    , '-'       ,'-'      , '-'         ,'-'     ,'+'       ,'-'       };
+  // Bool_t  use    [11]={!trueOnly,!trueOnly,!trueOnly,!trueOnly, isMC,isMC,isMC,isMC,isMC, useMixLS,useMixLS};
+  // Int_t   useIM  [11]={ 1      ,  1     , 1      ,  1     ,  1     ,  1        ,  2      , 2           ,0       , 1        , 1        };
+  // TString name   [11]={"Unlike","Mixing","LikePP","LikeMM","Trues" ,"TruesFine","TruesMM","TruesFineMM","Res"   ,"MixingPP","MixingMM"};
+  // TString comp   [11]={"PAIR"  , "MIX"  ,"PAIR"  ,"PAIR"  , "TRUE" , "TRUE"    ,"TRUE"   ,"TRUE"       ,"TRUE"  ,"MIX"     ,"MIX"     };
+  // TString output [11]={"SPARSE","SPARSE","SPARSE","SPARSE","SPARSE","SPARSE"   ,"SPARSE" ,"SPARSE"     ,"SPARSE","SPARSE"  ,"SPARSE"  };
+  // Int_t   pdgCode[11]={333     , 333    ,333     ,333     , 333    , 333       ,333      ,333          ,333     , 333      ,333       };
+  // Char_t  charge1[11]={'+'     , '+'    ,'+'     ,'-'     , '+'    , '+'       ,'+'      , '+'         ,'+'     ,'+'       ,'-'       };
+  // Char_t  charge2[11]={'-'     , '-'    ,'+'     ,'-'     , '-'    , '-'       ,'-'      , '-'         ,'-'     ,'+'       ,'-'       };
 
-  TString suffix = "";
-  for(Int_t i=0;i<9;i++){
+  const n = 7;
+  Bool_t  use    [n]={        1,        1,        1,        1,    isMC,     isMC,     isMC};
+  Int_t   useIM  [n]={        1,        1,        1,        1,       1,        1,        0};
+  TString name   [n]={ "Unlike", "Mixing", "LikePP", "LikeMM", "Trues", "Mother",    "Res"};
+  TString comp   [n]={ "PAIR"  ,    "MIX", "PAIR"  , "PAIR"  ,  "TRUE", "MOTHER",   "TRUE"};
+  TString output [n]={ "SPARSE", "SPARSE", "SPARSE", "SPARSE","SPARSE", "SPARSE", "SPARSE"};
+  Int_t   pdgCode[n]={      333,      333,      333,      333,     333,      333,      333};
+  Char_t  charge1[n]={      '+',      '+',      '+',      '-',     '+',      '+',      '+'};
+  Char_t  charge2[n]={      '-',      '-',      '+',      '-',     '-',      '-',      '-'};
+
+  for(Int_t i=0;i<n;i++){
       if(!use[i]) continue;
       AliRsnMiniOutput* out=task->CreateOutput(TString::Format("phi_%s%s",name[i].Data(),suffix.Data()).Data(),output[i].Data(),comp[i].Data());
       out->SetCutID(0,iCutK);
@@ -283,90 +292,9 @@ void SetRsnOutput(AliRsnMiniAnalysisTask *task, AliRsnCutSet *cutsPair,
       // axis Z: centrality-multiplicity
       if(collisionType!=kPP) out->AddAxis(centID,100,0.,100.);
       else out->AddAxis(centID,160,0,160);
-      // axis W: pseudorapidity
-      // out->AddAxis(etaID, 20, -1.0, 1.0);
-      // axis J: rapidity
-      // out->AddAxis(yID, 10, -0.5, 0.5);
 
       if (polarizationOpt.Contains("J")) out->AddAxis(ctjID,20,-1.,1);
       if (polarizationOpt.Contains("T")) out->AddAxis(cttID,20,-1.,1);
       if (polarizationOpt.Contains("E")) out->AddAxis(cteID,20,-1.,1);
     }
-
-    if(isMC){   
-      //get mothers for phi PDG = 333
-      AliRsnMiniOutput* outm=task->CreateOutput(Form("phi_Mother%s", suffix),"SPARSE","MOTHER");
-      outm->SetDaughter(0,AliRsnDaughter::kKaon);
-      outm->SetDaughter(1,AliRsnDaughter::kKaon);
-      outm->SetMotherPDG(333);
-      outm->SetMotherMass(1.019461);
-      outm->SetPairCuts(cutsPair);
-      outm->AddAxis(imID,215,0.985,1.2);
-      outm->AddAxis(ptID,200,0.,20.);
-      if(collisionType!=kPP) outm->AddAxis(centID,100,0.,100.);
-      else outm->AddAxis(centID,160,0,160);
-      if (polarizationOpt.Contains("J")) outm->AddAxis(ctjmID,20,-1.,1.);
-      if (polarizationOpt.Contains("T")) outm->AddAxis(cttmID,20,-1.,1.);
-      if (polarizationOpt.Contains("E")) outm->AddAxis(ctemID,20,-1.,1.);
-
-      AliRsnMiniOutput* outmf=task->CreateOutput(Form("phi_MotherFine%s", suffix),"SPARSE","MOTHER");
-      outmf->SetDaughter(0,AliRsnDaughter::kKaon);
-      outmf->SetDaughter(1,AliRsnDaughter::kKaon);
-      outmf->SetMotherPDG(333);
-      outmf->SetMotherMass(1.019461);
-      outmf->SetPairCuts(cutsPair);
-      outmf->AddAxis(imID,215,0.985,1.2);
-      outmf->AddAxis(ptID,300,0.,3.);//fine binning for efficiency weighting
-      if(collisionType!=kPP) outmf->AddAxis(centID,100,0.,100.);
-      else outmf->AddAxis(centID,160,0,160);
-      if (polarizationOpt.Contains("J")) outmf->AddAxis(ctjmID,20,-1.,1.);
-      if (polarizationOpt.Contains("T")) outmf->AddAxis(cttmID,20,-1.,1.);
-      if (polarizationOpt.Contains("E")) outmf->AddAxis(ctemID,20,-1.,1.);
-
-
-      //get phase space of the decay from mothers
-      AliRsnMiniOutput* outps=task->CreateOutput(Form("phi_phaseSpace%s", suffix),"HIST","TRUE");
-      outps->SetDaughter(0,AliRsnDaughter::kKaon);
-      outps->SetDaughter(1,AliRsnDaughter::kKaon);
-      outps->SetCutID(0,iCutK);
-      outps->SetCutID(1,iCutK);
-      outps->SetMotherPDG(333);
-      outps->SetMotherMass(1.019461);
-      outps->SetPairCuts(cutsPair);
-      outps->AddAxis(fdpt,100,0.,10.);
-      outps->AddAxis(sdpt,100,0.,10.);
-      outps->AddAxis(ptID,200,0.,20.);
-
-      AliRsnMiniOutput* outpsf=task->CreateOutput(Form("phi_phaseSpaceFine%s", suffix),"HIST","TRUE");
-      outpsf->SetDaughter(0,AliRsnDaughter::kKaon);
-      outpsf->SetDaughter(1,AliRsnDaughter::kKaon);
-      outpsf->SetCutID(0,iCutK);
-      outpsf->SetCutID(1,iCutK);
-      outpsf->SetMotherPDG(333);
-      outpsf->SetMotherMass(1.019461);
-      outpsf->SetPairCuts(cutsPair);
-      outpsf->AddAxis(fdpt,30,0.,3.);
-      outpsf->AddAxis(sdpt,30,0.,3.);
-      outpsf->AddAxis(ptID,300,0.,3.);
-
-      //get reflections
-      if(checkReflex){
-        AliRsnMiniOutput* outreflex=task->CreateOutput(Form("phi_reflex%s", suffix),"SPARSE","TRUE");
-        outreflex->SetDaughter(0,AliRsnDaughter::kKaon);
-        outreflex->SetDaughter(1,AliRsnDaughter::kKaon);
-        outreflex->SetCutID(0,iCutK);
-        outreflex->SetCutID(1,iCutK);
-        outreflex->SetMotherPDG(333);
-        outreflex->SetMotherMass(1.019461);
-        outreflex->SetPairCuts(cutsPair);
-        outreflex->AddAxis(imID,215,0.985,1.2);
-        outreflex->AddAxis(ptID,200,0.,20.);
-        if(collisionType!=kPP) outreflex->AddAxis(centID,100,0.,100.);
-        else outreflex->AddAxis(centID,400,0.5,400.5);
-        if (polarizationOpt.Contains("J")) outreflex->AddAxis(ctjID,20,-1.,1.);
-        if (polarizationOpt.Contains("T")) outreflex->AddAxis(cttID,20,-1.,1.);
-        if (polarizationOpt.Contains("E")) outreflex->AddAxis(cteID,20,-1.,1.);
-      }//end reflections
-    }//end MC
-
 }
