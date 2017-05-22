@@ -1,0 +1,3 @@
+Macro=$ALICE_PHYSICS/PWGLF/RESONANCES/macros/mini/AddTaskRsnPhiSpinPol.C
+Arguments="PhiKK_SP",0,kTRUE,AliVEvent::kMB,1,1,3.0,"JT"
+Libs=libEventMixing.so,libPWGPPevcharQn.so,libPWGPPevcharQnInterface.so,libPWGLFresonances.so
