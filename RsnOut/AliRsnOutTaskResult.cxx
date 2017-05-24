@@ -173,7 +173,7 @@ THnSparse *AliRsnOutTaskResult::CreateSparse(AliRsnOutTaskBin *bme,
   }
 
   folder->Add(s);
-  s->Print();
+  // s->Print();
   return s;
 }
 
@@ -295,30 +295,33 @@ void AliRsnOutTaskResult::FillSparse(AliRsnOutTask *task, AliRsnOutTask *taskMC,
       Double_t nEvents = fData->GetNEvents(min, max);
       Int_t nBinMC = 0;
       if (eff_graph || eff_histo) {
+        nBinMC = 3;
+        Printf("iBin=%d bc=%f eff=%f", iBin, hResultPar->GetBinContent(iBin-nBinMC), effVal);
         // Corr Bin Counting
         sparseBin[level + 1] = iBin;
         s->SetBinContent(sparseBin,
-                         hResultPar->GetBinContent(iBin) / effVal / nEvents);
+                         hResultPar->GetBinContent(iBin-nBinMC) / effVal / nEvents);
         Double_t e =
-            GetErrorDivide(hResultPar->GetBinContent(iBin),
-                           hResultPar->GetBinError(iBin), effVal, effErr);
+            GetErrorDivide(hResultPar->GetBinContent(iBin-nBinMC),
+                           hResultPar->GetBinError(iBin-nBinMC), effVal, effErr);
         e /= nEvents;
         s->SetBinError(sparseBin, e);
       }
       iBin++;
       if (eff_graph || eff_histo) {
+        Printf("iBin=%d ff=%f eff=%f", iBin, hResultPar->GetBinContent(iBin-nBinMC), effVal);
         // Corr Fit Function
         sparseBin[level + 1] = iBin;
         s->SetBinContent(sparseBin,
-                         hResultPar->GetBinContent(iBin) / effVal / nEvents);
+                         hResultPar->GetBinContent(iBin-nBinMC) / effVal / nEvents);
 
         Double_t e =
-            GetErrorDivide(hResultPar->GetBinContent(iBin),
-                           hResultPar->GetBinError(iBin), effVal, effErr);
+            GetErrorDivide(hResultPar->GetBinContent(iBin-nBinMC),
+                           hResultPar->GetBinError(iBin-nBinMC), effVal, effErr);
         e /= nEvents;
         s->SetBinError(sparseBin, e);
 
-        nBinMC = 3;
+
       }
       iBin++;
 
