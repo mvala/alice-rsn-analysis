@@ -1,5 +1,6 @@
 #ifndef AliRsnOutTaskInput_cxx
 #define AliRsnOutTaskInput_cxx
+
 #include <AliRsnOutTask.h>
 #include <TEfficiency.h>
 

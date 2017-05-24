@@ -138,6 +138,7 @@ int main(int argc, char **argv) {
   if (tMgr)
     tMgr->Write();
   fileInput->Close();
+  delete tMgr;
 
   // return 0;
   inputFileName.Prepend("file://");
