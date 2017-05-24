@@ -17,6 +17,7 @@
             "name": "Linux",
             "includePath": [
                 "/usr/include",
+                "/usr/include/root",
                 "${ROOTSYS}/include",
                 "${ALICE_ROOT}/include",
                 "${ALICE_PHYSICS}/include"
@@ -26,6 +27,7 @@
                 "databaseFilename": "",
                 "path": [
                     "/usr/include",
+                    "/usr/include/root",
                     "${ROOTSYS}/include",
                     "${ALICE_ROOT}/include",
                     "${ALICE_PHYSICS}/include"
