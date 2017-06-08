@@ -4,7 +4,8 @@
         "file": "root://alieos.saske.sk///eos/alike.saske.sk/alice/alike/PWGLF/LF_pp/389_20160307-1141/merge_runlist_4/AnalysisResults.root",
         "list": "RsnOut_tpc3s",
         "sigbg": "Unlike",
-        "bg": "Mixing"
+        "bg": "Mixing",
+        "eventNorm" : true
     },
     "mc": {
         "name": "LHC15g3a3",
@@ -14,7 +15,8 @@
         "bg": "Mixing",
         "rec": "Trues",
         "gen": "Mother",
-        "effonly": true
+        "effonly": true,
+        "eventNorm" : true
     },
     "bin": [
         {

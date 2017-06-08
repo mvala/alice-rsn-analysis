@@ -125,6 +125,10 @@ int main(int argc, char **argv) {
   AliRsnOutTask *tResultsAll = new AliRsnOutTask("results", "Results");
 
   AliRsnOutTaskResult *tResult = new AliRsnOutTaskResult();
+  
+  const Json::Value eventNorm = data["eventNorm"];
+  if (eventNorm)
+    tResult.SetEventNormalization(eventNorm.asBool());
   if (tInputData)
     tResult->SetData(tInputData);
   if (tInputMC)
