@@ -29,9 +29,12 @@ public:
   Double_t GetErrorDivide(Double_t val1, Double_t err1, Double_t val2,
                           Double_t err2);
 
+  void SetEventNormalization(Bool_t evNorm=kTRUE) { fIsEventNormalization = evNorm; }
+
 private:
   AliRsnOutTaskInput *fData;
   AliRsnOutTaskInput *fMC;
+  Bool_t fIsEventNormalization;
   ClassDef(AliRsnOutTaskResult, 1)
 };
 

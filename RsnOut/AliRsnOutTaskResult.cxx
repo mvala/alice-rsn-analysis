@@ -15,7 +15,7 @@
 ClassImp(AliRsnOutTaskResult);
 
 AliRsnOutTaskResult::AliRsnOutTaskResult(const char *name, const char *title)
-    : AliRsnOutTask(name, title), fData(0), fMC(0) {}
+    : AliRsnOutTask(name, title), fData(0), fMC(0), fIsEventNormalization(kTRUE) {}
 
 AliRsnOutTaskResult::~AliRsnOutTaskResult() {}
 
@@ -293,6 +293,7 @@ void AliRsnOutTaskResult::FillSparse(AliRsnOutTask *task, AliRsnOutTask *taskMC,
         }
       }
       Double_t nEvents = fData->GetNEvents(min, max);
+      if (!fIsEventNormalization) nEvents = 1;
       Int_t nBinMC = 0;
       if (eff_graph || eff_histo) {
         nBinMC = 3;
