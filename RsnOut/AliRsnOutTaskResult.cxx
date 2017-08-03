@@ -388,7 +388,9 @@ void AliRsnOutTaskResult::FolderFromSparse(AliRsnOutTask *task, THnSparse *s,
         //        "projLevel=%d projX=%d projY=%d",
         //        t->GetName(), f->GetName(), level, iTask + 1, iTask + 1,
         //        projLevel, projX, projY);
-        f = folder->AddFolder(t->GetName(), t->GetTitle());
+        f = (TFolder *) folder->FindObject(t->GetName());
+        if (!f)
+          f = folder->AddFolder(t->GetName(), t->GetTitle());
         s->GetAxis(level)->SetRange(iTask + 1, iTask + 1);
       } else {
         // Printf("FolderFromSparse:  %s folder=%s level=%d range=%d,%d "
@@ -413,7 +415,9 @@ void AliRsnOutTaskResult::FolderFromSparse(AliRsnOutTask *task, THnSparse *s,
 
     } else if (tNorm) {
       s->GetAxis(level)->SetRange(iTask + 1, iTask + 1);
-      f = folder->AddFolder(t->GetName(), t->GetTitle());
+      f = (TFolder *) folder->FindObject(t->GetName());
+      if (!f)
+        f = folder->AddFolder(t->GetName(), t->GetTitle());
       // Printf("FolderFromSparse:  %s folder=%s level=%d range[%d,%d]",
       //        t->GetName(), f->GetName(), level, iTask + 1, iTask + 1);
       FolderFromSparse(t, s, level + 1, f, projLevel, projX, projY);
@@ -422,7 +426,9 @@ void AliRsnOutTaskResult::FolderFromSparse(AliRsnOutTask *task, THnSparse *s,
       s->GetAxis(level)->SetRange(0, 0);
     } else if (tFit) {
       s->GetAxis(level)->SetRange(iTask + 1, iTask + 1);
-      f = folder->AddFolder(t->GetName(), t->GetTitle());
+      f = (TFolder *) folder->FindObject(t->GetName());
+      if (!f)
+        f = folder->AddFolder(t->GetName(), t->GetTitle());
       // Printf("FolderFromSparse:  %s folder=%s level=%d range[%d,%d]",
       //        t->GetName(), f->GetName(), level, iTask + 1, iTask + 1);
       FolderFromSparse(t, s, level + 1, f, projLevel, projX, projY);
