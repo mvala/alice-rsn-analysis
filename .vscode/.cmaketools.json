@@ -1,1 +1,217 @@
-{"selectedBuildType":"Debug"}
+{
+  "selectedBuildType": "Debug",
+  "codeModel": {
+    "configurations": [
+      {
+        "name": "Debug",
+        "projects": [
+          {
+            "buildDirectory": "/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis/build",
+            "name": "alice-rsn-analysis",
+            "sourceDirectory": "/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis",
+            "targets": [
+              {
+                "buildDirectory": "/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis/build",
+                "fileGroups": [
+                  {
+                    "isGenerated": true,
+                    "sources": [
+                      "build/CMakeFiles/dist",
+                      "build/CMakeFiles/dist.rule"
+                    ]
+                  }
+                ],
+                "fullName": "dist",
+                "name": "dist",
+                "sourceDirectory": "/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis",
+                "type": "UTILITY"
+              },
+              {
+                "buildDirectory": "/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis/build",
+                "fullName": "par-all",
+                "name": "par-all",
+                "sourceDirectory": "/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis",
+                "type": "UTILITY"
+              },
+              {
+                "artifacts": [
+                  "/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis/build/src/rsn-out-run"
+                ],
+                "buildDirectory": "/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis/build/src",
+                "fileGroups": [
+                  {
+                    "compileFlags": " -Wall -Wextra -std=c++1y -g  ",
+                    "includePath": [
+                      {
+                        "path": "/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis/RsnOut"
+                      },
+                      {
+                        "path": "/usr/include/root"
+                      }
+                    ],
+                    "isGenerated": false,
+                    "language": "CXX",
+                    "sources": [
+                      "rsn-out-run.cxx"
+                    ]
+                  }
+                ],
+                "fullName": "rsn-out-run",
+                "linkFlags": "-rdynamic",
+                "linkLanguageFlags": "-Wall -Wextra -std=c++1y -g",
+                "linkLibraries": "-Wl,-rpath,/usr/lib64/root:/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis/build/RsnOut: /usr/lib64/root/libCore.so /usr/lib64/root/libRIO.so /usr/lib64/root/libNet.so /usr/lib64/root/libHist.so /usr/lib64/root/libGraf.so /usr/lib64/root/libGraf3d.so /usr/lib64/root/libGpad.so /usr/lib64/root/libTree.so /usr/lib64/root/libRint.so /usr/lib64/root/libPostscript.so /usr/lib64/root/libMatrix.so /usr/lib64/root/libPhysics.so /usr/lib64/root/libMathCore.so /usr/lib64/root/libThread.so -ljsoncpp ../RsnOut/libRsnOut.so -lRooFit /usr/lib64/root/libCore.so /usr/lib64/root/libRIO.so /usr/lib64/root/libNet.so /usr/lib64/root/libHist.so /usr/lib64/root/libGraf.so /usr/lib64/root/libGraf3d.so /usr/lib64/root/libGpad.so /usr/lib64/root/libTree.so /usr/lib64/root/libRint.so /usr/lib64/root/libPostscript.so /usr/lib64/root/libMatrix.so /usr/lib64/root/libPhysics.so /usr/lib64/root/libMathCore.so /usr/lib64/root/libThread.so",
+                "linkPath": "-L/usr/lib64/root",
+                "linkerLanguage": "CXX",
+                "name": "rsn-out-run",
+                "sourceDirectory": "/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis/src",
+                "type": "EXECUTABLE"
+              },
+              {
+                "buildDirectory": "/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis/build",
+                "fileGroups": [
+                  {
+                    "isGenerated": true,
+                    "sources": [
+                      "build/CMakeFiles/uninstall",
+                      "build/CMakeFiles/uninstall.rule"
+                    ]
+                  }
+                ],
+                "fullName": "uninstall",
+                "name": "uninstall",
+                "sourceDirectory": "/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis",
+                "type": "UTILITY"
+              },
+              {
+                "buildDirectory": "/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis/build/RsnOut",
+                "fileGroups": [
+                  {
+                    "isGenerated": true,
+                    "sources": [
+                      "../build/RsnOut/CMakeFiles/G__RsnOut",
+                      "../build/RsnOut/CMakeFiles/G__RsnOut.rule",
+                      "../build/RsnOut/G__RsnOut.cxx.rule"
+                    ]
+                  }
+                ],
+                "fullName": "G__RsnOut",
+                "name": "G__RsnOut",
+                "sourceDirectory": "/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis/RsnOut",
+                "type": "UTILITY"
+              },
+              {
+                "buildDirectory": "/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis/build/RsnOut",
+                "fileGroups": [
+                  {
+                    "isGenerated": true,
+                    "sources": [
+                      "../build/RsnOut/CMakeFiles/RsnOut.par",
+                      "../build/RsnOut/CMakeFiles/RsnOut.par.rule"
+                    ]
+                  }
+                ],
+                "fullName": "RsnOut.par",
+                "name": "RsnOut.par",
+                "sourceDirectory": "/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis/RsnOut",
+                "type": "UTILITY"
+              },
+              {
+                "artifacts": [
+                  "/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis/build/RsnOut/libRsnOut.so"
+                ],
+                "buildDirectory": "/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis/build/RsnOut",
+                "fileGroups": [
+                  {
+                    "isGenerated": true,
+                    "sources": [
+                      "../build/RsnOut/G__RsnOut.cxx.rule"
+                    ]
+                  },
+                  {
+                    "isGenerated": false,
+                    "sources": [
+                      "AliRsnOutValue.h",
+                      "AliRsnOutTask.h",
+                      "AliRsnOutTaskMgr.h",
+                      "AliRsnOutTaskInput.h",
+                      "AliRsnOutTaskBin.h",
+                      "AliRsnOutTaskBinMgr.h",
+                      "AliRsnOutTaskNorm.h",
+                      "AliRsnOutTaskFit.h",
+                      "AliRsnOutTaskRooFit.h",
+                      "AliRsnOutTaskResult.h"
+                    ]
+                  },
+                  {
+                    "compileFlags": " -Wall -Wextra -std=c++1y -g -fPIC  ",
+                    "defines": [
+                      "RsnOut_EXPORTS"
+                    ],
+                    "includePath": [
+                      {
+                        "path": "/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis/RsnOut"
+                      },
+                      {
+                        "path": "/usr/include/root"
+                      }
+                    ],
+                    "isGenerated": false,
+                    "language": "CXX",
+                    "sources": [
+                      "AliRsnOutValue.cxx",
+                      "AliRsnOutTask.cxx",
+                      "AliRsnOutTaskMgr.cxx",
+                      "AliRsnOutTaskInput.cxx",
+                      "AliRsnOutTaskBin.cxx",
+                      "AliRsnOutTaskBinMgr.cxx",
+                      "AliRsnOutTaskNorm.cxx",
+                      "AliRsnOutTaskFit.cxx",
+                      "AliRsnOutTaskRooFit.cxx",
+                      "AliRsnOutTaskResult.cxx"
+                    ]
+                  },
+                  {
+                    "compileFlags": " -Wall -Wextra -std=c++1y -g -fPIC  ",
+                    "defines": [
+                      "RsnOut_EXPORTS"
+                    ],
+                    "includePath": [
+                      {
+                        "path": "/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis/RsnOut"
+                      },
+                      {
+                        "path": "/usr/include/root"
+                      }
+                    ],
+                    "isGenerated": true,
+                    "language": "CXX",
+                    "sources": [
+                      "../build/RsnOut/G__RsnOut.cxx"
+                    ]
+                  }
+                ],
+                "fullName": "libRsnOut.so",
+                "linkLibraries": "-Wl,-rpath,/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis/build/RsnOut:/usr/lib64/root: /usr/lib64/root/libCore.so /usr/lib64/root/libRIO.so /usr/lib64/root/libNet.so /usr/lib64/root/libHist.so /usr/lib64/root/libGraf.so /usr/lib64/root/libGraf3d.so /usr/lib64/root/libGpad.so /usr/lib64/root/libTree.so /usr/lib64/root/libRint.so /usr/lib64/root/libPostscript.so /usr/lib64/root/libMatrix.so /usr/lib64/root/libPhysics.so /usr/lib64/root/libMathCore.so /usr/lib64/root/libThread.so",
+                "linkPath": "-L/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis/build/RsnOut  -L/usr/lib64/root",
+                "linkerLanguage": "CXX",
+                "name": "RsnOut",
+                "sourceDirectory": "/home/mvala/MVALA/Work/git/github/mvala/alice-rsn-analysis/RsnOut",
+                "type": "SHARED_LIBRARY"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "cookie": "0.7931507046895558",
+    "inReplyTo": "codemodel",
+    "type": "reply"
+  },
+  "variant": {
+    "label": "Debug",
+    "keywordSettings": {
+      "buildType": "debug"
+    },
+    "description": "Emit debug information without performing optimizations"
+  }
+}

@@ -57,7 +57,6 @@ int main(int argc, char **argv) {
   if (!data.empty()) {
     tInputData = new AliRsnOutTaskInput(data["name"].asString().data());
     tInputData->SetFileName(data["file"].asString());
-    tInputData->SetListName(data["list"].asString());
     tInputData->SetSigBgName(data["sigbg"].asString());
     tInputData->SetBgName(data["bg"].asString());
     tMgr->Add(tInputData);
@@ -65,7 +64,6 @@ int main(int argc, char **argv) {
   if (!mc.empty()) {
     tInputMC = new AliRsnOutTaskInput(mc["name"].asString().data());
     tInputMC->SetFileName(mc["file"].asString());
-    tInputMC->SetListName(mc["list"].asString());
     tInputMC->SetSigBgName(mc["sigbg"].asString());
     tInputMC->SetBgName(mc["bg"].asString());
     tInputMC->SetMCRecName(mc["rec"].asString());

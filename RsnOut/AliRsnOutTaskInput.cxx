@@ -15,14 +15,13 @@
 ClassImp(AliRsnOutTaskInput);
 
 AliRsnOutTaskInput::AliRsnOutTaskInput(const char *name, const char *title)
-    : AliRsnOutTask(name, title), fFileName(), fListName(), fSigBgName(),
+    : AliRsnOutTask(name, title), fFileName(), fSigBgName(),
       fBgName(), fMCRecName(), fMCGenName(), fEventStat(0), fEffOnly(0),
-      fFile(0), fList(0), fSigBg(0), fBg(0), fMCRec(0), fMCGen(0) {}
+      fFile(0), fSigBg(0), fBg(0), fMCRec(0), fMCGen(0) {}
 
 AliRsnOutTaskInput::~AliRsnOutTaskInput() { Clear(); }
 
 void AliRsnOutTaskInput::Clear(Option_t * /*opt*/) {
-  SafeDelete(fList);
   SafeDelete(fFile);
 
   fSigBg = 0;
@@ -51,21 +50,17 @@ void AliRsnOutTaskInput::UpdateTask() {
     fFile = TFile::Open(fFileName.Data());
     if (!fFile)
       return;
-    fList = (TList *)fFile->Get(fListName.Data());
-    if (!fList)
-      return;
 
-    TList *extra = (TList *)fFile->Get(
-        TString::Format("%s_extra", fListName.Data()).Data());
-
-    fEventStat = (TH1F *)extra->FindObject("hAEventsVsMulti");
+    TList *info = (TList *)fFile->Get("Info");
+    if (info)
+      fEventStat = (TH1F *)info->FindObject("hAEventsVsMulti");
 
     if (!fEffOnly) {
-      fSigBg = (THnSparse *)fList->FindObject(fSigBgName.Data());
-      fBg = (THnSparse *)fList->FindObject(fBgName.Data());
+      fSigBg = (THnSparse *)fFile->Get(fSigBgName.Data());
+      fBg = (THnSparse *)fFile->Get(fBgName.Data());
     }
-    fMCRec = (THnSparse *)fList->FindObject(fMCRecName.Data());
-    fMCGen = (THnSparse *)fList->FindObject(fMCGenName.Data());
+    fMCRec = (THnSparse *)fFile->Get(fMCRecName.Data());
+    fMCGen = (THnSparse *)fFile->Get(fMCGenName.Data());
   }
 }
 

@@ -21,7 +21,6 @@ public:
     fFileName = filename;
     fTitle = filename;
   }
-  void SetListName(TString listname) { fListName = listname; }
   void SetSigBgName(TString sigbgname) { fSigBgName = sigbgname; }
   void SetBgName(TString bgname) { fBgName = bgname; }
   void SetMCRecName(TString mcrecname) { fMCRecName = mcrecname; }
@@ -39,7 +38,6 @@ public:
 
 private:
   TString fFileName;
-  TString fListName;
   TString fSigBgName;
   TString fBgName;
   TString fMCRecName;
@@ -48,7 +46,6 @@ private:
   Bool_t fEffOnly;
 
   TFile *fFile;      //!
-  TList *fList;      //!
   THnSparse *fSigBg; //!
   THnSparse *fBg;    //!
   THnSparse *fMCRec; //!
