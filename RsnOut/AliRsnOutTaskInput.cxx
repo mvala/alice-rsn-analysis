@@ -51,7 +51,7 @@ void AliRsnOutTaskInput::UpdateTask() {
     if (!fFile)
       return;
 
-    TList *info = (TList *)fFile->Get("Info");
+    TList *info = (TList *)fFile->Get("AnalysisInfo");
     if (info)
       fEventStat = (TH1F *)info->FindObject("hAEventsVsMulti");
 
