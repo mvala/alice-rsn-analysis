@@ -53,7 +53,7 @@ lib64
 
 # VS
 .vscode/*
-!.vscode/*.json
+#!.vscode/*.json
 
 tmp
 

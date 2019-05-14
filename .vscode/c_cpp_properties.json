@@ -11,8 +11,11 @@
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
             },
-            "intelliSenseMode": "clang-x64"
+            "intelliSenseMode": "clang-x64",
+            "compilerPath": "/usr/lib64/ccache/clang",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
         }
     ],
-    "version": 2
+    "version": 4
 }
