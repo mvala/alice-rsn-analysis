@@ -100,7 +100,7 @@ THnSparse *AliRsnOutTaskResult::CreateSparse(AliRsnOutTaskBin *bme,
                                              TFolder *folder) {
 
   // Number of bins for different result parameter (BC,FC,...)
-  Int_t nResultsBins = 10;
+  Int_t nResultsBins = 14;
 
   // Setting up axis for sparse
   Int_t nAxis = 1; // (+1xResultBin)
@@ -351,6 +351,32 @@ void AliRsnOutTaskResult::FillSparse(AliRsnOutTask *task, AliRsnOutTask *taskMC,
       s->SetBinError(sparseBin, hResultPar->GetBinError(iBin - nBinMC));
       iBin++;
 
+      // Yield
+      sparseBin[level + 1] = iBin;
+      s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin - nBinMC));
+      s->SetBinError(sparseBin, hResultPar->GetBinError(iBin - nBinMC));
+      iBin++;
+
+      // Mass
+      sparseBin[level + 1] = iBin;
+      s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin - nBinMC));
+      s->SetBinError(sparseBin, hResultPar->GetBinError(iBin - nBinMC));
+      iBin++;
+
+      // Width
+      sparseBin[level + 1] = iBin;
+      s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin - nBinMC));
+      s->SetBinError(sparseBin, hResultPar->GetBinError(iBin - nBinMC));
+      iBin++;
+
+      // Sigma
+      sparseBin[level + 1] = iBin;
+      s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin - nBinMC));
+      s->SetBinError(sparseBin, hResultPar->GetBinError(iBin - nBinMC));
+      iBin++;
+
+
+
       Printf("FillSparse:: Values ->>>>>");
       for (Int_t jj = 0; jj < s->GetNdimensions() - 1; jj++)
         printf("%d ", sparseBin[jj]);
@@ -492,6 +518,26 @@ void AliRsnOutTaskResult::FolderFromSparse(AliRsnOutTask *task, THnSparse *s,
       h2->SetName("hProb");
       h2->SetStats(0);
       f->Add(h2);
+      s->GetAxis(level)->SetRange(10, 10);
+      h2 = s->Projection(projY, projX);
+      h2->SetName("hYield");
+      h2->SetStats(0);
+      f->Add(h2);
+      s->GetAxis(level)->SetRange(11, 11);
+      h2 = s->Projection(projY, projX);
+      h2->SetName("hMass");
+      h2->SetStats(0);
+      f->Add(h2);
+      s->GetAxis(level)->SetRange(12, 12);
+      h2 = s->Projection(projY, projX);
+      h2->SetName("hWidth");
+      h2->SetStats(0);
+      f->Add(h2);
+      s->GetAxis(level)->SetRange(13, 13);
+      h2 = s->Projection(projY, projX);
+      h2->SetName("hSigma");
+      h2->SetStats(0);
+      f->Add(h2);
     } else {
       Int_t proj = projY;
       if (projY < 0)
@@ -548,6 +594,30 @@ void AliRsnOutTaskResult::FolderFromSparse(AliRsnOutTask *task, THnSparse *s,
       s->GetAxis(level)->SetRange(9, 9);
       h = s->Projection(proj);
       h->SetName("hProb");
+      h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
+      h->SetStats(0);
+      f->Add(h);
+      s->GetAxis(level)->SetRange(10, 10);
+      h = s->Projection(proj);
+      h->SetName("hYield");
+      h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
+      h->SetStats(0);
+      f->Add(h);
+      s->GetAxis(level)->SetRange(11, 11);
+      h = s->Projection(proj);
+      h->SetName("hMass");
+      h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
+      h->SetStats(0);
+      f->Add(h);
+      s->GetAxis(level)->SetRange(12, 12);
+      h = s->Projection(proj);
+      h->SetName("hWidth");
+      h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
+      h->SetStats(0);
+      f->Add(h);
+      s->GetAxis(level)->SetRange(13, 13);
+      h = s->Projection(proj);
+      h->SetName("hSigma");
       h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
       h->SetStats(0);
       f->Add(h);
