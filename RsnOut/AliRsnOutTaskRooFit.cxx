@@ -71,8 +71,8 @@ void AliRsnOutTaskRooFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
   RooDataHist data("data", "dataset with x", x, hSig);
 
   //	if (kVoightPol1)
-  RooRealVar meanV("mean", "mean Voigtian", 1.019, 1.000, 1.050);
-  RooRealVar widthV("width", "width Voigtian", 0.0045, 0.003, 0.006);
+  RooRealVar meanV("mean", "mean Voigtian", 0.892, 0.8, 1.0);
+  RooRealVar widthV("width", "width Voigtian", 0.0487, 0.03, 0.06);
   RooRealVar sigmaV("sigma", "sigma Voigtian", 0.001 /*, 0.000,0.002*/);
   RooVoigtian sig("voigtian", "Voigtian", x, meanV, widthV, sigmaV);
 
