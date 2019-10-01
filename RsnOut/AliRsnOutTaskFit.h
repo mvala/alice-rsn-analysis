@@ -12,7 +12,10 @@ public:
     kVoightPol2,
     kVoightPol3,
     kVoightCheb1,
-    kVoightCheb2
+    kVoightCheb2,
+    kBWPol1,
+    kBWPol2,
+    kBWPol3
   };
 
   AliRsnOutTaskFit(const char *name = "fit", const char *title = "");
@@ -24,6 +27,9 @@ public:
   static Double_t VoigtPol1(double *m, double *par);
   static Double_t VoigtPol2(double *m, double *par);
   static Double_t VoigtPol3(double *m, double *par);
+  static Double_t BWPol1(double *m, double *par);
+  static Double_t BWPol2(double *m, double *par);
+  static Double_t BWPol3(double *m, double *par);
 
   virtual void Exec(Option_t *option);
   void Fit(Int_t fitId, Double_t fitMin, Double_t fitMax);

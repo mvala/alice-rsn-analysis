@@ -43,6 +43,7 @@ void AliRsnOutTaskNorm::Exec(Option_t * /*option*/) {
       ss2 = hBgNorm->Integral(hBgNorm->FindBin((Int_t)v->GetMin()),
                               hBgNorm->FindBin((Int_t)v->GetMax()));
     }
+    Printf("scale faktor: %f", scale);
 
     scale /= fRanges->GetEntries();
 

@@ -49,6 +49,21 @@ Double_t AliRsnOutTaskFit::VoigtPol3(double *x, double *par) {
          Pol3(x, &par[4]);
 }
 
+Double_t AliRsnOutTaskFit::BWPol1(double *x, double *par) {
+  return par[0] * TMath::BreitWigner(x[0], par[1], par[2]) +
+         Pol1(x, &par[4]);
+}
+
+Double_t AliRsnOutTaskFit::BWPol2(double *x, double *par) {
+  return par[0] * TMath::BreitWigner(x[0], par[1], par[2]) +
+         Pol2(x, &par[4]);
+}
+
+Double_t AliRsnOutTaskFit::BWPol3(double *x, double *par) {
+  return par[0] * TMath::BreitWigner(x[0], par[1], par[2]) +
+         Pol3(x, &par[4]);
+}
+
 void AliRsnOutTaskFit::SetFit(AliRsnOutValue *fit) {
   fInput = fit;
   if (fInput) {
@@ -64,7 +79,7 @@ void AliRsnOutTaskFit::SetFit(AliRsnOutValue *fit) {
 
 void AliRsnOutTaskFit::Exec(Option_t * /*option*/) {
 
-  // Printf(GetName());
+ // Printf(GetName());
   if (!fParent->GetOutput())
     return;
 
@@ -77,6 +92,7 @@ void AliRsnOutTaskFit::Exec(Option_t * /*option*/) {
   }
 
   Fit(fInput->GetId(), fInput->GetMin(), fInput->GetMax());
+     Printf("Fit funkcia cislo %d", fInput->GetId());
 }
 
 void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
@@ -86,9 +102,12 @@ void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
 
     fResult = (TH1 *)fResult->Clone();
 
-    const Double_t phi_mass = 1.019445;
-    const Double_t phi_width = 0.00426;
-    const Double_t phi_sigma = 0.001;
+    //const Double_t phi_mass = 1.019445;
+    //const Double_t phi_width = 0.00426;
+    //const Double_t phi_sigma = 0.001;
+
+    const Double_t K_mass = 0.89555;
+    const Double_t K_width = 0.0473;
     // const Double_t hist_min = fResult->GetXaxis()->GetXmin();
     // const Double_t hist_max = fResult->GetXaxis()->GetXmax();
     TF1 *sigBgFnc = 0;
@@ -109,6 +128,21 @@ void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
           new TF1("VoightPol3", AliRsnOutTaskFit::VoigtPol3, fitMin, fitMax, 8);
       bgFnc = new TF1("Pol3", Pol3, fitMin, fitMax, 4);
       break;
+    case kBWPol1:
+      sigBgFnc =
+          new TF1("BWPol1", AliRsnOutTaskFit::BWPol1, fitMin, fitMax, 5);
+      bgFnc = new TF1("Pol1", Pol1, fitMin, fitMax, 2);
+      break;
+    case kBWPol2:
+      sigBgFnc =
+          new TF1("BWPol2", AliRsnOutTaskFit::BWPol2, fitMin, fitMax, 6);
+      bgFnc = new TF1("Pol2", Pol2, fitMin, fitMax, 3);
+      break;
+    case kBWPol3:
+      sigBgFnc =
+          new TF1("BWPol3", AliRsnOutTaskFit::BWPol3, fitMin, fitMax, 7);
+      bgFnc = new TF1("Pol3", Pol3, fitMin, fitMax, 4);
+      break;
     }
     if (!sigBgFnc || !bgFnc)
       return;
@@ -116,12 +150,11 @@ void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
     Double_t p0p =
         fResult->Integral(fResult->FindBin(fitMin), fResult->FindBin(fitMax)) *
         fResult->GetBinWidth(fResult->FindBin(fitMin));
-    sigBgFnc->SetParameters(p0p, phi_mass, phi_width, phi_sigma, 0.0, 0.0, 0.0,
-                            0.0);
-
-    sigBgFnc->SetParNames("yield", "mass", "width", "sigma", "p0", "p1", "p2",
-                          "p3");
-    sigBgFnc->FixParameter(3, phi_sigma);
+    //sigBgFnc->SetParameters(p0p, phi_mass, phi_width, phi_sigma, 0.0, 0.0, 0.0, 0.0);
+    //sigBgFnc->SetParNames("yield", "mass", "width", "sigma", "p0", "p1", "p2", "p3");
+    sigBgFnc->SetParameters(p0p, K_mass, K_width, 0.0, 0.0, 0.0, 0.0);
+    sigBgFnc->SetParNames("yield", "mass", "width", "p0", "p1", "p2", "p3");
+    //sigBgFnc->FixParameter(3, phi_sigma);
     for (Int_t i = 0; i < fNUmberOfFits; i++) {
       fFitResult = fResult->Fit(sigBgFnc, "QN MFC", "", fitMin, fitMax);
     }

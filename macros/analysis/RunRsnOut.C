@@ -121,13 +121,13 @@ void RunRsnOutGenerate(TString config) {
   listVariations->Add(new AliRsnOutValue(2, arrMult));
 
   TList *norms = new TList();
-  norms->Add(new AliRsnOutValue(0, 1.10, 1.15));
+  norms->Add(new AliRsnOutValue(0, 0.75, 0.8));
   // norms->Add(new AliRsnOutValue(0, 1.11, 1.15));
 
   TList *fits = new TList();
   Int_t nFits = 3;
   for (Int_t fitId = 0; fitId < nFits; fitId++) {
-    fits->Add(new AliRsnOutValue(fitId, 0.997, 1.050));
+    fits->Add(new AliRsnOutValue(fitId, 0.855, 1.035));
     // fits->Add(new AliRsnOutValue(fitId, 1.000, 1.080));
     // fits->Add(new AliRsnOutValue(fitId, 0.997, 1.130));
   }
