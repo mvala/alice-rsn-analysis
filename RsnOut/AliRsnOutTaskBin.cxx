@@ -13,10 +13,13 @@ ClassImp(AliRsnOutTaskBin);
 
 AliRsnOutTaskBin::AliRsnOutTaskBin(const char *name, const char *title,
                                    Bool_t isCutsOnly)
-    : AliRsnOutTask(name, title), fValue(), fCuts(0), fCutsOnly(isCutsOnly),
-      fInputTask(0) {}
+    : AliRsnOutTask(name, title), fValue(), fCuts(0), fAdditionalCuts(0),
+      fCutsOnly(isCutsOnly), fInputTask(0) {}
 
-AliRsnOutTaskBin::~AliRsnOutTaskBin() { SafeDelete(fCuts); }
+AliRsnOutTaskBin::~AliRsnOutTaskBin() {
+  SafeDelete(fCuts);
+  SafeDelete(fAdditionalCuts);
+}
 
 void AliRsnOutTaskBin::Exec(Option_t * /*option*/) {
 
@@ -298,6 +301,20 @@ void AliRsnOutTaskBin::ExecPost(Option_t * /*option*/) {
       if (mcGen)
         mcGen->GetAxis(v->GetId())->SetRange(0, 0);
     }
+    l = b->GetListOfAdditionalCuts();
+    if (!l)
+      continue;
+    TIter nextAdditional(l);
+    while ((v = (AliRsnOutValue *)nextAdditional())) {
+      if (sigBg)
+        sigBg->GetAxis(v->GetId())->SetRange(0, 0);
+      if (bg)
+        bg->GetAxis(v->GetId())->SetRange(0, 0);
+      if (mcRec)
+        mcRec->GetAxis(v->GetId())->SetRange(0, 0);
+      if (mcGen)
+        mcGen->GetAxis(v->GetId())->SetRange(0, 0);
+    }
   }
 }
 
@@ -312,13 +329,41 @@ void AliRsnOutTaskBin::AddCut(AliRsnOutValue *cut) {
   fCuts->Add(cut);
 }
 
+void AliRsnOutTaskBin::AddAdditionalCut(AliRsnOutValue *cut) {
+  if (!cut)
+    return;
+  if (!fAdditionalCuts) {
+    fAdditionalCuts = new TList();
+    // fName = TString::Format("bin[%d,%d]", (Int_t)cut->GetMin(),
+                            // (Int_t)cut->GetMax());
+  }
+  fAdditionalCuts->Add(cut);
+}
+
 void AliRsnOutTaskBin::ApplyCuts(THnSparse *one, THnSparse *two,
                                  Bool_t updateOnly) {
 
-  if (fCuts) {
+  AliRsnOutValue *v;
+  
+  if (fAdditionalCuts) {
 
+    TIter next(fAdditionalCuts);
+    // Double_t minVal, maxVal;
+    while ((v = (AliRsnOutValue *)next())) {
+            // minVal = one->GetAxis(v->GetId())->GetBinLowEdge((Int_t)v->GetMin());
+      // maxVal = one->GetAxis(v->GetId())->GetBinUpEdge((Int_t)v->GetMax());
+      // Printf("Applying additional cut %d [%d,%d] [%.2f,%.2f]", v->GetId(),(Int_t)v->GetMin(), (Int_t)v->GetMax(),minVal,maxVal);
+
+      one->GetAxis(v->GetId())
+          ->SetRange((Int_t)v->GetMin(), (Int_t)v->GetMax());
+      if (two)
+        two->GetAxis(v->GetId())
+            ->SetRange((Int_t)v->GetMin(), (Int_t)v->GetMax());
+    }
+  }
+
+  if (fCuts) {
     TIter next(fCuts);
-    AliRsnOutValue *v;
     fName = "";
     fTitle = "";
     Double_t minVal, maxVal;
@@ -356,7 +401,6 @@ void AliRsnOutTaskBin::UpdateTask() {
     if (!fInputTask)
       return;
   }
-
   if (fInputTask->GetSigBg())
     ApplyCuts(fInputTask->GetSigBg(), 0, kTRUE);
   else if (fInputTask->GetMCRec())

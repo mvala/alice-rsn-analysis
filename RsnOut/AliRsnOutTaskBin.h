@@ -19,7 +19,9 @@ public:
 
   AliRsnOutValue *GetValue() { return &fValue; }
   TList *GetListOfCuts() const { return fCuts; }
+  TList *GetListOfAdditionalCuts() const { return fAdditionalCuts; }
   void AddCut(AliRsnOutValue *cut);
+  void AddAdditionalCut(AliRsnOutValue *cut);
 
   void ApplyCuts(THnSparse *sigBg, THnSparse *bg, Bool_t updateOnly = kFALSE);
 
@@ -28,6 +30,7 @@ public:
 private:
   AliRsnOutValue fValue;
   TList *fCuts;
+  TList *fAdditionalCuts;
   Bool_t fCutsOnly;
   AliRsnOutTaskInput *fInputTask;
 

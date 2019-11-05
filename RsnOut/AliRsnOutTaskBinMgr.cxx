@@ -10,7 +10,8 @@
 ClassImp(AliRsnOutTaskBinMgr);
 
 AliRsnOutTaskBinMgr::AliRsnOutTaskBinMgr(const char *name, const char *title)
-    : AliRsnOutTask(name, title), fListOfVariations(0), fBinTmpl(0) {}
+    : AliRsnOutTask(name, title), fListOfVariations(0),
+      fListOfAdditionalCuts(0), fBinTmpl(0) {}
 
 AliRsnOutTaskBinMgr::~AliRsnOutTaskBinMgr() {}
 void AliRsnOutTaskBinMgr::Init() {
@@ -113,7 +114,15 @@ void AliRsnOutTaskBinMgr::GenerateBinVariations(Int_t index,
                arr->At(i + 1) - 1);
         b2 = (AliRsnOutTaskBin *)fBinTmpl->Clone();
         b2->AddCut(new AliRsnOutValue(id, arr->At(i), arr->At(i + 1) - 1));
+        if (fListOfAdditionalCuts) {
+          TIter nextAdditionalCuts(fListOfAdditionalCuts);
+          AliRsnOutValue *v;
+          while ((v = (AliRsnOutValue *)nextAdditionalCuts())) {
+            b2->AddAdditionalCut(v);
+          }
+        }
         b->Add(b2);
+        // TODO add additional cuts
       }
       task->Add(b);
     }

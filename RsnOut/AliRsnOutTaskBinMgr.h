@@ -10,6 +10,7 @@ public:
   virtual ~AliRsnOutTaskBinMgr();
 
   void SetListOfVartiations(TList *l) { fListOfVariations = l; }
+  void SetListOfAdditionalCuts(TList *l) { fListOfAdditionalCuts = l; }
   void SetBinTemplate(AliRsnOutTaskBin *bt) { fBinTmpl = bt; }
   void Init();
 
@@ -21,6 +22,7 @@ public:
 
 private:
   TList *fListOfVariations; // List of AliRsnOutValue with array
+  TList *fListOfAdditionalCuts; // List of Additional cuts
   AliRsnOutTaskBin *fBinTmpl;
 
   ClassDef(AliRsnOutTaskBinMgr, 1)

@@ -73,25 +73,37 @@ int main(int argc, char **argv) {
     tMgr->Add(tInputMC);
   }
   TList *listBins = new TList();
+  TList *listAdditionalCuts = new TList();
   Int_t nActive = 0;
   const Json::Value bins = root["bin"];
   for (uint i = 0; i < bins.size(); ++i) {
     // std::cout << bins[i] << std::endl;
     if (!bins[i]["active"].asBool())
       continue;
-    nActive++;
-    if (nActive > 2)
-      continue;
-    TString str = bins[i]["varbins"].asString();
-    TObjArray *objArr = str.Tokenize(",");
-    TArrayI *arr = new TArrayI(objArr->GetEntries());
-    TIter next(objArr);
-    TObjString *os;
-    int c = 0;
-    while ((os = (TObjString *)next())) {
-      arr->SetAt(os->GetString().Atoi(), c++);
+    if (!bins[i]["cutRange"].asString().empty()) {
+      TString str = bins[i]["cutRange"].asString();
+      TObjArray *objArr = str.Tokenize(",");
+      TObjString*s = (TObjString *)objArr->At(0);
+      Double_t min = s->GetString().Atof();
+      s = (TObjString *)objArr->At(1);
+      Double_t max=s->GetString().Atof();
+      if (min < max)
+        listAdditionalCuts->Add(new AliRsnOutValue(bins[i]["id"].asInt(), min, max-1));
+    } else {
+      nActive++;
+      if (nActive > 2)
+        continue;
+      TString str = bins[i]["varbins"].asString();
+      TObjArray *objArr = str.Tokenize(",");
+      TArrayI *arr = new TArrayI(objArr->GetEntries());
+      TIter next(objArr);
+      TObjString *os;
+      int c = 0;
+      while ((os = (TObjString *)next())) {
+        arr->SetAt(os->GetString().Atoi(), c++);
+      }
+      listBins->Add(new AliRsnOutValue(bins[i]["id"].asInt(), arr));
     }
-    listBins->Add(new AliRsnOutValue(bins[i]["id"].asInt(), arr));
   }
 
   TList *norms = new TList();
@@ -112,6 +124,7 @@ int main(int argc, char **argv) {
   AliRsnOutTaskBinMgr *binMgr = new AliRsnOutTaskBinMgr("binMgr");
   binMgr->GenerateBinTemplate(norms, fits);
   binMgr->SetListOfVartiations(listBins);
+  binMgr->SetListOfAdditionalCuts(listAdditionalCuts);
   binMgr->Init();
 
   if (tInputData)
@@ -123,11 +136,11 @@ int main(int argc, char **argv) {
   AliRsnOutTask *tResultsAll = new AliRsnOutTask("results", "Results");
 
   AliRsnOutTaskResult *tResult = new AliRsnOutTaskResult();
-  
+
   const Json::Value eventNorm = data["eventNorm"];
   if (!eventNorm.empty())
     tResult->SetEventNormalization(eventNorm.asBool());
-    
+
   if (tInputData)
     tResult->SetData(tInputData);
   if (tInputMC)
