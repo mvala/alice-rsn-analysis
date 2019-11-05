@@ -21,6 +21,7 @@ public:
   static Double_t Pol1(double *m, double *par);
   static Double_t Pol2(double *m, double *par);
   static Double_t Pol3(double *m, double *par);
+  static Double_t BWPol1(double *x, double *par);
   static Double_t VoigtPol1(double *m, double *par);
   static Double_t VoigtPol2(double *m, double *par);
   static Double_t VoigtPol3(double *m, double *par);

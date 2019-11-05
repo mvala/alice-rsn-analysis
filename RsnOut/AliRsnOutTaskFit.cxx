@@ -49,6 +49,11 @@ Double_t AliRsnOutTaskFit::VoigtPol3(double *x, double *par) {
          Pol3(x, &par[4]);
 }
 
+Double_t AliRsnOutTaskFit::BWPol1(double *x, double *par) {
+  return par[0] * TMath::BreitWigner(x[0] - par[1], par[2]) +
+         Pol1(x, &par[3]);
+}
+
 void AliRsnOutTaskFit::SetFit(AliRsnOutValue *fit) {
   fInput = fit;
   if (fInput) {
