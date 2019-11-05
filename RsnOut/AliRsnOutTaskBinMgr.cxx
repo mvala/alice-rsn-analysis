@@ -11,7 +11,7 @@ ClassImp(AliRsnOutTaskBinMgr);
 
 AliRsnOutTaskBinMgr::AliRsnOutTaskBinMgr(const char *name, const char *title)
     : AliRsnOutTask(name, title), fListOfVariations(0),
-      fListOfAdditionalCuts(0), fBinTmpl(0) {}
+      fListOfAdditionalCuts(0), fFitTemplate(), fBinTmpl(0) {}
 
 AliRsnOutTaskBinMgr::~AliRsnOutTaskBinMgr() {}
 void AliRsnOutTaskBinMgr::Init() {
@@ -73,6 +73,14 @@ void AliRsnOutTaskBinMgr::GenerateBinTemplate(TList *norms, TList *fits) {
     AliRsnOutValue *vFit;
     while ((vFit = (AliRsnOutValue *)nextFit())) {
       AliRsnOutTaskFit *tFit = new AliRsnOutTaskFit("fit", "fit");
+      Printf("%p",fFitTemplate);
+      if (fFitTemplate) {
+        tFit->SetMass(fFitTemplate->GetMass());
+        tFit->SetWidth(fFitTemplate->GetWidth());
+        tFit->SetSigma(fFitTemplate->GetSigma());
+      }
+      Printf("mass=%f width=%f sigma=%f", tFit->GetMass(), tFit->GetWidth(),
+             tFit->GetSigma());
       tFit->SetFit(vFit);
       tNorm->Add(tFit);
     }

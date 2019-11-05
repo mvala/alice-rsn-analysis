@@ -17,7 +17,7 @@ ClassImp(AliRsnOutTaskFit);
 AliRsnOutTaskFit::AliRsnOutTaskFit(const char *name, const char *title)
     : AliRsnOutTask(name, title), fInput(0), fFitProbTestMin(1e-4),
       fFitProbTestMax(0.6), fFitResult(0), fNUmberOfFits(3),
-      fIntegralEps(1.e-4), fResult(0), fResultPar(0) {}
+      fIntegralEps(1.e-4), fMass(1.019445), fWidth(0.00426), fSigma(0.001), fResult(0), fResultPar(0) {}
 
 AliRsnOutTaskFit::~AliRsnOutTaskFit() {}
 
@@ -50,8 +50,15 @@ Double_t AliRsnOutTaskFit::VoigtPol3(double *x, double *par) {
 }
 
 Double_t AliRsnOutTaskFit::BWPol1(double *x, double *par) {
-  return par[0] * TMath::BreitWigner(x[0] - par[1], par[2]) +
-         Pol1(x, &par[3]);
+  return par[0] * TMath::BreitWigner(x[0] - par[1], par[2]) + Pol1(x, &par[3]);
+}
+
+Double_t AliRsnOutTaskFit::BWPol2(double *x, double *par) {
+  return par[0] * TMath::BreitWigner(x[0] - par[1], par[2]) + Pol2(x, &par[3]);
+}
+
+Double_t AliRsnOutTaskFit::BWPol3(double *x, double *par) {
+  return par[0] * TMath::BreitWigner(x[0] - par[1], par[2]) + Pol3(x, &par[3]);
 }
 
 void AliRsnOutTaskFit::SetFit(AliRsnOutValue *fit) {
@@ -90,43 +97,72 @@ void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
   if (fResult) {
 
     fResult = (TH1 *)fResult->Clone();
+    Double_t p0p =
+        fResult->Integral(fResult->FindBin(fitMin), fResult->FindBin(fitMax)) *
+        fResult->GetBinWidth(fResult->FindBin(fitMin));
 
-    const Double_t phi_mass = 1.019445;
-    const Double_t phi_width = 0.00426;
-    const Double_t phi_sigma = 0.001;
-    // const Double_t hist_min = fResult->GetXaxis()->GetXmin();
-    // const Double_t hist_max = fResult->GetXaxis()->GetXmax();
+    // Printf("AliRsnOutTaskFit inside: mass=%f width=%f sigma=%f", fMass, fWidth, fSigma);
     TF1 *sigBgFnc = 0;
     TF1 *bgFnc = 0;
     switch (fitId) {
     case kVoightPol1:
       sigBgFnc =
           new TF1("VoightPol1", AliRsnOutTaskFit::VoigtPol1, fitMin, fitMax, 6);
+      sigBgFnc->SetParNames("yield", "mass", "width", "sigma", "p0", "p1", "p2",
+                            "p3");
+
+      sigBgFnc->SetParameters(p0p, fMass, fWidth, fSigma, 0.0, 0.0,
+                              0.0, 0.0);
       bgFnc = new TF1("Pol1", Pol1, fitMin, fitMax, 2);
       break;
     case kVoightPol2:
       sigBgFnc =
           new TF1("VoightPol2", AliRsnOutTaskFit::VoigtPol2, fitMin, fitMax, 7);
+      sigBgFnc->SetParNames("yield", "mass", "width", "sigma", "p0", "p1", "p2",
+                            "p3");
+
+      sigBgFnc->SetParameters(p0p, fMass, fWidth, fSigma, 0.0, 0.0,
+                              0.0, 0.0);
       bgFnc = new TF1("Pol2", Pol2, fitMin, fitMax, 3);
       break;
     case kVoightPol3:
       sigBgFnc =
           new TF1("VoightPol3", AliRsnOutTaskFit::VoigtPol3, fitMin, fitMax, 8);
+      sigBgFnc->SetParNames("yield", "mass", "width", "sigma", "p0", "p1", "p2",
+                            "p3");
+
+      sigBgFnc->SetParameters(p0p, fMass, fWidth, fSigma, 0.0, 0.0,
+                              0.0, 0.0);
       bgFnc = new TF1("Pol3", Pol3, fitMin, fitMax, 4);
       break;
+    case kBWPol1:
+      sigBgFnc =
+          // new TF1("BWPol1", AliRsnOutTaskFit::kBWPol1, fitMin, fitMax, 5);
+      // sigBgFnc->SetParNames("yield", "mass", "width", "p0", "p1", "p2", "p3");
+
+      // sigBgFnc->SetParameters(p0p, fMass, fWidth, 0.0, 0.0, 0.0, 0.0);
+      bgFnc = new TF1("Pol1", Pol1, fitMin, fitMax, 2);
+      break;
+    // case kBWPol2:
+    //   sigBgFnc =
+    //       new TF1("BWPol2", AliRsnOutTaskFit::kBWPol2, fitMin, fitMax, 6);
+    //   sigBgFnc->SetParNames("yield", "mass", "width", "p0", "p1", "p2", "p3");
+    //   sigBgFnc->SetParameters(p0p, fMass, fWidth, 0.0, 0.0, 0.0, 0.0);
+    //   bgFnc = new TF1("Pol2", Pol2, fitMin, fitMax, 3);
+    //   break;
+    // case kBWPol3:
+    //   sigBgFnc =
+    //       new TF1("kBWPol3", AliRsnOutTaskFit::kBWPol3, fitMin, fitMax, 7);
+    //   sigBgFnc->SetParNames("yield", "mass", "width", "p0", "p1", "p2", "p3");
+    //   sigBgFnc->SetParameters(p0p, fMass, fWidth, 0.0, 0.0, 0.0, 0.0);
+    //   bgFnc = new TF1("Pol3", Pol3, fitMin, fitMax, 4);
+    //   break;
     }
     if (!sigBgFnc || !bgFnc)
       return;
 
-    Double_t p0p =
-        fResult->Integral(fResult->FindBin(fitMin), fResult->FindBin(fitMax)) *
-        fResult->GetBinWidth(fResult->FindBin(fitMin));
-    sigBgFnc->SetParameters(p0p, phi_mass, phi_width, phi_sigma, 0.0, 0.0, 0.0,
-                            0.0);
+    // sigBgFnc->FixParameter(3, fSigma);
 
-    sigBgFnc->SetParNames("yield", "mass", "width", "sigma", "p0", "p1", "p2",
-                          "p3");
-    sigBgFnc->FixParameter(3, phi_sigma);
     for (Int_t i = 0; i < fNUmberOfFits; i++) {
       fFitResult = fResult->Fit(sigBgFnc, "QN MFC", "", fitMin, fitMax);
     }

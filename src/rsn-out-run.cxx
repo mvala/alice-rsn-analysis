@@ -10,6 +10,7 @@
 #include <AliRsnOutTaskBinMgr.h>
 #include <AliRsnOutTaskInput.h>
 #include <AliRsnOutTaskMgr.h>
+#include <AliRsnOutTaskFit.h>
 #include <AliRsnOutTaskResult.h>
 #include <AliRsnOutValue.h>
 
@@ -121,7 +122,15 @@ int main(int argc, char **argv) {
                                  fit[i]["max"].asDouble()));
   }
 
+  const Json::Value fitParameters = root["fitParameters"];
+  // fitParameters.
+  AliRsnOutTaskFit *f = new AliRsnOutTaskFit();
+  if (fitParameters["mass"].isDouble()) f->SetMass(fitParameters["mass"].asDouble());
+  if (fitParameters["width"].isDouble()) f->SetWidth(fitParameters["width"].asDouble());
+  if (fitParameters["sigma"].isDouble()) f->SetSigma(fitParameters["sigma"].asDouble());
+
   AliRsnOutTaskBinMgr *binMgr = new AliRsnOutTaskBinMgr("binMgr");
+  binMgr->SetFitTemplate(f);
   binMgr->GenerateBinTemplate(norms, fits);
   binMgr->SetListOfVartiations(listBins);
   binMgr->SetListOfAdditionalCuts(listAdditionalCuts);
