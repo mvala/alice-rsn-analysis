@@ -51,15 +51,15 @@ Double_t AliRsnOutTaskFit::VoigtPol3(double *x, double *par) {
 }
 
 Double_t AliRsnOutTaskFit::BWPol1(double *x, double *par) {
-  return par[0] * TMath::BreitWigner(x[0] - par[1], par[2]) + Pol1(x, &par[3]);
+  return par[0] * TMath::BreitWigner(x[0],par[1], par[2]) + Pol1(x, &par[3]);
 }
 
 Double_t AliRsnOutTaskFit::BWPol2(double *x, double *par) {
-  return par[0] * TMath::BreitWigner(x[0] - par[1], par[2]) + Pol2(x, &par[3]);
+  return par[0] * TMath::BreitWigner(x[0],par[1], par[2]) + Pol2(x, &par[3]);
 }
 
 Double_t AliRsnOutTaskFit::BWPol3(double *x, double *par) {
-  return par[0] * TMath::BreitWigner(x[0] - par[1], par[2]) + Pol3(x, &par[3]);
+  return par[0] * TMath::BreitWigner(x[0],par[1], par[2]) + Pol3(x, &par[3]);
 }
 
 void AliRsnOutTaskFit::SetFit(AliRsnOutValue *fit) {
