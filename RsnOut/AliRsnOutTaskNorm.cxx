@@ -32,28 +32,30 @@ void AliRsnOutTaskNorm::Exec(Option_t * /*option*/) {
     AliRsnOutValue *v;
     Double_t ss1, ss2;
     while ((v = (AliRsnOutValue *)next())) {
-      Double_t s;
-      s = hSigBgNorm->Integral(hSigBgNorm->FindBin((Int_t)v->GetMin()),
-                               hSigBgNorm->FindBin((Int_t)v->GetMax()));
-      s /= hBgNorm->Integral(hBgNorm->FindBin((Int_t)v->GetMin()),
-                             hBgNorm->FindBin((Int_t)v->GetMax()));
-      scale += s;
-      ss1 = hSigBgNorm->Integral(hSigBgNorm->FindBin((Int_t)v->GetMin()),
-                                 hSigBgNorm->FindBin((Int_t)v->GetMax()));
-      ss2 = hBgNorm->Integral(hBgNorm->FindBin((Int_t)v->GetMin()),
-                              hBgNorm->FindBin((Int_t)v->GetMax()));
+      ss1 = hSigBgNorm->Integral(hSigBgNorm->FindBin(v->GetMin()),
+                                 hSigBgNorm->FindBin(v->GetMax()));
+      ss2 = hBgNorm->Integral(hBgNorm->FindBin(v->GetMin()),
+                              hBgNorm->FindBin(v->GetMax()));
+      scale += ss1 / ss2;
     }
-
     scale /= fRanges->GetEntries();
 
     TH1 *hBgTmp = (TH1 *)hBgNorm->Clone();
     TH1 *hSigTmp = (TH1 *)hSigBgNorm->Clone();
-    hBgTmp->Scale(scale);
-    hSigTmp->Add(hBgTmp, -1);
 
-    scale = ss1 / (ss2 - hSigTmp->GetMinimum() / scale);
-    hBgNorm->Scale(scale);
+    bool makePositive = false;
+    // makePositive = true;
+    if (makePositive) {
 
+      hBgTmp->Scale(scale);
+      hSigTmp->Add(hBgTmp, -1);
+
+      scale = ss1 / (ss2 - hSigTmp->GetMinimum() / scale);
+      hBgNorm->Scale(scale);
+    } else {
+      hBgNorm->Scale(scale);
+      hSigTmp->Add(hBgNorm, -1);
+    }
     TH1 *hSig = (TH1 *)hSigBgNorm->Clone();
     hSig->SetName("hSignal");
     hSig->Add(hBgNorm, -1);
