@@ -44,7 +44,7 @@ void AliRsnOutTaskNorm::Exec(Option_t * /*option*/) {
     TH1 *hSigTmp = (TH1 *)hSigBgNorm->Clone();
 
     bool makePositive = false;
-    // makePositive = true;
+    makePositive = true;
     if (makePositive) {
 
       hBgTmp->Scale(scale);

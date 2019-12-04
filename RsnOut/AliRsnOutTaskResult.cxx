@@ -297,7 +297,7 @@ void AliRsnOutTaskResult::FillSparse(AliRsnOutTask *task, AliRsnOutTask *taskMC,
       Int_t nBinMC = 0;
       if (eff_graph || eff_histo) {
         nBinMC = 3;
-        Printf("iBin=%d bc=%f eff=%f", iBin, hResultPar->GetBinContent(iBin-nBinMC), effVal);
+        Printf("iBin=%d bc=%f eff=%f nEvents=%f", iBin, hResultPar->GetBinContent(iBin-nBinMC), effVal, nEvents);
         // Corr Bin Counting
         sparseBin[level + 1] = iBin;
         s->SetBinContent(sparseBin,
@@ -310,7 +310,7 @@ void AliRsnOutTaskResult::FillSparse(AliRsnOutTask *task, AliRsnOutTask *taskMC,
       }
       iBin++;
       if (eff_graph || eff_histo) {
-        Printf("iBin=%d ff=%f eff=%f", iBin, hResultPar->GetBinContent(iBin-nBinMC), effVal);
+        Printf("iBin=%d ff=%f eff=%f nEvents=%f", iBin, hResultPar->GetBinContent(iBin-nBinMC), effVal,nEvents);
         // Corr Fit Function
         sparseBin[level + 1] = iBin;
         s->SetBinContent(sparseBin,
