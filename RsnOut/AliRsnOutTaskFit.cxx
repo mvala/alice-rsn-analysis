@@ -160,7 +160,9 @@ void AliRsnOutTaskFit::Fit(Int_t fitId, Double_t fitMin, Double_t fitMax) {
     if (!sigBgFnc || !bgFnc)
       return;
 
-    // sigBgFnc->FixParameter(3, fSigma);
+ sigBgFnc->FixParameter(3, fSigma);
+ // sigBgFnc->FixParameter(2, fWidth);
+  //sigBgFnc->FixParameter(1, fMass);
 
     for (Int_t i = 0; i < fNUmberOfFits; i++) {
       fFitResult = fResult->Fit(sigBgFnc, "QN MFC", "", fitMin, fitMax);

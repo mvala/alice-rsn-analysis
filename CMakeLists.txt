@@ -20,7 +20,7 @@ else (ROOT_VERSION_MAJOR GREATER 5)
 endif (ROOT_VERSION_MAJOR GREATER 5)
 include(RootMacros)
 
-find_package(Jsoncpp REQUIRED)
+find_package(JSONCPP REQUIRED)
 
 add_custom_target(par-all ALL)
 

@@ -154,6 +154,9 @@ void AliRsnOutTaskBinMgr::GenerateBinVsBin(AliRsnOutTask *task, Int_t first,
   AliRsnOutValue *v1 = (AliRsnOutValue *)fListOfVariations->At(first);
   AliRsnOutValue *v2 = (AliRsnOutValue *)fListOfVariations->At(second);
   if (v1 && v2) {
+
+    
+
     Printf("Creating %d vs %d", v1->GetId(), v2->GetId());
     b = new AliRsnOutTaskBin(
         TString::Format("bin%d_vs_bin%d", v1->GetId(), v2->GetId()).Data());
@@ -165,6 +168,13 @@ void AliRsnOutTaskBinMgr::GenerateBinVsBin(AliRsnOutTask *task, Int_t first,
       b2->AddCut(
           new AliRsnOutValue(v1->GetId(), arr1->At(i), arr1->At(i + 1) - 1));
       // b2->SetCutsOnly();
+             if (fListOfAdditionalCuts) {
+          TIter nextAdditionalCuts(fListOfAdditionalCuts);
+          AliRsnOutValue *v;
+          while ((v = (AliRsnOutValue *)nextAdditionalCuts())) {
+            b2->AddAdditionalCut(v);
+          }
+        }
       for (Int_t j = 0; j < arr2->GetSize() - 1; j++) {
         Printf("Adding id=%d min=%d max=%d vs id=%d min=%d max=%d", v1->GetId(),
                arr1->At(i), arr1->At(i + 1) - 1, v2->GetId(), arr2->At(j),
@@ -173,6 +183,15 @@ void AliRsnOutTaskBinMgr::GenerateBinVsBin(AliRsnOutTask *task, Int_t first,
         b3->AddCut(
             new AliRsnOutValue(v2->GetId(), arr2->At(j), arr2->At(j + 1) - 1));
         // b3->SetCutsOnly();
+
+       if (fListOfAdditionalCuts) {
+          TIter nextAdditionalCuts(fListOfAdditionalCuts);
+          AliRsnOutValue *v;
+          while ((v = (AliRsnOutValue *)nextAdditionalCuts())) {
+            b3->AddAdditionalCut(v);
+          }
+        }
+
         b2->Add(b3);
       }
       b->Add(b2);

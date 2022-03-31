@@ -90,7 +90,8 @@ int main(int argc, char **argv) {
       Double_t max=s->GetString().Atof();
       if (min < max)
         listAdditionalCuts->Add(new AliRsnOutValue(bins[i]["id"].asInt(), min, max-1));
-    } else {
+   }
+ else {
       nActive++;
       if (nActive > 2)
         continue;
@@ -132,8 +133,9 @@ int main(int argc, char **argv) {
   AliRsnOutTaskBinMgr *binMgr = new AliRsnOutTaskBinMgr("binMgr");
   binMgr->SetFitTemplate(f);
   binMgr->GenerateBinTemplate(norms, fits);
-  binMgr->SetListOfVartiations(listBins);
   binMgr->SetListOfAdditionalCuts(listAdditionalCuts);
+  binMgr->SetListOfVartiations(listBins);
+  //binMgr->SetListOfAdditionalCuts(listAdditionalCuts);
   binMgr->Init();
 
   if (tInputData)

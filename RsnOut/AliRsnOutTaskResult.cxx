@@ -375,7 +375,21 @@ void AliRsnOutTaskResult::FillSparse(AliRsnOutTask *task, AliRsnOutTask *taskMC,
       s->SetBinError(sparseBin, hResultPar->GetBinError(iBin - nBinMC));
       iBin++;
 
+    // fit parameters p0, p1, p2, p3
+     sparseBin[level + 1] = iBin;
+      s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin - nBinMC));
+      s->SetBinError(sparseBin, hResultPar->GetBinError(iBin - nBinMC));
+      iBin++;
 
+           sparseBin[level + 1] = iBin;
+      s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin - nBinMC));
+      s->SetBinError(sparseBin, hResultPar->GetBinError(iBin - nBinMC));
+      iBin++;
+
+           sparseBin[level + 1] = iBin;
+      s->SetBinContent(sparseBin, hResultPar->GetBinContent(iBin - nBinMC));
+      s->SetBinError(sparseBin, hResultPar->GetBinError(iBin - nBinMC));
+      iBin++;
 
       Printf("FillSparse:: Values ->>>>>");
       for (Int_t jj = 0; jj < s->GetNdimensions() - 1; jj++)
@@ -538,6 +552,21 @@ void AliRsnOutTaskResult::FolderFromSparse(AliRsnOutTask *task, THnSparse *s,
       h2->SetName("hSigma");
       h2->SetStats(0);
       f->Add(h2);
+      s->GetAxis(level)->SetRange(14, 14);
+      h2 = s->Projection(projY, projX);
+      h2->SetName("hp1");
+      h2->SetStats(0);
+      f->Add(h2);
+      s->GetAxis(level)->SetRange(15, 15);
+      h2 = s->Projection(projY, projX);
+      h2->SetName("hp2");
+      h2->SetStats(0);
+      f->Add(h2);
+      s->GetAxis(level)->SetRange(16, 16);
+      h2 = s->Projection(projY, projX);
+      h2->SetName("hp3");
+      h2->SetStats(0);
+      f->Add(h2);
     } else {
       Int_t proj = projY;
       if (projY < 0)
@@ -619,6 +648,24 @@ void AliRsnOutTaskResult::FolderFromSparse(AliRsnOutTask *task, THnSparse *s,
       h = s->Projection(proj);
       h->SetName("hSigma");
       h->GetYaxis()->SetRangeUser(0, h->GetMaximum() * 1.1);
+      h->SetStats(0);
+      f->Add(h);
+            s->GetAxis(level)->SetRange(14, 14);
+      h = s->Projection(proj);
+      h->SetName("hp0");
+     h->GetYaxis()->SetRangeUser( h->GetMinimum() * 1.1, h->GetMaximum() * 1.1);
+      h->SetStats(0);
+      f->Add(h);
+            s->GetAxis(level)->SetRange(15, 15);
+      h = s->Projection(proj);
+      h->SetName("hp1");
+      h->GetYaxis()->SetRangeUser(h->GetMinimum() * 1.1, h->GetMaximum() * 1.1);
+      h->SetStats(0);
+      f->Add(h);
+            s->GetAxis(level)->SetRange(16, 16);
+      h = s->Projection(proj);
+      h->SetName("hp2");
+      h->GetYaxis()->SetRangeUser(h->GetMinimum() * 1.1, h->GetMaximum() * 1.1);
       h->SetStats(0);
       f->Add(h);
     }
